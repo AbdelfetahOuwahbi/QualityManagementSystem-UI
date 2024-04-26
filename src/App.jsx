@@ -1,13 +1,13 @@
+import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Main from './public_pages/Main_page'
 
-function App() {
-
-  console.log("Hii QMS");
-
+export default function App() {
   return (
-    <>
-    <h1 className="bg-red-500">here goes QMS Proj</h1>
-    </>
+    <Router initialRouteName="/">
+      <Routes>
+      <Route path="/" element={<Main />} /> 
+      </Routes>
+    </Router>
   )
 }
-
-export default App
