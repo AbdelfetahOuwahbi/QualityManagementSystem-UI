@@ -17,7 +17,7 @@ export default function F_ooter() {
   return (
     <Footer container>
       <div className="w-full">
-        <div className="w-full flex md:flex-row flex-col justify-between gap-32">
+        <div className="w-full flex md:flex-row flex-col justify-between md:gap-32">
           <div>
             <FooterBrand
               href={logo}
@@ -43,7 +43,7 @@ export default function F_ooter() {
         </div>
         <FooterDivider />
         <div className="w-full sm:flex sm:items-center sm:justify-between">
-          <FooterCopyright href="#" by="QmsApp" year={202} />
+          <FooterCopyright href="#" by="QmsApp" year={2024} />
           <div className="mt-4 flex space-x-6 sm:mt-0 sm:justify-center">
             <FooterIcon href="#" icon={BsFacebook} />
             <FooterIcon href="#" icon={BsInstagram} />

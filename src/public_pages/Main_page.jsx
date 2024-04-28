@@ -1,11 +1,57 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+import { Carousel, Popover } from 'flowbite-react';
+import {motion } from 'framer-motion';
 import Header from './Header';
-import { Carousel } from 'flowbite-react';
 import Homephoto from '../assets/Homephoto_2.png';
+import logo from '../assets/logo.png';
 import Norms from './Norms';
 import Footer from './F_ooter';
+import Services from './Services';
+import Contact from './Contact';
 
 export default function Main_page() {
+
+    //This Const is used to Toogle the Contact Form visibility
+    const [isContactVisible, setIsContactVisible] = useState(false);
+
+    //This is the Content of the Popover on the button "Contacter nous"
+    const PopoverContent = (
+        <div className="w-64 p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <a href="#">
+            <img
+              className="h-10 w-10 rounded-full"
+              src={logo}
+              alt="Jese Leos"
+            />
+          </a>
+        </div>
+        <p id="profile-popover" className="text-base font-semibold leading-none text-gray-900 dark:text-white">
+          <a href="#">QmsApp</a>
+        </p>
+        <p className="mb-4 text-sm">
+          Votre Plateforme pour une meilleur experience en l'amelioration qualite{' '}
+          <a href="#" className="text-blue-600 hover:underline dark:text-blue-500">
+            QmsApp.com
+          </a>
+          .
+        </p>
+        <ul className="flex text-sm">
+          <li className="me-2">
+            <a href="#" className="hover:underline">
+              <span className="font-semibold text-gray-900 dark:text-white">72 </span>
+              <span>sociétés</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" className="hover:underline">
+              <span className="font-semibold text-gray-900 dark:text-white">10000 </span>
+              <span>utilisateurs</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    );
 
     return (
         <>
@@ -14,20 +60,38 @@ export default function Main_page() {
             {/* Header Section Ends */}
 
             {/* Home Section Starts */}
-            <div className='bg-neutral-200'>
+            <div className='bg-neutral-200' id='home'>
                 <div className='px-4 lg:px-14 max-w-screen-2xl mx-auto min-h-screen h-screen '>
                     <Carousel className='w-full mx-auto'>
                         <div className="flex flex-col md:flex-row-reverse h-full items-center justify-between">
-                            <img src={Homephoto} alt="Collaborations" className='w1/2 h-1/2 mt-10' />
-                            <div className='flex-col lg:px-8'>
+                            <motion.img
+                                initial={{ scale: 0.5, y: -100 }}
+                                animate={{ scale: 1, y: 0 }}
+                                transition={{ duration: 0.75, delay: 0.2 }}
+                                src={Homephoto} alt="Collaborations" className='w1/2 h-1/2 mt-10' />
+                            <motion.div
+                                initial={{ opacity: 0, x: -100 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ duration: 0.75, delay: 0.2 }}
+                                className='flex-col lg:px-8'>
                                 <h1 className='text-5xl font-p_semi_bold mb-4 text-neutral-600'>Votre allié de confiance pour <br /> concevoir et mettre en œuvre <br /> un système de gestion QSE <br />
                                     <span className='text-sky-400 font-p_bold'>intuitif, intelligent et efficace.</span>
                                 </h1 >
                                 <h1 className='text-xl text-neutral-600 font-p_regular'>Optimisez votre gestion QSE en tirant parti du plein potentiel de l'intelligence artificielle.</h1>
-                                <button className='bg-sky-400 text-white mt-4 py-2 px-4 font-p_medium transition-all duration-300 rounded hover:translate-x-2 hover:bg-neutral-500'>
+
+                                {/* The Popover on Contact Button Code Starts*/}
+                                <Popover
+                                      aria-labelledby="profile-popover"
+                                      content={PopoverContent}
+                                      trigger="hover"
+                                >
+                                <button onClick={() => setIsContactVisible(!isContactVisible)} className='bg-sky-400 text-white mt-4 py-2 px-4 font-p_medium transition-all duration-300 rounded hover:translate-x-2 hover:bg-neutral-500'>
                                     Contacter nous
                                 </button>
-                            </div>
+                                </Popover>
+                                {/* The Popover on Contact Button Code Starts*/}
+
+                            </motion.div>
                         </div>
 
                         {/* We can add more items to this carousel here */}
@@ -42,9 +106,14 @@ export default function Main_page() {
             <Norms />
             {/* Norms Section Ends */}
 
+            {/* Services Section Starts */}
+            <Services />
+            {/* Services Section Ends */}
+
             {/* Footer Section Starts */}
-            <Footer/>
+            <Footer />
             {/* Footer Section Ends */}
+            {isContactVisible && <Contact onClose={() => setIsContactVisible(false)} />}
         </>
     )
 }
