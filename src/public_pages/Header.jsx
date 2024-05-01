@@ -3,12 +3,17 @@ import logo from '../assets/logo.png'
 import { Link } from 'react-scroll';
 import { FaXmark, FaBars } from "react-icons/fa6";
 import Contact from './Contact';
+import SignIn from './SignIn';
 
 export default function Header() {
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSticky, setIsSticky] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    //Contact Modal visibility Controller
+    const [contactVisible, setContactVisible] = useState(false);
+
+    //SignIn Modal visibility Controller
+    const [signInVisible, setsignInVisible] = useState(false);
 
 
     //Toogling menu (false when closed w true when opened)
@@ -19,10 +24,10 @@ export default function Header() {
     useEffect(() => {
         //For the nav to be still and not moving along with the scroll
         function handleScroll() {
-            if (window.scrollY > 100){
+            if (window.scrollY > 100) {
 
                 setIsSticky(true);
-            }else{
+            } else {
 
                 setIsSticky(false);
             }
@@ -66,11 +71,13 @@ export default function Header() {
                     </ul>
 
                     {/**Button for large devices */}
-                    <div className='hidden lg:flex '>
-                        <button onClick={() => setModalVisible(!modalVisible)} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
+                    <div className='hidden lg:flex items-center gap-4'>
+                        <a href="#" onClick={() => setsignInVisible(!signInVisible)} className='font-p_regular hover:scale-105 duration-300'> Sign In</a>
+                        <button onClick={() => setContactVisible(!contactVisible)} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
                             Contacter nous
                         </button>
                     </div>
+
 
                     {/* Menu button for mobile devices */}
                     <div className='md:hidden'>
@@ -91,7 +98,8 @@ export default function Header() {
                     )}
                 </div>
             </nav>
-            {modalVisible &&  <Contact onClose={() => setModalVisible(false)} />}
+            {contactVisible && <Contact onClose={() => setContactVisible(false)} />}
+            {signInVisible && <SignIn onClose={() => setsignInVisible(false)} />}
         </header>
     )
 }

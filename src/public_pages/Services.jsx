@@ -1,16 +1,20 @@
-import React, {useRef} from 'react'
+import React, { useState, useRef } from 'react'
 import { motion, useScroll } from 'framer-motion';
 import { Card } from 'flowbite-react'
 import { FaPersonWalkingArrowRight } from "react-icons/fa6";
+import Contact from './Contact';
 
 export default function Services() {
 
-    // Defining Some Animation Properties
-    const myRef = useRef(null);
-    const {scrollYProgress} = useScroll({
-      target : myRef,
-      offset : ["0 1", "1 1"],
-    })
+  //Contact Modal visibility Controller
+  const [modalVisible, setModalVisible] = useState(false);
+
+  // Defining Some Animation Properties
+  const myRef = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: myRef,
+    offset: ["0 1", "1 1"],
+  })
 
   const Services = [
     {
@@ -45,11 +49,11 @@ export default function Services() {
     }
   ]
   return (
-    <motion.div ref={myRef} style={{scale : scrollYProgress, opacity : scrollYProgress}} className='w-full h-auto px-4 md:px-14 py-7' id='services'>
+    <motion.div ref={myRef} style={{ scale: scrollYProgress, opacity: scrollYProgress }} className='w-full h-auto px-4 md:px-14 py-7' id='services'>
 
       <div
 
-      className='text-center my-8'>
+        className='text-center my-8'>
         <h2 className='text-3xl font-p_semi_bold text-neutral-500 mb-2'>Nos Services</h2>
         <p className='font-p_light text-neutral-500'>Gestion Multi-Standards, Multi-Utilisateurs, Multi-Processus et Multi-Site</p>
       </div>
@@ -58,6 +62,7 @@ export default function Services() {
         {Services.map((service) =>
           <Card
             key={service.id}
+            onClick={() => service.title === "Voir plus ..." ? setModalVisible(!modalVisible) : null}
             className={`w-full md:w-[28rem] cursor-${service.title === "Voir plus ..." ? "pointer" : ""} hover:shadow-lg`}>
             <h5 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               {service.title}
@@ -73,6 +78,7 @@ export default function Services() {
           </Card>
         )}
       </div>
+      {modalVisible &&  <Contact onClose={() => setModalVisible(false)} />}
     </motion.div>
   )
 }
