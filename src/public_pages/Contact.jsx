@@ -14,24 +14,24 @@ export default function Contact({ onClose }) {
     }
   ]);
 
-  async function HandleContactUs(first_name, last_name, email, phone, organisation) {
+  async function handleContactUs(first_name, last_name, email, phone, organisation) {
     if (first_name !== "" && last_name !== "" && email !== "" && phone !== "" && organisation !== "") {
       try {
 
-        const response = await fetch("http://localhost:8080/api/v1/notification", {
+        const response = await fetch("http://localhost:8080/api/v1/notification/send", {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            'sender_id': "newlyJoining",
-            'receiver_id': "SysAdmin",
-            'message': `Un consultant SMQ répondant au nom de : ${first_name} ${last_name}, et dont l'adresse e-mail est : ${email}, et le numéro de téléphone : ${phone}, il est dans l'organisation : ${organisation} a demandé la création d'un compte`
+            'senderId': "newlyJoining",
+            'receiverId': "SysAdmin",
+            'message': `Un consultant SMQ répondant au nom : ${first_name}, prenom : ${last_name}, et dont l'adresse e-mail est : ${email}, et le numéro de téléphone : ${phone}, il est dans l'organisation : ${organisation} a demandé la création d'un compte`
           }),
         });
 
         if (response.status === 200 || response.status === 201) {
-          toast.success('votre message est envoyé avec succès!');
+          toast.success('votre message est envoyé avec succès..');
           setTimeout(() => {
             // Redirect to home page
             window.location.href = '/'; // Change the URL as needed
@@ -148,7 +148,7 @@ export default function Contact({ onClose }) {
                 ])} required />
             </div>
             <div className="w-full">
-              <Button onClick={() => HandleContactUs(
+              <Button onClick={() => handleContactUs(
                 consultantDetails[0].first_name,
                 consultantDetails[0].last_name,
                 consultantDetails[0].email,

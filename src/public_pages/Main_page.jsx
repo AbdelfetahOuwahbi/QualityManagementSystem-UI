@@ -62,8 +62,8 @@ export default function Main_page() {
             {/* Home Section Starts */}
             <div className='bg-neutral-200' id='home'>
                 <div className='px-4 lg:px-14 max-w-screen-2xl mx-auto min-h-screen h-screen '>
-                    <Carousel className='w-full mx-auto'>
-                        <div className="flex flex-col md:flex-row-reverse h-full items-center justify-between">
+                    <Carousel className='w-full mx-auto mt-20 md:mt-0'>
+                        <div className="flex flex-col md:flex-row-reverse h-full items-center md:justify-between">
                             <motion.img
                                 initial={{ scale: 0.5, y: -100 }}
                                 animate={{ scale: 1, y: 0 }}

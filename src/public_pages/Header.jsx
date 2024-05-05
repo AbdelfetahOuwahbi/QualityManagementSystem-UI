@@ -72,7 +72,7 @@ export default function Header() {
 
                     {/**Button for large devices */}
                     <div className='hidden lg:flex items-center gap-4'>
-                        <a href="#" onClick={() => setsignInVisible(!signInVisible)} className='font-p_regular hover:scale-105 duration-300'> Sign In</a>
+                        <a href="#" onClick={() => setsignInVisible(!signInVisible)} className='font-p_regular hover:scale-105 duration-300'> S'authentifier</a>
                         <button onClick={() => setContactVisible(!contactVisible)} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
                             Contacter nous
                         </button>
@@ -96,6 +96,19 @@ export default function Header() {
                             {link}
                         </Link>
                     )}
+                    {/**Button for large devices */}
+                    <div className='flex md:hidden items-center gap-4'>
+                        <a href="#" onClick={() => {
+                            setsignInVisible(!signInVisible)
+                            setIsMenuOpen(false);
+                        }} className='font-p_regular hover:scale-105 duration-300 text-white'> S'authentifier</a>
+                        <button onClick={() => {
+                            setContactVisible(!contactVisible)
+                            setIsMenuOpen(false);
+                        }} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
+                            Contacter nous
+                        </button>
+                    </div>
                 </div>
             </nav>
             {contactVisible && <Contact onClose={() => setContactVisible(false)} />}

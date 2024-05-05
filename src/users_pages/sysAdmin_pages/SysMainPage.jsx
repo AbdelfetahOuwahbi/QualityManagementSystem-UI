@@ -10,6 +10,12 @@ import { MdAddChart } from "react-icons/md";
 import profile from '../../assets/profile.jpg';
 import Services from "../../public_pages/Services";
 import SysNotifications from "./SysNotifications";
+// Method that counts all notifications
+import { countNotifications } from "../CommonApiCalls";
+import SysAddConsultant from "./SysAddConsultant";
+import SysAllConsultants from "./SysAllConsultants";
+import SysAllOrganismes from "./SysAllOrganismes";
+import SysAddOrganism from "./SysAddOrganism";
 
 export default function SysMainPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -25,19 +31,12 @@ export default function SysMainPage() {
 
 
   useEffect(() => {
-    const fetchNotifications = async () => {
+    const countNotifs = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/v1/notification/countNewNotifications?receiverId=SysAdmin", {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        const data = await response.json();
-        console.log(data);
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1pQGdtYWlsLmNvbSIsImlhdCI6MTcxNDczMzQzOCwiZXhwIjoxNzE0ODE5ODM4fQ.yK7EIdqcwTRFoBWanjOXmkJ5i170r9wgMackY6TmV88";
+        const data = await countNotifications("SysAdmin", token);
+        console.log("Number of notifications is --> ", data);
         setNotifsNumber(data);
-        // Handle the new notifications data here
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
@@ -45,12 +44,12 @@ export default function SysMainPage() {
 
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        fetchNotifications();
+        countNotifs();
       }
     };
 
     // Initial fetch
-    fetchNotifications();
+    countNotifs();
 
     // Set up event listener for visibility change
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -60,6 +59,7 @@ export default function SysMainPage() {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
+
 
 
   return (
@@ -77,10 +77,10 @@ export default function SysMainPage() {
               <div className="relative flex items-center">
                 <IoIosNotificationsOutline onClick={() => setDisplayedContent("Notifications")} className='w-6 h-6 cursor-pointer text-neutral-600' />
                 {/* This part will be dealed with once we start getting data from our api */}
-                {notifsNumber !== 0 &&                 
-                <div className="absolute top-0 right-0 -mr-[1px] -mt-[-1px] w-3 h-3 rounded-full bg-red-600 flex items-center justify-center">
-                  <p className="text-white text-xs font-thin">{notifsNumber}</p>
-                </div>
+                {notifsNumber !== 0 &&
+                  <div className="absolute top-0 right-0 -mr-[1px] -mt-[-1px] w-3 h-3 rounded-full bg-red-600 flex items-center justify-center">
+                    <p className="text-white text-xs font-thin">{notifsNumber}</p>
+                  </div>
                 }
               </div>
 
@@ -95,7 +95,15 @@ export default function SysMainPage() {
         {displayedContent === "Home" ?
           <Services /> :
           displayedContent === "Notifications" ?
-            <SysNotifications /> : null
+            <SysNotifications /> : 
+            displayedContent === "ConsultantsList" ?
+        <SysAllConsultants /> : 
+            displayedContent === "AddConsultant" ?
+        <SysAddConsultant /> : 
+        displayedContent === "OrganismesList" ?
+        <SysAllOrganismes /> : 
+            displayedContent === "AddOrganism" ?
+        <SysAddOrganism /> : null
         }
       </div>
 
@@ -133,15 +141,9 @@ export default function SysMainPage() {
                 <Sidebar.Collapse icon={FaUsersLine} label="Consultants SMQ">
 
                   <Sidebar.Item onClick={() => {
-                    setDisplayedContent("UsersList")
+                    setDisplayedContent("ConsultantsList")
                     setIsOpen(false)
                   }} icon={CiBoxList} href="#">Liste des Consultants SMQ
-                  </Sidebar.Item>
-
-                  <Sidebar.Item onClick={() => {
-                    setDisplayedContent("AddUser")
-                    setIsOpen(false)
-                  }} icon={IoMdPersonAdd} href="#">Ajouter un consultant SMQ
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
@@ -149,15 +151,9 @@ export default function SysMainPage() {
                 <Sidebar.Collapse icon={GoOrganization} label="Orga. de Cerification">
 
                   <Sidebar.Item onClick={() => {
-                    setDisplayedContent("OrganisationsList")
+                    setDisplayedContent("OrganismesList")
                     setIsOpen(false)
                   }} icon={CiBoxList} href="#">Liste des Organismes
-                  </Sidebar.Item>
-
-                  <Sidebar.Item onClick={() => {
-                    setDisplayedContent("AddOrganisation")
-                    setIsOpens(false)
-                  }} icon={MdAddChart} href="#">Ajouter un Organisme
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
