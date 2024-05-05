@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 import { Drawer, Sidebar } from "flowbite-react";
 import { CiBoxList, CiSettings } from "react-icons/ci";
 import { IoMdPersonAdd, IoIosNotificationsOutline, IoMdNotificationsOutline } from "react-icons/io";
@@ -12,10 +13,14 @@ import Services from "../../public_pages/Services";
 import SysNotifications from "./SysNotifications";
 // Method that counts all notifications
 import { countNotifications } from "../CommonApiCalls";
+
 import SysAddConsultant from "./SysAddConsultant";
 import SysAllConsultants from "./SysAllConsultants";
 import SysAllOrganismes from "./SysAllOrganismes";
 import SysAddOrganism from "./SysAddOrganism";
+import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
+import { handleLogout } from "../CommonApiCalls";
+import SysDashboard from "./SysDashboard";
 
 export default function SysMainPage() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,33 +36,43 @@ export default function SysMainPage() {
 
 
   useEffect(() => {
-    const countNotifs = async () => {
-      try {
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1pQGdtYWlsLmNvbSIsImlhdCI6MTcxNDczMzQzOCwiZXhwIjoxNzE0ODE5ODM4fQ.yK7EIdqcwTRFoBWanjOXmkJ5i170r9wgMackY6TmV88";
-        const data = await countNotifications("SysAdmin", token);
-        console.log("Number of notifications is --> ", data);
-        setNotifsNumber(data);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
-    };
+    //Checking the validity of the token starts
+    // console.log("is the token is Cookies -> ", isTokenInCookies());
+    // console.log("is the token Expired -> ", isTokenExpired());
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    }
+    else {      //Checking the validity of the token ends
+      const countNotifs = async () => {
+        try {
+          const data = await countNotifications("SysAdmin", Cookies.get("JWT"));
+          console.log("Number of notifications is --> ", data);
+          setNotifsNumber(data);
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      };
 
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        countNotifs();
-      }
-    };
+      const handleVisibilityChange = () => {
+        if (!document.hidden) {
+          countNotifs();
+        }
+      };
 
-    // Initial fetch
-    countNotifs();
+      // Initial fetch
+      countNotifs();
 
-    // Set up event listener for visibility change
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+      // Set up event listener for visibility change
+      document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Clean up function to remove event listener when component unmounts
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+      // Clean up function to remove event listener when component unmounts
+      return () => {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      };
+    }
   }, []);
 
 
@@ -92,18 +107,18 @@ export default function SysMainPage() {
         </div>
         <div className='border-t border-gray-300 py-4'></div>
         {/* The Content to Display Based On The Clicked Menu Button*/}
-        {displayedContent === "Home" ?
-          <Services /> :
+        {displayedContent === "Dashboard" ?
+          <SysDashboard /> :
           displayedContent === "Notifications" ?
-            <SysNotifications /> : 
+            <SysNotifications /> :
             displayedContent === "ConsultantsList" ?
-        <SysAllConsultants /> : 
-            displayedContent === "AddConsultant" ?
-        <SysAddConsultant /> : 
-        displayedContent === "OrganismesList" ?
-        <SysAllOrganismes /> : 
-            displayedContent === "AddOrganism" ?
-        <SysAddOrganism /> : null
+              <SysAllConsultants /> :
+              displayedContent === "AddConsultant" ?
+                <SysAddConsultant /> :
+                displayedContent === "OrganismesList" ?
+                  <SysAllOrganismes /> :
+                  displayedContent === "AddOrganism" ?
+                    <SysAddOrganism /> : null
         }
       </div>
 
@@ -158,7 +173,7 @@ export default function SysMainPage() {
 
                 </Sidebar.Collapse>
 
-                <Sidebar.Item href="#" icon={FaSignOutAlt}>
+                <Sidebar.Item onClick={() => handleLogout()} href="#" icon={FaSignOutAlt}>
                   Déconnexion
                 </Sidebar.Item>
 

@@ -1,4 +1,31 @@
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+
+
+//Function that checks if the token is in the cookies
+export function isTokenInCookies() {
+    const jwt = Cookies.get("JWT");
+    return jwt !== undefined && jwt !== null;
+}
+// Function to check if the token has expired
+export function isTokenExpired() {
+    const jwt = Cookies.get("JWT")
+    const decodedToken = jwtDecode(jwt);
+    const currentTimestamp = Math.floor(Date.now() / 1000); 
+    
+    return decodedToken.exp < currentTimestamp;
+}
+
+
+//Handling the logout
+
+export const handleLogout = () => {
+    Cookies.remove("JWT");
+    Cookies.remove("userRoles");
+    window.location.href = "/"
+}
+
+
 //counting all new notifications for a specific user
 export async function countNotifications(userId, token) {
     try {
@@ -66,8 +93,14 @@ export async function markNotificationAsRead(notificationId, token) {
     }
 }
 
-//Handling the logout
+// Function that handles the modification of a user
 
-export const handleLogout = () => {
-    Cookies.remove("JWT");
+export async function editUser(userId, type){
+
+}
+
+// Function that deletes the user
+
+export async function eliminateUser(userId, type){
+
 }

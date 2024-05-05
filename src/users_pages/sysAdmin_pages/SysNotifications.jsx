@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
+import Cookies from "js-cookie";
 import { Spinner } from "flowbite-react";
 import toast, { Toaster } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { getAllNotifications } from "../CommonApiCalls";
 import { markNotificationAsRead } from "../CommonApiCalls";
+import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import SysAddConsultant from "./SysAddConsultant";
-// import { Spinner } from "react-activity";
 
 export default function SysNotifications() {
 
@@ -31,46 +32,53 @@ export default function SysNotifications() {
 
     //Ghat executa mra w7da mli ytmonta lcomponent
     //Executed Once when the compenent mounts :)
-    const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1pQGdtYWlsLmNvbSIsImlhdCI6MTcxNDczMzQzOCwiZXhwIjoxNzE0ODE5ODM4fQ.yK7EIdqcwTRFoBWanjOXmkJ5i170r9wgMackY6TmV88";
     useEffect(() => {
-        if (notifId.length === 0) {
-            const GetAllSysAdminNotifications = async () => {
-                setIsLoading(true);
-                await new Promise(resolve => setTimeout(resolve, 2000));
-                try {
-                    const data = await getAllNotifications("SysAdmin", token);
-                    if (data.length > 0) {
-                        setIsLoading(false);
-                        toast('De nouvelles notifications sont disponibles pour vous ..', {
-                            icon: '🔔',
-                            duration: 4000,
-                        });
+        if (!isTokenInCookies()) {
+            window.location.href = "/"
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/"
+        } else {
+            if (notifId.length === 0) {
+                const GetAllSysAdminNotifications = async () => {
+                    setIsLoading(true);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    try {
+                        const data = await getAllNotifications("SysAdmin", Cookies.get("JWT"));
+                        if (data.length > 0) {
+                            setIsLoading(false);
+                            toast('De nouvelles notifications sont disponibles pour vous ..', {
+                                icon: '🔔',
+                                duration: 4000,
+                            });
 
-                        for (let i = 0; i < data.length; i++) {
-                            setNotifId(prevState => [...prevState, data[i].id]);
-                            setNotifSender(prevState => [...prevState, data[i].senderId]);
-                            setNotifReceiver(prevState => [...prevState, data[i].receiverId]);
-                            setNotifMessage(prevState => [...prevState, data[i].message]);
-                            setNotifDate(prevState => [...prevState, data[i].createdDate]);
-                            setIsNotifRead(prevState => [...prevState, data[i].read]);
-                            setNotifDetailsShowen(prevState => [...prevState, false]);
+                            for (let i = 0; i < data.length; i++) {
+                                setNotifId(prevState => [...prevState, data[i].id]);
+                                setNotifSender(prevState => [...prevState, data[i].senderId]);
+                                setNotifReceiver(prevState => [...prevState, data[i].receiverId]);
+                                setNotifMessage(prevState => [...prevState, data[i].message]);
+                                setNotifDate(prevState => [...prevState, data[i].createdDate]);
+                                setIsNotifRead(prevState => [...prevState, data[i].read]);
+                                setNotifDetailsShowen(prevState => [...prevState, false]);
+                            }
+                        } else {
+                            setIsLoading(false);
+                            toast(`Aucune nouvelle notification n'est disponible pour le moment ..`, {
+                                icon: '🔔',
+                                duration: 4000,
+                            });
                         }
-                    } else {
-                        toast(`Aucune nouvelle notification n'est disponible pour le moment ..`, {
-                            icon: '🔔',
+                    } catch (error) {
+                        setIsLoading(false);
+                        toast.error("Nous avons rencontré un problème. Veuillez réessayer ultérieurement !!", {
                             duration: 4000,
                         });
                     }
-                } catch (error) {
-                    setIsLoading(false);
-                    toast.error("Nous avons rencontré un problème. Veuillez réessayer ultérieurement !!", {
-                        duration: 4000,
-                    });
                 }
+                GetAllSysAdminNotifications();
+            } else {
+                console.log("already got Notifications");
             }
-            GetAllSysAdminNotifications();
-        } else {
-            console.log("already got Notifications");
         }
     }, [])
 
@@ -115,7 +123,7 @@ export default function SysNotifications() {
                         {notifId.map((notif, index) => (
                             <>
                                 <div key={index} onClick={() => {
-                                    !isNotifRead[index] ? markNotificationAsRead(notifId[index], token) : null
+                                    !isNotifRead[index] ? markNotificationAsRead(notifId[index], Cookies.get("JWT")) : null
                                     // Toogling the variable to show the notif details
                                     setNotifDetailsShowen(prevState => {
                                         const newState = [...prevState];
