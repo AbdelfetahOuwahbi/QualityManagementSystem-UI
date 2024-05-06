@@ -10,8 +10,6 @@ import Cookies from "js-cookie";
 export default function SysAllConsultants() {
 
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
-    const [startDate, setStartDate] = useState(new Date(null));
-    const [endDate, setEndDate] = useState(new Date(null));
 
     // Consultant Properties
     const [firstName, setFirstName] = useState([]);
@@ -31,12 +29,12 @@ export default function SysAllConsultants() {
         } else {     //Checking the validity of the token ends
             const getAllConsultant = async () => {
                 //This gets executed when no data is available or when endDate is cleared
-                if (firstName.length === 0 || endDate.getTime() === new Date(null).getTime()) {
-                    setFirstName([]);
-                    setLastName([]);
-                    setEmail([]);
-                    setPhone([]);
-                    setRole([]);
+                    console.log("im here above .")
+                    // setFirstName([]);
+                    // setLastName([]);
+                    // setEmail([]);
+                    // setPhone([]);
+                    // setRole([]);
                     try {
                         const response = await fetch("http://localhost:8080/api/v1/users/consultants", {
                             method: 'GET',
@@ -72,91 +70,12 @@ export default function SysAllConsultants() {
                     } catch (error) {
                         console.log(error);
                     }
-                } else {
-                    console.log("already got all consultants")
-                }
+                
             }
 
             getAllConsultant();
         }
-    }, [endDate])
-
-    //Getting Consultants on date range
-    useEffect(() => {
-        if (!isTokenInCookies()) {
-            window.location.href = "/"
-        } else if (isTokenExpired()) {
-            Cookies.remove("JWT");
-            window.location.href = "/"
-        } else {
-            if (endDate.getTime() !== new Date(null).getTime()) {
-                const getConsultantByDateRange = async () => {
-
-                    if (firstName.length > 0) {
-                        setFirstName([]);
-                        setLastName([]);
-                        setEmail([]);
-                        setPhone([]);
-                        setRole([]);
-                        try {
-                            const response = await fetch(`http://localhost:8080/api/v1/users/consultants/searchByDate?startDate=${startDate.toISOString().split('T')[0] + 'T00:00:00'}&endDate=${endDate.toISOString().split('T')[0] + 'T00:00:00'}`, {
-                                method: 'GET',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
-                                },
-                            });
-
-                            const data = await response.json();
-                            if (data.length > 0) {
-                                toast((t) => (
-                                    <span>
-                                        Consultants entre {startDate && startDate.toLocaleDateString()} et {endDate && endDate.toLocaleDateString()}
-                                    </span>
-                                ), {
-                                    duration: 3000
-                                });
-
-
-                                console.log("Consultants -->", data);
-                                for (let i = 0; i < data.length; i++) {
-                                    setFirstName((prev) => [...prev, data[i].firstname]);
-                                    setLastName((prev) => [...prev, data[i].lastname]);
-                                    setEmail((prev) => [...prev, data[i].email]);
-                                    setPhone((prev) => [...prev, data[i].phone]);
-                                    setRole((prev) => [...prev, "Consultant"]);
-                                }
-                            } else {
-                                toast((t) => (
-                                    <span>
-                                        Pas de Consultants entre {startDate && startDate.toLocaleDateString()} et {endDate && endDate.toLocaleDateString()}
-                                    </span>
-                                ), {
-                                    duration: 3000
-                                });
-                            }
-
-                        } catch (error) {
-                            console.log(error);
-                        }
-                    } else {
-                        console.log("No Consultants at all !")
-                    }
-                }
-
-                getConsultantByDateRange();
-            } else {
-                console.log("must pick a new date to get consultants by date range")
-            }
-        }
-    }, [endDate]);
-
-    // useEffect(() => {
-    //     console.log("start date --> ", startDate);
-    //     console.log("end date --> ", endDate);
-    //     console.log("null date is -->", new Date(null).toISOString().split('T')[0] + 'T00:00:00')
-    //     console.log(endDate.getTime() === new Date(null).getTime());
-    // }, [startDate, endDate])
+    }, [])
 
     // console.log(firstName);
     return (
@@ -168,20 +87,6 @@ export default function SysAllConsultants() {
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <TiUserAdd onClick={() => setAddConsultantVisible(true)} className="ml-4 w-7 h-7 text-gray-700 cursor-pointer" />
                 <div className="flex flex-row gap-4">
-
-                    {/* Start Date */}
-                    <Datepicker
-                        defaultDate={new Date(null)}
-                        value={startDate.getTime() !== new Date(null).getTime() ? startDate : "Date debut"}
-                        onSelectedDateChanged={(date) => setStartDate(date)}
-                        language="fr-FR"
-                    />
-                    {/* End Date */}
-                    <Datepicker
-                        defaultDate={new Date(null)}
-                        value={endDate.getTime() !== new Date(null).getTime() ? endDate : "Date fin"}
-                        onSelectedDateChanged={(date) => setEndDate(date)}
-                    />
 
                 </div>
             </div>

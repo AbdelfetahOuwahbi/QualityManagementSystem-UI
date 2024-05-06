@@ -11,8 +11,8 @@ export function isTokenInCookies() {
 export function isTokenExpired() {
     const jwt = Cookies.get("JWT")
     const decodedToken = jwtDecode(jwt);
-    const currentTimestamp = Math.floor(Date.now() / 1000); 
-    
+    const currentTimestamp = Math.floor(Date.now() / 1000);
+
     return decodedToken.exp < currentTimestamp;
 }
 
@@ -93,14 +93,76 @@ export async function markNotificationAsRead(notificationId, token) {
     }
 }
 
+//Function to add a new Entreprise
+
+export async function saveEntreprise(Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc) {
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/v1/organismes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookies.get("JWT")}`,
+            },
+            body: JSON.stringify({
+                "categorie": Category,
+                "pays": Pays,
+                "secteur": Secteur,
+                "ville": Ville,
+                "telephone": Phone,
+                "email": Email,
+                "patente": Patente,
+                "cnss": Cnss,
+                "identifiantFiscal": Id_Fisc,
+                "registreDeCommerce": RegCom,
+                "raisonSocial": RaiSoc
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to save organism: ${response.status} ${response.statusText}`);
+        }
+        return response;
+
+    } catch (error) {
+        console.error('Error saving organism:', error);
+    }
+}
+
+//Function that gets all entreprises
+
+export async function getAllEntreprises(type) {
+    try {        
+        const response = await fetch(`http://localhost:8080/api/v1/${type === "organism" ? "organismes" : "consulantSMQ/entreprises"}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookies.get("JWT")}`,
+            },
+        });
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+
+// Function that adds a user
+
+export async function addUser() {
+
+}
+
+
 // Function that handles the modification of a user
 
-export async function editUser(userId, type){
+export async function editUser(userId, type) {
 
 }
 
 // Function that deletes the user
 
-export async function eliminateUser(userId, type){
+export async function eliminateUser(userId, type) {
 
 }

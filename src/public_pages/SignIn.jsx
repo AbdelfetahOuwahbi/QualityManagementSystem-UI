@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import Contact from "./Contact";
 
-export default function SinIn({ onClose }) {
+export default function SignIn({ onClose }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 

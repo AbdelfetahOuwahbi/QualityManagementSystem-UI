@@ -1,225 +1,264 @@
-import { useEffect, useState } from "react";
-import { Button, Checkbox, Label, Modal, TextInput, Textarea } from "flowbite-react";
-import { Toaster, toast } from "react-hot-toast";
+import { useState } from "react";
+import { Button, Label, Modal, TextInput, Textarea } from "flowbite-react";
+import { toast } from "react-hot-toast";
+import { saveEntreprise } from "../CommonApiCalls";
 import { Spinner } from "flowbite-react";
+import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
+import Cookies from "js-cookie";
 
 
 export default function SysAddOrganism({ onClose }) {
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [consultantDetails, setConsultantDetails] = useState([
+    const [organismDetails, setOrganismDetails] = useState(
         {
-          category: "",
-          Raison_Sociale: "",
-          Secteur: "",
-          Pays: "",
-          Ville: "",
-          Email: "",
-          phone: "",
-          Registre_de_commerce: "",
-          Identifiant_fiscale: "",
-          Patente: "",
-          Cnss: "",
+            Category: "",
+            Raison_Sociale: "",
+            Secteur: "",
+            Pays: "",
+            Ville: "",
+            Email: "",
+            Phone: "",
+            Registre_de_commerce: "",
+            Identifiant_fiscale: "",
+            Patente: "",
+            Cnss: "",
         }
-    ]);
+    );
 
-    const [organismId, setOrganismId] = useState([]);
-    const [organismCategorie, setOrganismCategorie] = useState([]);
+    //Function that adds a new organism
 
-    const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYW1pQGdtYWlsLmNvbSIsImlhdCI6MTcxNDczMzQzOCwiZXhwIjoxNzE0ODE5ODM4fQ.yK7EIdqcwTRFoBWanjOXmkJ5i170r9wgMackY6TmV88";
-
-    // We will get all organismes and put them in Selection For the SysAdmin to select them
-    useEffect(() => {
-        if (organismId.length === 0) {
-            async function getAllOrganismes() {
-                try {
-                    const response = await fetch(`http://localhost:8080/api/v1/organismes`, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                    });
-
-                    const data = await response.json();
-                    console.log(data);
-                    for (let i = 0; i < data.length; i++) {
-                        setOrganismId(prevState => [...prevState, data[i].id]);
-                        setOrganismCategorie(prevState => [...prevState, data[i].categorie]);
-                    }
-                } catch (error) {
-                    console.error(error);
+    async function saveOrganism() {
+        //Checking the validity of the token starts
+        if (!isTokenInCookies()) {
+            window.location.href = "/"
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/"
+        } else {    //Checking the validity of the token ends
+            try {
+                setIsLoading(true)
+                const response = await saveEntreprise(
+                    organismDetails.Category,
+                    organismDetails.Pays,
+                    organismDetails.Secteur,
+                    organismDetails.Ville,
+                    organismDetails.Phone,
+                    organismDetails.Email,
+                    organismDetails.Patente,
+                    organismDetails.Cnss,
+                    organismDetails.Identifiant_fiscale,
+                    organismDetails.Registre_de_commerce,
+                    organismDetails.Raison_Sociale
+                );
+                if (response.status === 200 || response.status === 201) {
+                    toast.success('Cet Organism est ajoutèe avec succès..');
+                    setTimeout(() => {
+                        setModalOpen(false);
+                        setIsLoading(false);
+                    }, 2000);
                 }
+            } catch (error) {
+                setIsLoading(false)
+                console.error(error); // Handle errors
+                toast.error('Une erreur s\'est produite lors du creation de cet organism.');
             }
-            getAllOrganismes();
-        } else {
-            console.log("Already got all organismes")
-        }
-    }, [])
-
-    async function saveConsultant() {
-        try {
-            setIsLoading(true);
-            const response = await fetch(`http://localhost:8080/api/v1/auth/signup`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
-                },
-                body: JSON.stringify({
-                    "firstname": consultantDetails[0].first_name,
-                    "lastname": consultantDetails[0].last_name,
-                    "email": consultantDetails[0].email,
-                    "phone": consultantDetails[0].phone,
-                    "password": consultantDetails[0].password,
-                    "type": "consultant",
-                    "roles": [
-                        {
-                            "name": "Consultant"
-                        }
-                    ],
-                    "organismeId": consultantDetails[0].organisation
-                }),
-            });
-
-            if (!response.ok) {
-                throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            if (response.status === 200 || response.status === 201) {
-                toast.success('Ce consultant est ajoutè avec succès..');
-                setTimeout(() => {
-                    setModalOpen(false);
-                    setIsLoading(false);
-                }, 2000);
-            }
-            console.log(data);
-        } catch (error) {
-            console.error('Error saving consultant:', error);
-            toast.error('Une erreur s\'est produite lors du creation de ce consultant.');
         }
     }
 
-
     return (
         <>
-            <Toaster
-                position="bottom-left"
-                reverseOrder={false}
-            />
             <Modal show={modalOpen} size="2xl" onClose={onClose} popup>
                 <Modal.Header />
                 <Modal.Body>
                     <div className="space-y-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-white"> Envoyer les details de votre organisation</h3>
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white"> Entrer les details de cet organism </h3>
 
-                        {/* Consultant Details Section Starts */}
+                        {/* Organism Details Section Starts */}
                         <div>
                             <div className="mb-2 block">
-                                <Label htmlFor="prénom" value="prénom" />
+                                <Label htmlFor="Category" value="Catégorie" />
                             </div>
                             <TextInput
-                                id="first_name"
-                                placeholder="votre prénom"
-                                value={consultantDetails[0].first_name}
-                                onChange={(event) => setConsultantDetails([
+                                id="Category"
+                                placeholder="Catégorie"
+                                value={organismDetails.Category}
+                                onChange={(event) => setOrganismDetails(
                                     {
-                                        ...consultantDetails[0],
-                                        first_name: event.target.value
+                                        ...organismDetails,
+                                        Category: event.target.value
                                     }
-                                ])}
+                                )}
                                 required
                             />
 
                             <div className="mb-2 block">
-                                <Label htmlFor="nom" value="nom" />
+                                <Label htmlFor="Raison_Sociale" value="Raison Sociale" />
                             </div>
                             <TextInput
-                                id="last_name"
-                                placeholder="votre nom"
-                                value={consultantDetails[0].last_name}
-                                onChange={(event) => setConsultantDetails([
+                                id="Raison_Sociale"
+                                placeholder="Raison Sociale"
+                                value={organismDetails.Raison_Sociale}
+                                onChange={(event) => setOrganismDetails(
                                     {
-                                        ...consultantDetails[0],
-                                        last_name: event.target.value
+                                        ...organismDetails,
+                                        Raison_Sociale: event.target.value
                                     }
-                                ])}
+                                )}
                                 required
                             />
 
                             <div className="mb-2 block">
-                                <Label htmlFor="email" value="email" />
+                                <Label htmlFor="Secteur" value="Secteur" />
                             </div>
                             <TextInput
-                                id="email"
-                                placeholder="exemple@gmail.com"
-                                value={consultantDetails[0].email}
-                                onChange={(event) => setConsultantDetails([
+                                id="Secteur"
+                                placeholder="Secteur"
+                                value={organismDetails.Secteur}
+                                onChange={(event) => setOrganismDetails(
                                     {
-                                        ...consultantDetails[0],
-                                        email: event.target.value
+                                        ...organismDetails,
+                                        Secteur: event.target.value
                                     }
-                                ])}
+                                )}
                                 required
                             />
 
                             <div className="mb-2 block">
-                                <Label htmlFor="phone" value="Téléphone" />
+                                <Label htmlFor="Pays" value="Pays" />
                             </div>
                             <TextInput
-                                id="phone"
-                                placeholder="06********"
-                                value={consultantDetails[0].phone}
-                                onChange={(event) => setConsultantDetails([
+                                id="Pays"
+                                placeholder="Pays"
+                                value={organismDetails.Pays}
+                                onChange={(event) => setOrganismDetails(
                                     {
-                                        ...consultantDetails[0],
-                                        phone: event.target.value
+                                        ...organismDetails,
+                                        Pays: event.target.value
                                     }
-                                ])}
+                                )}
                                 required
                             />
-                        </div>
-                        <div>
+
                             <div className="mb-2 block">
-                                <Label htmlFor="organisation" value="organisme de certification" />
+                                <Label htmlFor="Ville" value="Ville" />
                             </div>
-                            <select
-                                id="organisation"
-                                value={consultantDetails[0].organisation}
-                                onChange={(event) =>
-                                    setConsultantDetails([
-                                        {
-                                            ...consultantDetails[0],
-                                            organisation: event.target.value
-                                        }
-                                    ])
-                                }
-                                required
-                            >
-                                <option value="">Selectionner un organisme de certification </option>
-                                {organismId.map((organism, index) => (
-                                    <option key={index} value={organismId[index]}>
-                                        {organismCategorie[index]}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="password" value="mot de passe initiale" />
-                            </div>
-                            <TextInput id="password" type="password" value={consultantDetails[0].password}
-                                onChange={(Event) => setConsultantDetails([
+                            <TextInput
+                                id="Ville"
+                                placeholder="Ville"
+                                value={organismDetails.Ville}
+                                onChange={(event) => setOrganismDetails(
                                     {
-                                        ...consultantDetails[0],
-                                        password: Event.target.value
+                                        ...organismDetails,
+                                        Ville: event.target.value
                                     }
-                                ])} required />
+                                )}
+                                required
+                            />
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="Email" value="Email" />
+                            </div>
+                            <TextInput
+                                id="Email"
+                                placeholder="Email"
+                                value={organismDetails.Email}
+                                onChange={(event) => setOrganismDetails(
+                                    {
+                                        ...organismDetails,
+                                        Email: event.target.value
+                                    }
+                                )}
+                                required
+                            />
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="Phone" value="Phone" />
+                            </div>
+                            <TextInput
+                                id="Phone"
+                                placeholder="Phone"
+                                value={organismDetails.Phone}
+                                onChange={(event) => setOrganismDetails(
+                                    {
+                                        ...organismDetails,
+                                        Phone: event.target.value
+                                    }
+                                )}
+                                required
+                            />
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="Registre_de_commerce" value="Registre de commerce" />
+                            </div>
+                            <TextInput
+                                type="number"
+                                id="Registre_de_commerce"
+                                placeholder="Registre de commerce"
+                                value={organismDetails.Registre_de_commerce}
+                                onChange={(event) => setOrganismDetails(
+                                    {
+                                        ...organismDetails,
+                                        Registre_de_commerce: event.target.value
+                                    }
+                                )}
+                                required
+                            />
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="Identifiant_fiscale" value="Identifiant fiscale" />
+                            </div>
+                            <TextInput
+                                type="number"
+                                id="Identifiant_fiscale"
+                                placeholder="Identifiant fiscale"
+                                value={organismDetails.Identifiant_fiscale}
+                                onChange={(event) => setOrganismDetails(
+                                    {
+                                        ...organismDetails,
+                                        Identifiant_fiscale: event.target.value
+                                    }
+                                )}
+                                required
+                            />
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="Patente" value="Patente" />
+                            </div>
+                            <TextInput
+                                type="number"
+                                id="Patente"
+                                placeholder="Patente"
+                                value={organismDetails.Patente}
+                                onChange={(event) => setOrganismDetails(
+                                    {
+                                        ...organismDetails,
+                                        Patente: event.target.value
+                                    }
+                                )}
+                                required
+                            />
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="Cnss" value="CNSS" />
+                            </div>
+                            <TextInput
+                                type="number"
+                                id="Cnss"
+                                placeholder="CNSS"
+                                value={organismDetails.Cnss}
+                                onChange={(event) => setOrganismDetails(
+                                    {
+                                        ...organismDetails,
+                                        Cnss: event.target.value
+                                    }
+                                )}
+                                required
+                            />
                         </div>
                         <div className="w-full">
-                            <Button onClick={() => saveConsultant()}>{isLoading ? (<Spinner/>) : ("Envoyer")}</Button>
+                            <Button onClick={() => saveOrganism()}>{isLoading ? (<Spinner />) : ("Ajouter")}</Button>
                         </div>
                     </div>
                 </Modal.Body>
