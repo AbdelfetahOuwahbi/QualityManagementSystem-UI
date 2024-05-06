@@ -147,22 +147,3 @@ export async function getAllEntreprises(type) {
     }
 }
 
-
-// Function that adds a user
-
-export async function addUser() {
-
-}
-
-
-// Function that handles the modification of a user
-
-export async function editUser(userId, type) {
-
-}
-
-// Function that deletes the user
-
-export async function eliminateUser(userId, type) {
-
-}
