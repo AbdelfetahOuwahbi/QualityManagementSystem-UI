@@ -25,18 +25,36 @@ export default function SysAllOrganismes() {
     const [patente, setPatente] = useState([]);
     const [cnss, setCnss] = useState([]);
 
+    // Search states for each field
+    const [searchCategory, setSearchCategory] = useState('');
+    const [searchRaisonSociale, setSearchRaisonSociale] = useState('');
+    const [searchSecteur, setSearchSecteur] = useState('');
+    const [searchPays, setSearchPays] = useState('');
+    const [searchVille, setSearchVille] = useState('');
+    const [searchEmail, setSearchEmail] = useState('');
+    const [searchPhone, setSearchPhone] = useState('');
+    const [searchRegistreDeCommerce, setSearchRegistreDeCommerce] = useState('');
+    const [searchIdentifiantFiscale, setSearchIdentifiantFiscale] = useState('');
+    const [searchPatente, setSearchPatente] = useState('');
+    const [searchCnss, setSearchCnss] = useState('');
+
+    const [selectedField, setSelectedField] = useState('category'); // Default selected field
+
+    // Function to handle field selection change
+    const handleFieldChange = (field) => {
+        setSelectedField(field);
+    };
+
     useEffect(() => {
         //Checking the validity of the token starts
         if (!isTokenInCookies()) {
-            window.location.href = "/"
+            window.location.href = "/";
         } else if (isTokenExpired()) {
             Cookies.remove("JWT");
-            window.location.href = "/"
+            window.location.href = "/";
         } else {    //Checking the validity of the token ends
             if (id.length === 0) {
                 const getAllOrganimes = async () => {
-
-
                     // setId([])
                     // setCategory([])
                     // setRaisonSociale([])
@@ -85,6 +103,7 @@ export default function SysAllOrganismes() {
         }
     }, [])
 
+
     // Function to export table data as Excel
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
@@ -93,6 +112,38 @@ export default function SysAllOrganismes() {
         XLSX.writeFile(wb, "Organismes de certifications.xlsx");
     };
 
+    const renderSearchInput = () => {
+        switch (selectedField) {
+            case 'category':
+                return <input placeholder="Rechercher catégorie"
+                    onChange={(e) => setSearchCategory(e.target.value)} />;
+            case 'raisonSociale':
+                return <input placeholder="Rechercher raison sociale"
+                    onChange={(e) => setSearchRaisonSociale(e.target.value)} />;
+            case 'secteur':
+                return <input placeholder="Rechercher secteur" onChange={(e) => setSearchSecteur(e.target.value)} />;
+            case 'pays':
+                return <input placeholder="Rechercher pays" onChange={(e) => setSearchPays(e.target.value)} />;
+            case 'ville':
+                return <input placeholder="Rechercher ville" onChange={(e) => setSearchVille(e.target.value)} />;
+            case 'email':
+                return <input placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} />;
+            case 'phone':
+                return <input placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} />;
+            case 'registreDeCommerce':
+                return <input placeholder="Rechercher registre de commerce"
+                    onChange={(e) => setSearchRegistreDeCommerce(e.target.value)} />;
+            case 'identifiantFiscale':
+                return <input placeholder="Rechercher identifiant fiscal"
+                    onChange={(e) => setSearchIdentifiantFiscale(e.target.value)} />;
+            case 'patente':
+                return <input placeholder="Rechercher patente" onChange={(e) => setSearchPatente(e.target.value)} />;
+            case 'cnss':
+                return <input placeholder="Rechercher cnss" onChange={(e) => setSearchCnss(e.target.value)} />;
+            default:
+                return null;
+        }
+    };
 
     return (
         <>
@@ -102,22 +153,39 @@ export default function SysAllOrganismes() {
             />
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
-                    <MdOutlineDomainAdd onClick={() => setAddOrganismVisible(true)} className="ml-4 w-7 h-7 text-gray-700 cursor-pointer" />
+                    <MdOutlineDomainAdd onClick={() => setAddOrganismVisible(true)}
+                        className="ml-4 w-7 h-7 text-gray-700 cursor-pointer" />
                     {/* Button to export table as Excel */}
                     <button onClick={exportToExcel} className='bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
                         Exporter (Format Excel)
                     </button>
                 </div>
                 <div className="flex flex-row gap-4">
-
+                    <select value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
+                        <option value="category">Catégorie</option>
+                        <option value="raisonSociale">Raison Sociale</option>
+                        <option value="secteur">Secteur</option>
+                        <option value="pays">Pays</option>
+                        <option value="ville">Ville</option>
+                        <option value="email">Email</option>
+                        <option value="phone">Téléphone</option>
+                        <option value="registreDeCommerce">Registre de Commerce</option>
+                        <option value="identifiantFiscale">Identifiant Fiscal</option>
+                        <option value="patente">Patente</option>
+                        <option value="cnss">Cnss</option>
+                    </select>
+                    {renderSearchInput()}
                 </div>
             </div>
 
             <div className='border-t border-gray-300 py-4'></div>
 
+
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table id="organismTable" className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+
+
                         <tr>
                             <th scope="col" className="px-6 py-3">
                                 Catégorie
@@ -156,55 +224,52 @@ export default function SysAllOrganismes() {
                                 Actions
                             </th>
                         </tr>
-                    </thead>
+                    </thead >
                     <tbody>
-                        {id.map((organism, index) =>
-                            <tr key={index} className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700">
-                                <td class="px-6 py-4">
-                                    {category[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {raisonSociale[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {secteur[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {pays[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {ville[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {email[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {phone[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {registreDeCommerce[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {identifiantFiscale[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {patente[index]}
-                                </td>
-                                <td class="px-6 py-4">
-                                    {cnss[index]}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <div className="flex gap-4">
-                                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
-                                        <a href="#" class="font-medium text-red-500 dark:text-blue-500 hover:underline">Supprimer</a>
-                                    </div>
-                                </td>
-                            </tr>
-                        )}
+                        {category.map((name, index) => {
+                            if ((!searchCategory || category[index].toLowerCase().includes(searchCategory.toLowerCase())) &&
+                                (!searchRaisonSociale || raisonSociale[index].toLowerCase().includes(searchRaisonSociale.toLowerCase())) &&
+                                (!searchSecteur || secteur[index].toLowerCase().includes(searchSecteur.toLowerCase())) &&
+                                (!searchPays || pays[index].toLowerCase().includes(searchPays.toLowerCase())) &&
+                                (!searchVille || ville[index].toLowerCase().includes(searchVille.toLowerCase())) &&
+                                (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
+                                (!searchPhone || phone[index].includes(searchPhone)) &&
+                                (!searchRegistreDeCommerce || registreDeCommerce[index].toString().includes(searchRegistreDeCommerce)) &&
+                                (!searchIdentifiantFiscale || identifiantFiscale[index].toString().includes(searchIdentifiantFiscale)) &&
+                                (!searchPatente || patente[index].toString().includes(searchPatente)) &&
+                                (!searchCnss || cnss[index].toString().includes(searchCnss))) {
+                                return (
+                                    <tr key={index} className="border-b">
+                                        <td className="px-6 py-4">{category[index]}</td>
+                                        <td className="px-6 py-4">{raisonSociale[index]}</td>
+                                        <td className="px-6 py-4">{secteur[index]}</td>
+                                        <td className="px-6 py-4">{pays[index]}</td>
+                                        <td className="px-6 py-4">{ville[index]}</td>
+                                        <td className="px-6 py-4">{email[index]}</td>
+                                        <td className="px-6 py-4">{phone[index]}</td>
+                                        <td className="px-6 py-4">{registreDeCommerce[index]}</td>
+                                        <td className="px-6 py-4">{identifiantFiscale[index]}</td>
+                                        <td className="px-6 py-4">{patente[index]}</td>
+                                        <td className="px-6 py-4">{cnss[index]}</td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-4">
+                                                <a href="#"
+                                                    className="font-medium text-blue-600 hover:underline">Modifier</a>
+                                                <a href="#"
+                                                    className="font-medium text-red-500 hover:underline">Supprimer</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                );
+                            }
+                            return null;
+                        })}
                     </tbody>
-                </table>
-            </div>
-            {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />}
+                </table >
+            </div >
+            {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />
+            }
         </>
     );
 }
+
