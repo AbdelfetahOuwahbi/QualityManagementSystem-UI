@@ -16,14 +16,7 @@ export default function SysAllConsultants() {
     const [modifyConsultantVisible, setModifyConsultantVisible] = useState({ userId: null, value: false });
 
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
-
-    // Search states for each field
-    const [searchFirstName, setSearchFirstName] = useState('');
-    const [searchLastName, setSearchLastName] = useState('');
-    const [searchEmail, setSearchEmail] = useState('');
-    const [searchPhone, setSearchPhone] = useState('');
-    const [searchRole, setSearchRole] = useState('');
-
+    
     // Consultant Properties
     const [id, setId] = useState([]);
     const [firstName, setFirstName] = useState([]);
@@ -31,6 +24,13 @@ export default function SysAllConsultants() {
     const [email, setEmail] = useState([]);
     const [phone, setPhone] = useState([]);
     const [role, setRole] = useState([]);
+    
+    // Search states for each field
+    const [searchFirstName, setSearchFirstName] = useState('');
+    const [searchLastName, setSearchLastName] = useState('');
+    const [searchEmail, setSearchEmail] = useState('');
+    const [searchPhone, setSearchPhone] = useState('');
+    const [searchRole, setSearchRole] = useState('');
 
     // Function to handle field selection change
     const handleFieldChange = (field) => {

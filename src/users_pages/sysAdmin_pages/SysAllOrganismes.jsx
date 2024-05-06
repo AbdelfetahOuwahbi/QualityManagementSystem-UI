@@ -11,6 +11,23 @@ import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 export default function SysAllOrganismes() {
 
     const [addOrganismVisible, setAddOrganismVisible] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState({ organismId: null, value: false });
+    const [modifyOrganismVisible, setModifyOrganismVisible] = useState(
+        {
+            value: false,
+            organismId: null,
+            Category: "",
+            Pays: "",
+            Secteur: "",
+            Ville: "",
+            Phone: "",
+            Email: "",
+            Patente: "",
+            Cnss: "",
+            Identifiant_fiscale: "",
+            Registre_de_commerce: "",
+            Raison_Sociale: ""
+        });
 
     const [id, setId] = useState([]);
     const [category, setCategory] = useState([]);
@@ -145,6 +162,33 @@ export default function SysAllOrganismes() {
         }
     };
 
+    //Function that deletes the user
+    async function deleteOrganism(organismId) {
+        console.log("userId to be deleted is -->", userId)
+        console.log(isTokenExpired())
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/organismes/${userId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                getAllConsultant();
+                console.log("User deleted successfully ..");
+                toast.success("Ce consultant est éliminé de l'application")
+            } else {
+                throw new Error(`Failed to delete user: ${response.status} ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error('Error deleting user:', error);
+            // Handle error
+            throw error; // Optionally re-throw the error for the caller to handle
+        }
+    }
+
     return (
         <>
             <Toaster
@@ -240,20 +284,57 @@ export default function SysAllOrganismes() {
                                 (!searchCnss || cnss[index].toString().includes(searchCnss))) {
                                 return (
                                     <tr key={index} className="border-b">
-                                        <td className="px-6 py-4">{category[index]}</td>
-                                        <td className="px-6 py-4">{raisonSociale[index]}</td>
-                                        <td className="px-6 py-4">{secteur[index]}</td>
-                                        <td className="px-6 py-4">{pays[index]}</td>
-                                        <td className="px-6 py-4">{ville[index]}</td>
-                                        <td className="px-6 py-4">{email[index]}</td>
-                                        <td className="px-6 py-4">{phone[index]}</td>
-                                        <td className="px-6 py-4">{registreDeCommerce[index]}</td>
-                                        <td className="px-6 py-4">{identifiantFiscale[index]}</td>
-                                        <td className="px-6 py-4">{patente[index]}</td>
-                                        <td className="px-6 py-4">{cnss[index]}</td>
+                                        <td className="px-6 py-4">
+                                            {category[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {raisonSociale[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {secteur[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {pays[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {ville[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {email[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {phone[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {registreDeCommerce[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {identifiantFiscale[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {patente[index]}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            {cnss[index]}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-4">
                                                 <a href="#"
+                                                    onClick={() => setModifyOrganismVisible({
+                                                        value: !modifyOrganismVisible.value,
+                                                        organismId: id[index],
+                                                        Category: category[index],
+                                                        Pays: pays[index],
+                                                        Secteur: secteur[index],
+                                                        Ville: ville[index],
+                                                        Phone: phone[index],
+                                                        Email: email[index],
+                                                        Patente: patente[index],
+                                                        Cnss: cnss[index],
+                                                        Identifiant_fiscale: identifiantFiscale[index],
+                                                        Registre_de_commerce: registreDeCommerce[index],
+                                                        Raison_Sociale: raisonSociale[index]
+                                                    })}
                                                     className="font-medium text-blue-600 hover:underline">Modifier</a>
                                                 <a href="#"
                                                     className="font-medium text-red-500 hover:underline">Supprimer</a>
@@ -267,8 +348,8 @@ export default function SysAllOrganismes() {
                     </tbody>
                 </table >
             </div >
-            {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />
-            }
+            {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />}
+            {modifyOrganismVisible.value && <SysAddOrganism organismDtls={modifyOrganismVisible} onClose={() => setModifyOrganismVisible(false)} />}
         </>
     );
 }

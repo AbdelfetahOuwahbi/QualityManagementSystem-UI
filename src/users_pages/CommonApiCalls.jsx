@@ -129,6 +129,42 @@ export async function saveEntreprise(Category, Pays, Secteur, Ville, Phone, Emai
     }
 }
 
+//Function to Update a new Entreprise
+
+export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc, id) {
+
+    try {
+        const response = await fetch(`http://localhost:8080/api/v1/organismes/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${Cookies.get("JWT")}`,
+            },
+            body: JSON.stringify({
+                "categorie": Category,
+                "pays": Pays,
+                "secteur": Secteur,
+                "ville": Ville,
+                "telephone": Phone,
+                "email": Email,
+                "patente": Patente,
+                "cnss": Cnss,
+                "identifiantFiscal": Id_Fisc,
+                "registreDeCommerce": RegCom,
+                "raisonSocial": RaiSoc
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to update organism: ${response.status} ${response.statusText}`);
+        }
+        return response;
+
+    } catch (error) {
+        console.error('Error updating organism:', error);
+    }
+}
+
 //Function that gets all entreprises
 
 export async function getAllEntreprises(type) {
