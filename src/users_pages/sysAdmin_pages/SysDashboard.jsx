@@ -1,4 +1,3 @@
-import {useEffect, useState} from 'react';
 import {Card, Table} from "flowbite-react";
 import {FaBuilding, FaRegHandshake, FaUsers, FaUserTie} from 'react-icons/fa';
 import {Bar} from 'react-chartjs-2';
