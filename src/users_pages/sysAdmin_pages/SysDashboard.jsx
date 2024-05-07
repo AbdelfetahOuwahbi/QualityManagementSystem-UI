@@ -1,11 +1,11 @@
-import {Card, Table} from "flowbite-react";
-import {FaBuilding, FaRegHandshake, FaUsers, FaUserTie} from 'react-icons/fa';
-import {Bar} from 'react-chartjs-2';
-import {BarElement, CategoryScale, Chart as ChartJS, Legend, LinearScale, Title, Tooltip} from 'chart.js';
+import { Card, Table } from "flowbite-react";
+import { FaBuilding, FaRegHandshake, FaUsers, FaUserTie } from 'react-icons/fa';
+import { Bar } from 'react-chartjs-2';
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import React, { useState, useEffect } from 'react'
 import Cookies from 'js-cookie'
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 // Sample data for the chart
 const barData = {
@@ -35,26 +35,24 @@ const barOptions = {
       beginAtZero: true
     }
   },
-  legend: {
-    display: true
+  plugins: {
+    legend: {
+      display: true
+    }
   },
   responsive: true,
   maintainAspectRatio: false
 };
 
-
 export default function SysDashboard() {
-  const [organismes, setOrganismes] = useState([]);
-  const [totalOrganismes, setTotalOrganismes] = useState(0);
-  const [totalConsultants, setTotalConsultants] = useState(0);
-  const [totalEntreprises, setTotalEntreprises] = useState(0);
+  const [consultants, setConsultants] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);  // State for user count
 
-
   useEffect(() => {
-    const urlOrganismes = 'http://localhost:8080/api/v1/organismes';
+    const urlConsultants = 'http://localhost:8080/api/v1/users/consultants';
     const urlUsersCount = 'http://localhost:8080/api/v1/users/count';
-    fetch(urlOrganismes, {
+
+    fetch(urlConsultants, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -63,20 +61,11 @@ export default function SysDashboard() {
     })
         .then(response => response.json())
         .then(data => {
-          setOrganismes(data);
-          setTotalOrganismes(data.length);
-          let consultantsCount = 0;
-          let entreprisesCount = 0;
-          data.forEach(organisme => {
-            organisme.consultants.forEach(consultant => {
-              consultantsCount++;
-              entreprisesCount += consultant.entreprises.length;
-            });
-          });
+          setConsultants(data);
+          const consultantsCount = data.length;
           setTotalConsultants(consultantsCount);
-          setTotalEntreprises(entreprisesCount);
         })
-        .catch(error => console.error('Error fetching organismes data:', error));
+        .catch(error => console.error('Error fetching consultants data:', error));
 
     // Fetch for users count
     fetch(urlUsersCount, {
@@ -93,6 +82,17 @@ export default function SysDashboard() {
         .catch(error => console.error('Error fetching user count:', error));
   }, []);
 
+  const getTotal = (key) => {
+    if (!consultants) return 0;
+    // Si la clé est 'organismeDeCertification', traiter différemment pour obtenir des ID uniques
+    if (key === 'organismeDeCertification') {
+      const uniqueIds = new Set(consultants.map(consultant => consultant[key]?.id).filter(id => id !== undefined));
+      return uniqueIds.size;
+    }
+    // Comportement précédent pour les autres clés
+    return consultants.reduce((acc, consultant) => acc + (consultant[key]?.length || 0), 0);
+  };
+
   //
 
   const cardData = [
@@ -102,27 +102,23 @@ export default function SysDashboard() {
       icon: <FaUsers className="text-3xl text-white"/>,
       color: "bg-purple-500",
       change: "+5.0% vs last 90 days"
-    },
-    {
+    },{
       title: "Total Consultants",
-      content: totalConsultants,
+      content: consultants.length,
       icon: <FaUserTie className="text-3xl text-white"/>,
-      color: "bg-green-500",
-      change: "+10.2% vs last 90 days"
+      color: "bg-green-500"
     },
     {
-      title: "Total Companies",
-      content: totalEntreprises,
+      title: "Total Organisations",
+      content: getTotal('organismeDeCertification'),
       icon: <FaBuilding className="text-3xl text-white"/>,
-      color: "bg-blue-500",
-      change: "+7.4% vs last 90 days"
+      color: "bg-blue-500"
     },
     {
-      title: "Total Organizations",
-      content: totalOrganismes,
+      title: "Total Enterprises",
+      content: getTotal('entreprises'),
       icon: <FaRegHandshake className="text-3xl text-white"/>,
-      color: "bg-yellow-500",
-      change: "+3.1% vs last 90 days"
+      color: "bg-yellow-500"
     }
   ];
 
@@ -150,41 +146,25 @@ export default function SysDashboard() {
               </div>
               <div className="md:w-1/2 md:ml-auto">
                 <div className="overflow-auto">
-                  <Table striped={false} hoverable={true}>
+                  <Table striped={true} hoverable={true}>
                     <Table.Head>
-                      <Table.HeadCell>Organisme</Table.HeadCell>
-                      <Table.HeadCell>Consultant</Table.HeadCell>
                       <Table.HeadCell>Entreprise</Table.HeadCell>
-                      <Table.HeadCell>Contact</Table.HeadCell>
+                      <Table.HeadCell>Consultant</Table.HeadCell>
+                      <Table.HeadCell>Organisme</Table.HeadCell>
                     </Table.Head>
                     <Table.Body>
-                      {organismes.map(organisme => organisme.consultants.map(consultant => {
-                        // Handle cases where a consultant might not have any enterprises
-                        if (consultant.entreprises.length === 0) {
-                          return (
-                              <Table.Row key={consultant.id}>
-                                <Table.Cell>{organisme.raisonSocial}</Table.Cell>
-                                <Table.Cell>{consultant.firstname + " " + consultant.lastname}</Table.Cell>
-                                <Table.Cell>No enterprises</Table.Cell>
-                                <Table.Cell>No contacts</Table.Cell>
-                              </Table.Row>
-                          );
-                        }
-                        return consultant.entreprises.map(entreprise => {
-                          // Display all contacts associated with each enterprise
-                          const contactEmails = entreprise.contacts.map(contact => contact.email).join(", ");
-                          return (
-                              <Table.Row key={entreprise.id}>
-                                <Table.Cell>{organisme.raisonSocial}</Table.Cell>
-                                <Table.Cell>{consultant.firstname + " " + consultant.lastname}</Table.Cell>
+                      {consultants.map(consultant => (
+                          consultant.entreprises.map((entreprise, index) => (
+                              <Table.Row key={index}>
                                 <Table.Cell>{entreprise.raisonSocial}</Table.Cell>
-                                <Table.Cell>{contactEmails || "No contacts"}</Table.Cell>
+                                <Table.Cell>{consultant.firstname + " " + consultant.lastname}</Table.Cell>
+                                <Table.Cell>{consultant.organismeDeCertification.raisonSocial}</Table.Cell>
                               </Table.Row>
-                          );
-                        });
-                      }))}
+                          ))
+                      ))}
                     </Table.Body>
                   </Table>
+
                 </div>
               </div>
 

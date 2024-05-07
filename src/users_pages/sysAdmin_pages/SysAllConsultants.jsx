@@ -1,19 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { TiUserAdd } from "react-icons/ti";
-import { HiOutlineExclamationCircle } from "react-icons/hi";
+import React, {useEffect, useState} from "react";
+import {TiUserAdd} from "react-icons/ti";
+import {HiOutlineExclamationCircle} from "react-icons/hi";
 import SysAddConsultant from "./SysAddConsultant";
-import { Datepicker, Button, Modal } from "flowbite-react";
+import {Button, Modal, ToggleSwitch} from "flowbite-react";
 import * as XLSX from "xlsx";
-import { FloatingLabel } from "flowbite-react";
-import toast, { Toaster } from "react-hot-toast";
-import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
+import toast, {Toaster} from "react-hot-toast";
+import {isTokenExpired, isTokenInCookies} from "../CommonApiCalls";
 import Cookies from "js-cookie";
 
 export default function SysAllConsultants() {
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
 
-    const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
-    const [modifyConsultantVisible, setModifyConsultantVisible] = useState({ userId: null, value: false });
+    const [confirmDelete, setConfirmDelete] = useState({userId: null, value: false});
+    const [modifyConsultantVisible, setModifyConsultantVisible] = useState({userId: null, value: false});
 
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
 
@@ -23,6 +22,7 @@ export default function SysAllConsultants() {
     const [searchEmail, setSearchEmail] = useState('');
     const [searchPhone, setSearchPhone] = useState('');
     const [searchRole, setSearchRole] = useState('');
+    const [searchOrganismeName, setSearchOrganismeName] = useState([]);
 
     // Consultant Properties
     const [id, setId] = useState([]);
@@ -31,6 +31,7 @@ export default function SysAllConsultants() {
     const [email, setEmail] = useState([]);
     const [phone, setPhone] = useState([]);
     const [role, setRole] = useState([]);
+    const [organismeName, setOrganismeName] = useState([]);
 
     // Function to handle field selection change
     const handleFieldChange = (field) => {
@@ -45,6 +46,7 @@ export default function SysAllConsultants() {
         setEmail([]);
         setPhone([]);
         setRole([]);
+        setOrganismeName([])
         try {
             const response = await fetch("http://localhost:8080/api/v1/users/consultants", {
                 method: 'GET',
@@ -69,6 +71,7 @@ export default function SysAllConsultants() {
                     setEmail((prev) => [...prev, data[i].email]);
                     setPhone((prev) => [...prev, data[i].phone]);
                     setRole((prev) => [...prev, "Consultant"]);
+                    setOrganismeName((prev) => [...prev, data[i].organismeDeCertification.raisonSocial]);
                 }
             } else {
                 toast((t) => (
@@ -101,7 +104,6 @@ export default function SysAllConsultants() {
 
         }
     }, []);
-
 
 
     //Function that deletes the user
@@ -147,15 +149,18 @@ export default function SysAllConsultants() {
     const renderSearchInput = () => {
         switch (selectedField) {
             case 'firstName':
-                return <input placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)} />;
+                return <input placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}/>;
             case 'lastName':
-                return <input placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)} />;
+                return <input placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}/>;
             case 'email':
-                return <input placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} />;
+                return <input placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}/>;
             case 'phone':
-                return <input placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} />;
+                return <input placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}/>;
             case 'role':
-                return <input placeholder="Rechercher rôle" onChange={(e) => setSearchRole(e.target.value)} />;
+                return <input placeholder="Rechercher rôle" onChange={(e) => setSearchRole(e.target.value)}/>;
+            case 'organisme':
+                return <input placeholder="Rechercher organisme"
+                              onChange={(e) => setSearchOrganismeName(e.target.value)}/>;
             default:
                 return null;
         }
@@ -163,12 +168,14 @@ export default function SysAllConsultants() {
 
     return (
         <>
-            <Toaster position="top-center" reverseOrder={false} />
+            <Toaster position="top-center" reverseOrder={false}/>
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
-                    <TiUserAdd onClick={() => setAddConsultantVisible(true)} className="ml-4 w-7 h-7 text-gray-700 cursor-pointer" />
+                    <TiUserAdd onClick={() => setAddConsultantVisible(true)}
+                               className="ml-4 w-7 h-7 text-gray-700 cursor-pointer"/>
                     {/* Button to export table as Excel */}
-                    <button onClick={exportToExcel} className='bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
+                    <button onClick={exportToExcel}
+                            className='bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
                         Exporter (Format Excel)
                     </button>
                 </div>
@@ -180,6 +187,7 @@ export default function SysAllConsultants() {
                         <option value="email">Email</option>
                         <option value="phone">Téléphone</option>
                         <option value="role">Rôle</option>
+                        <option value="organisme">Organisme</option>
                     </select>
                     {renderSearchInput()}
 
@@ -189,64 +197,78 @@ export default function SysAllConsultants() {
             <div className='border-t border-gray-300 py-4'></div>
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg px-4">
-                <table id="consultantsTable" className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                <table id="consultantsTable"
+                       className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">
-                                Prénom
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Nom
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                email
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Téléphone
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Rôle
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Actions
-                            </th>
-                        </tr>
+                    <tr>
+                        <th scope="col" className="px-6 py-3">
+                            Prénom
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Nom
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            email
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Téléphone
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Rôle
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Organisme
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Actions
+                        </th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {firstName.map((name, index) => {
-                            if ((!searchFirstName || name.toLowerCase().includes(searchFirstName.toLowerCase())) &&
-                                (!searchLastName || lastName[index].toLowerCase().includes(searchLastName.toLowerCase())) &&
-                                (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
-                                (!searchPhone || phone[index].includes(searchPhone)) &&
-                                (!searchRole || role[index].toLowerCase().includes(searchRole.toLowerCase()))) {
-                                return (
-                                    <tr key={index} className="border-b">
-                                        <td className="px-6 py-4">{name}</td>
-                                        <td className="px-6 py-4">{lastName[index]}</td>
-                                        <td className="px-6 py-4">{email[index]}</td>
-                                        <td className="px-6 py-4">{phone[index]}</td>
-                                        <td className="px-6 py-4">{role[index]}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex gap-4">
-                                                <a href="#" onClick={() => setModifyConsultantVisible({ userId: id[index], value: true })} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
-                                                <a href="#" onClick={() => setConfirmDelete({ userId: id[index], value: true })} className="font-medium text-red-500 dark:text-blue-500 hover:underline" >Supprimer</a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                );
-                            }
-                            return null;
-                        })}
+                    {firstName.map((name, index) => {
+                        if ((!searchFirstName || name.toLowerCase().includes(searchFirstName.toLowerCase())) &&
+                            (!searchLastName || lastName[index].toLowerCase().includes(searchLastName.toLowerCase())) &&
+                            (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
+                            (!searchPhone || phone[index].includes(searchPhone)) &&
+                            (!searchOrganismeName || organismeName[index].toLowerCase().includes(searchOrganismeName)) &&
+                            (!searchRole || role[index].toLowerCase().includes(searchRole.toLowerCase()))) {
+                            return (
+                                <tr key={index} className="border-b">
+                                    <td className="px-6 py-4">{name}</td>
+                                    <td className="px-6 py-4">{lastName[index]}</td>
+                                    <td className="px-6 py-4">{email[index]}</td>
+                                    <td className="px-6 py-4">{phone[index]}</td>
+                                    <td className="px-6 py-4">{role[index]}</td>
+                                    <td className="px-6 py-4">{organismeName[index]}</td>
+                                    <td className="px-6 py-4">
+                                        <div className="flex gap-4">
+                                            <a href="#" onClick={() => setModifyConsultantVisible({
+                                                userId: id[index],
+                                                value: true
+                                            })}
+                                               className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
+                                            <a href="#"
+                                               onClick={() => setConfirmDelete({userId: id[index], value: true})}
+                                               className="font-medium text-red-500 dark:text-blue-500 hover:underline">Supprimer</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        }
+                        return null;
+                    })}
                     </tbody>
                 </table>
             </div>
-            {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
-            {modifyConsultantVisible.value && <SysAddConsultant onClose={() => setModifyConsultantVisible(false)} />}
-            <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ userId: null, value: false })} popup>
-                <Modal.Header />
+            {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)}/>}
+            {modifyConsultantVisible.value && <SysAddConsultant onClose={() => setModifyConsultantVisible(false)}/>}
+            <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({userId: null, value: false})}
+                   popup>
+                <Modal.Header/>
                 <Modal.Body>
                     <div className="text-center">
-                        <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+                        <HiOutlineExclamationCircle
+                            className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200"/>
                         <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
                             Êtes-vous sûr que vous voulez supprimer cet utilisateur ?
                         </h3>
