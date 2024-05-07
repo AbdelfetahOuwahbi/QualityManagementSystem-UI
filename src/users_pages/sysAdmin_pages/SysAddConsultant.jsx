@@ -5,21 +5,28 @@ import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 
-export default function SysAddConsultant({ onClose }) {
+export default function SysAddConsultant({ consultantDtls, onClose }) {
+
+    console.log("received --->", consultantDtls)
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [consultantDetails, setConsultantDetails] = useState(
-        {
-            first_name: "",
-            last_name: "",
-            email: "",
-            password: "",
-            phone: "",
-            organism: ""
-        }
-    );
 
+    // If consultantDtls is provided and has an organismId, we'll include it in consultantDetails
+
+    
+    const [consultantDetails, setConsultantDetails] = useState({
+        first_name: consultantDtls?.first_name || "",
+        last_name: consultantDtls?.last_name || "",
+        email: consultantDtls?.email || "",
+        password: "",
+        phone: consultantDtls?.phone || "",
+        organism: consultantDtls?.organismId || "",
+        userId: consultantDtls?.userId || ""
+    });
+
+    console.log("this is consultant details after binding -->", consultantDetails)
+    
     const [organismId, setOrganismId] = useState([]);
     const [organismName, setOrganismName] = useState([]);
 
@@ -60,7 +67,7 @@ export default function SysAddConsultant({ onClose }) {
     }, [])
 
     //Function that saves the cosultant 
-    async function saveConsultant() {
+    async function saveConsultant(consultantDetails) {
         console.log(consultantDetails);
         if (!isTokenInCookies()) {
             window.location.href = "/"
@@ -118,12 +125,47 @@ export default function SysAddConsultant({ onClose }) {
         }
     }
 
-    // useEffect(() => {
-
-    //     // const formattedDate = startDate.toISOString().split('T')[0] + 'T00:00:00';
-    //     console.log("start date -->", organismId);
-    //     console.log("end date -->", organismName);
-    // }, [organismId, organismName]);
+    //Function that updates a consultant
+    async function updateConsultant(consultantDetails) {
+        console.log("consultant details before performing the update -->", consultantDetails)
+        // Checking the validity of the token
+        if (!isTokenInCookies()) {
+            window.location.href = "/";
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/";
+        } else {
+            try {
+                setIsLoading(true);
+                const response = await fetch(`http://localhost:8080/api/v1/users/consultants/${consultantDetails.userId}?organismeId=${consultantDetails.organism}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    },
+                    body: JSON.stringify({
+                        "firstname": consultantDetails.first_name,
+                        "lastname": consultantDetails.last_name,
+                        "email": consultantDetails.email,
+                        "phone": consultantDetails.phone,
+                        "password": consultantDetails.password,
+                    }),
+                });
+                console.log("first, the response is -->", response)
+                if (response?.status === 200 || response?.status === 201) {
+                    toast.success("Cet Organisme est modifié avec succès..");
+                    setTimeout(() => {
+                        setModalOpen(false);
+                        setIsLoading(false);
+                    }, 2000);
+                }
+            } catch (error) {
+                setIsLoading(false);
+                console.error(error); // Handle errors
+                toast.error("Une erreur s'est produite lors de la modification de cet organisme.");
+            }
+        }
+    }
 
 
     return (
@@ -233,9 +275,11 @@ export default function SysAddConsultant({ onClose }) {
                             />
                         </div>
                         <div className="w-full">
-                            <Button onClick={() => saveConsultant()}>
-                                {isLoading ? <Spinner /> : "Envoyer"}
-                            </Button>
+                            {consultantDtls ? (
+                                <Button onClick={() => updateConsultant(consultantDetails)}>{isLoading ? <Spinner /> : "Modifier"}</Button>
+                            ) : (
+                                <Button onClick={() => saveConsultant(consultantDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
+                            )}
                         </div>
                     </div>
                 </Modal.Body>
