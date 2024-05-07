@@ -16,6 +16,32 @@ export function isTokenExpired() {
     return decodedToken.exp < currentTimestamp;
 }
 
+//Function that Locks or unlocks a user's Account
+
+export async function lockOrUnlockUser(userId) {
+    try {
+        const response = await fetch(`http://localhost:8080/api/v1/auth/lock/${userId}`, {
+            method: 'PUT', 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization' : `Bearer ${Cookies.get("JWT")}`
+            },
+        });
+
+        const data = await response.text();
+        if (response.ok) {
+            console.log('User locked/unlocked successfully:', data);
+            return data; // Return any relevant data from the response
+        } else {
+            console.error('Failed to lock/unlock user:', data);
+        }
+    } catch (error) {
+        console.error('Error locking/unlocking user:', error);
+        throw error; 
+    }
+}
+
+
 
 //Handling the logout
 
@@ -166,9 +192,8 @@ export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Em
 }
 
 //Function that gets all entreprises
-
 export async function getAllEntreprises(type) {
-    try {        
+    try {
         const response = await fetch(`http://localhost:8080/api/v1/${type === "organism" ? "organismes" : "consulantSMQ/entreprises"}`, {
             method: 'GET',
             headers: {

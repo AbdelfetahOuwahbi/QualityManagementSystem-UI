@@ -1,22 +1,24 @@
-import React, {useEffect, useState} from "react";
-import {TiUserAdd} from "react-icons/ti";
-import {HiOutlineExclamationCircle} from "react-icons/hi";
+import React, { useEffect, useState } from "react";
+import { TiUserAdd } from "react-icons/ti";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 import SysAddConsultant from "./SysAddConsultant";
-import {Button, Modal, ToggleSwitch} from "flowbite-react";
+import { Button, Modal, ToggleSwitch } from "flowbite-react";
 import * as XLSX from "xlsx";
-import toast, {Toaster} from "react-hot-toast";
-import {isTokenExpired, isTokenInCookies} from "../CommonApiCalls";
+import toast, { Toaster } from "react-hot-toast";
+import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 
 export default function SysAllConsultants() {
+
+
+    //Toogler for the addConsultant Modal
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
-
-
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
 
-
-
+    //for the alert of confirming delete
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
+
+    //Data to be sent to Modify the consultant
     const [modifyConsultantVisible, setModifyConsultantVisible] = useState(
         {
             value: false,
@@ -37,6 +39,11 @@ export default function SysAllConsultants() {
     const [phone, setPhone] = useState([]);
     const [role, setRole] = useState([]);
     const [organismeName, setOrganismeName] = useState([]);
+    // toogler of the switch that locks/unlocks consultant account
+    const [isAccountLocked, setIsAccountLocked] = useState([]);
+
+
+
 
     // Search states for each field
     const [searchFirstName, setSearchFirstName] = useState('');
@@ -44,7 +51,7 @@ export default function SysAllConsultants() {
     const [searchEmail, setSearchEmail] = useState('');
     const [searchPhone, setSearchPhone] = useState('');
     const [searchRole, setSearchRole] = useState('');
-    const [searchOrganismeName, setSearchOrganismeName] = useState();
+    const [searchOrganismeName, setSearchOrganismeName] = useState('');
 
 
     // Function to handle field selection change
@@ -71,13 +78,13 @@ export default function SysAllConsultants() {
             });
 
             const data = await response.json();
+            console.log("Consultants -->", data);
             if (data.length > 0) {
                 toast((t) => (
                     <span>
                         la liste est a jours ...
                     </span>
                 ));
-                console.log("Consultants -->", data);
                 for (let i = 0; i < data.length; i++) {
                     setId((prev) => [...prev, data[i].id]);
                     setFirstName((prev) => [...prev, data[i].firstname]);
@@ -85,6 +92,7 @@ export default function SysAllConsultants() {
                     setEmail((prev) => [...prev, data[i].email]);
                     setPhone((prev) => [...prev, data[i].phone]);
                     setRole((prev) => [...prev, "Consultant"]);
+                    setIsAccountLocked((prev) => [...prev, !data[i].accountNonLocked]);
                     setOrganismeName((prev) => [...prev, data[i].organismeDeCertification.raisonSocial]);
                 }
             } else {
@@ -119,6 +127,13 @@ export default function SysAllConsultants() {
         }
     }, []);
 
+    // Function to export table data as Excel
+    const exportToExcel = () => {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.table_to_sheet(document.getElementById("consultantsTable"));
+        XLSX.utils.book_append_sheet(wb, ws, "Consultants");
+        XLSX.writeFile(wb, "Consultants.xlsx");
+    };
 
     //Function that deletes the user
     async function deleteUser(userId) {
@@ -147,19 +162,36 @@ export default function SysAllConsultants() {
         }
     }
 
-    // Function to export table data as Excel
-    const exportToExcel = () => {
-        const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.table_to_sheet(document.getElementById("consultantsTable"));
-        XLSX.utils.book_append_sheet(wb, ws, "Consultants");
-        XLSX.writeFile(wb, "Consultants.xlsx");
-    };
+    //Function that Locks/Unlocks Consultant
 
-    // useEffect(() => {
-    //     console.log(confirmDelete);
-    // }, [confirmDelete])
+    async function handleLockUnlockUser(userId, first_name) {
+        try {
+            const data = await lockOrUnlockUser(userId);
+            if (data.includes("Account")) {
+                if (data.includes("unlocked")) {
+                    toast.success(`Le compte du consultant ${first_name} a été debloqué .. `,
+                        {
+                            duration: 3000,
+                        }
+                    )
+                } else if(data.includes("locked")) {
+                    toast.success(`Le compte du consultant ${first_name} a été bloqué .. `,
+                        {
+                            duration: 3000,
+                        }
+                    )
+                }
+            } else {
+                toast.error("une erreur est souvenu, ressayer plus tard !!")
+            }
+            console.log('User locked/unlocked successfully ?', data);
+        } catch (error) {
+            console.error('Error locking/unlocking user:', error);
+            toast.error("une erreur est souvenu, ressayer plus tard !!")
+        }
+    }
 
-    // Function to render search inputs based on the selected field
+
     const renderSearchInput = () => {
         switch (selectedField) {
             case 'firstName':
@@ -179,16 +211,21 @@ export default function SysAllConsultants() {
         }
     };
 
+
+    useEffect(() => {
+        console.log("Is Account non Locked in useEffect -->", isAccountLocked)
+    }, [isAccountLocked])
+
     return (
         <>
-            <Toaster position="top-center" reverseOrder={false}/>
+            <Toaster position="top-center" reverseOrder={false} />
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
                     <TiUserAdd onClick={() => setAddConsultantVisible(true)}
-                               className="ml-4 w-7 h-7 text-gray-700 cursor-pointer"/>
+                        className="ml-4 w-7 h-7 text-gray-700 cursor-pointer" />
                     {/* Button to export table as Excel */}
                     <button onClick={exportToExcel}
-                            className='bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
+                        className='bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
                         Exporter (Format Excel)
                     </button>
                 </div>
@@ -211,31 +248,34 @@ export default function SysAllConsultants() {
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg px-4">
                 <table id="consultantsTable"
-                       className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Prénom
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Nom
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            email
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Téléphone
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Rôle
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Organisme
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Actions
-                        </th>
-                    </tr>
+                        <tr>
+                            <th scope="col" className="px-6 py-3">
+                                Prénom
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Nom
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                email
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Téléphone
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Rôle
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Organisme
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Bloquer le Compte
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Actions
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
                         {firstName.map((name, index) => {
@@ -253,6 +293,20 @@ export default function SysAllConsultants() {
                                         <td className="px-6 py-4">{phone[index]}</td>
                                         <td className="px-6 py-4">{role[index]}</td>
                                         <td className="px-6 py-4">{organismeName[index]}</td>
+                                        <td>
+                                            <ToggleSwitch
+                                                checked={isAccountLocked[index]}
+                                                label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Debloquer ce Compte"}
+                                                onChange={(newValue) => {
+                                                    setIsAccountLocked(prevState => {
+                                                        const newState = [...prevState];
+                                                        newState[index] = newValue;
+                                                        return newState;
+                                                    });
+                                                    handleLockUnlockUser(id[index], firstName[index])
+                                                }}
+                                            />
+                                        </td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-4">
                                                 <a href="#" onClick={() =>
@@ -260,10 +314,10 @@ export default function SysAllConsultants() {
                                                         {
                                                             value: true,
                                                             userId: id[index],
-                                                            first_name : firstName[index],
-                                                            last_name : lastName[index],
-                                                            email : email[index],
-                                                            phone : phone[index],
+                                                            first_name: firstName[index],
+                                                            last_name: lastName[index],
+                                                            email: email[index],
+                                                            phone: phone[index],
                                                         })
                                                 } className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
                                                 <a href="#" onClick={() => setConfirmDelete({ userId: id[index], value: true })} className="font-medium text-red-500 dark:text-blue-500 hover:underline" >Supprimer</a>
@@ -278,13 +332,13 @@ export default function SysAllConsultants() {
                 </table>
             </div>
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
-            {modifyConsultantVisible.value && <SysAddConsultant consultantDtls={modifyConsultantVisible} onClose={() => setModifyConsultantVisible({value : false})} />}
+            {modifyConsultantVisible.value && <SysAddConsultant consultantDtls={modifyConsultantVisible} onClose={() => setModifyConsultantVisible({ value: false })} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ userId: null, value: false })} popup>
                 <Modal.Header />
                 <Modal.Body>
                     <div className="text-center">
                         <HiOutlineExclamationCircle
-                            className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200"/>
+                            className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                         <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
                             Êtes-vous sûr que vous voulez supprimer cet utilisateur ?
                         </h3>
