@@ -13,10 +13,19 @@ export default function SysAllConsultants() {
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
 
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
-    const [modifyConsultantVisible, setModifyConsultantVisible] = useState({ userId: null, value: false });
+    const [modifyConsultantVisible, setModifyConsultantVisible] = useState(
+        {
+            value: false,
+            userId: null,
+            first_name: "",
+            last_name: "",
+            email: "",
+            phone: "",
+        }
+    );
 
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
-    
+
     // Consultant Properties
     const [id, setId] = useState([]);
     const [firstName, setFirstName] = useState([]);
@@ -24,7 +33,7 @@ export default function SysAllConsultants() {
     const [email, setEmail] = useState([]);
     const [phone, setPhone] = useState([]);
     const [role, setRole] = useState([]);
-    
+
     // Search states for each field
     const [searchFirstName, setSearchFirstName] = useState('');
     const [searchLastName, setSearchLastName] = useState('');
@@ -147,15 +156,15 @@ export default function SysAllConsultants() {
     const renderSearchInput = () => {
         switch (selectedField) {
             case 'firstName':
-                return <input placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)} />;
             case 'lastName':
-                return <input placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)} />;
             case 'email':
-                return <input placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} />;
             case 'phone':
-                return <input placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} />;
             case 'role':
-                return <input placeholder="Rechercher rôle" onChange={(e) => setSearchRole(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher rôle" onChange={(e) => setSearchRole(e.target.value)} />;
             default:
                 return null;
         }
@@ -174,7 +183,7 @@ export default function SysAllConsultants() {
                 </div>
                 <div className="flex flex-row gap-4">
 
-                    <select value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
+                    <select className="rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500 block w-full sm:text-sm" value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
                         <option value="firstName">Prénom</option>
                         <option value="lastName">Nom</option>
                         <option value="email">Email</option>
@@ -228,7 +237,17 @@ export default function SysAllConsultants() {
                                         <td className="px-6 py-4">{role[index]}</td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-4">
-                                                <a href="#" onClick={() => setModifyConsultantVisible({ userId: id[index], value: true })} className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
+                                                <a href="#" onClick={() =>
+                                                    setModifyConsultantVisible(
+                                                        {
+                                                            value: true,
+                                                            userId: id[index],
+                                                            first_name : firstName[index],
+                                                            last_name : lastName[index],
+                                                            email : email[index],
+                                                            phone : phone[index],
+                                                        })
+                                                } className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
                                                 <a href="#" onClick={() => setConfirmDelete({ userId: id[index], value: true })} className="font-medium text-red-500 dark:text-blue-500 hover:underline" >Supprimer</a>
                                             </div>
                                         </td>
@@ -241,7 +260,7 @@ export default function SysAllConsultants() {
                 </table>
             </div>
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
-            {modifyConsultantVisible.value && <SysAddConsultant onClose={() => setModifyConsultantVisible(false)} />}
+            {modifyConsultantVisible.value && <SysAddConsultant consultantDtls={modifyConsultantVisible} onClose={() => setModifyConsultantVisible({value : false})} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ userId: null, value: false })} popup>
                 <Modal.Header />
                 <Modal.Body>
@@ -252,12 +271,12 @@ export default function SysAllConsultants() {
                         </h3>
                         <div className="flex justify-center gap-4">
                             <Button color="failure" onClick={() => {
-                                setConfirmDelete(false)
                                 deleteUser(confirmDelete.userId)
+                                setConfirmDelete({ userId: null, value: false })
                             }}>
                                 {"Oui, je suis sur"}
                             </Button>
-                            <Button color="gray" onClick={() => setConfirmDelete(false)}>
+                            <Button color="gray" onClick={() => setConfirmDelete({ userId: null, value: false })}>
                                 Non, Annuler
                             </Button>
                         </div>

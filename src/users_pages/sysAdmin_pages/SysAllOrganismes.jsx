@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { MdOutlineDomainAdd } from "react-icons/md";
-import { Datepicker } from "flowbite-react";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { Datepicker, Modal, Button } from "flowbite-react";
 import * as XLSX from "xlsx";
 import SysAddOrganism from "./SysAddOrganism";
 import { getAllEntreprises } from "../CommonApiCalls";
+import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 
@@ -62,6 +64,51 @@ export default function SysAllOrganismes() {
         setSelectedField(field);
     };
 
+    //Function that gets all organismes
+
+    const getAllOrganimes = async () => {
+        setId([])
+        setCategory([])
+        setRaisonSociale([])
+        setSecteur([])
+        setPays([])
+        setVille([])
+        setEmail([])
+        setPhone([])
+        setRegistreDeCommerce([])
+        setIdentifiantFiscale([])
+        setPatente([])
+        setCnss([])
+        try {
+            const data = await getAllEntreprises("organism");
+            if (data.length > 0) {
+                toast((t) => (
+                    <span>
+                        la liste est a jours ...
+                    </span>
+                ));
+                console.log("Organismes -->", data);
+                for (let i = 0; i < data.length; i++) {
+                    setId((prev) => [...prev, data[i].id]);
+                    setCategory((prev) => [...prev, data[i].categorie]);
+                    setVille((prev) => [...prev, data[i].ville]);
+                    setPhone((prev) => [...prev, data[i].telephone]);
+                    setSecteur((prev) => [...prev, data[i].secteur]);
+                    setRaisonSociale((prev) => [...prev, data[i].raisonSocial]);
+                    setRegistreDeCommerce((prev) => [...prev, data[i].registreDeCommerce]);
+                    setPays((prev) => [...prev, data[i].pays]);
+                    setPatente((prev) => [...prev, data[i].patente]);
+                    setIdentifiantFiscale((prev) => [...prev, data[i].identifiantFiscal]);
+                    setEmail((prev) => [...prev, data[i].email]);
+                    setCnss((prev) => [...prev, data[i].cnss]);
+                }
+            }
+        } catch (error) {
+            console.error(error); // Handle errors
+            toast.error('Une erreur s\'est produite lors du creation de cet organism.');
+        }
+    }
+
     useEffect(() => {
         //Checking the validity of the token starts
         if (!isTokenInCookies()) {
@@ -71,48 +118,6 @@ export default function SysAllOrganismes() {
             window.location.href = "/";
         } else {    //Checking the validity of the token ends
             if (id.length === 0) {
-                const getAllOrganimes = async () => {
-                    // setId([])
-                    // setCategory([])
-                    // setRaisonSociale([])
-                    // setSecteur([])
-                    // setPays([])
-                    // setVille([])
-                    // setEmail([])
-                    // setPhone([])
-                    // setRegistreDeCommerce([])
-                    // setIdentifiantFiscale([])
-                    // setPatente([])
-                    // setCnss([])
-                    try {
-                        const data = await getAllEntreprises("organism");
-                        if (data.length > 0) {
-                            toast((t) => (
-                                <span>
-                                    la liste est a jours ...
-                                </span>
-                            ));
-                            console.log("Organismes -->", data);
-                            for (let i = 0; i < data.length; i++) {
-                                setId((prev) => [...prev, data[i].id]);
-                                setCategory((prev) => [...prev, data[i].categorie]);
-                                setVille((prev) => [...prev, data[i].ville]);
-                                setPhone((prev) => [...prev, data[i].telephone]);
-                                setSecteur((prev) => [...prev, data[i].secteur]);
-                                setRaisonSociale((prev) => [...prev, data[i].raisonSocial]);
-                                setRegistreDeCommerce((prev) => [...prev, data[i].registreDeCommerce]);
-                                setPays((prev) => [...prev, data[i].pays]);
-                                setPatente((prev) => [...prev, data[i].patente]);
-                                setIdentifiantFiscale((prev) => [...prev, data[i].identifiantFiscal]);
-                                setEmail((prev) => [...prev, data[i].email]);
-                                setCnss((prev) => [...prev, data[i].cnss]);
-                            }
-                        }
-                    } catch (error) {
-                        console.error(error); // Handle errors
-                        toast.error('Une erreur s\'est produite lors du creation de cet organism.');
-                    }
-                }
                 getAllOrganimes();
             } else {
                 console.log("Already got all organismes ...");
@@ -132,31 +137,35 @@ export default function SysAllOrganismes() {
     const renderSearchInput = () => {
         switch (selectedField) {
             case 'category':
-                return <input placeholder="Rechercher catégorie"
-                    onChange={(e) => setSearchCategory(e.target.value)} />;
+                return <input
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher categorie"
+                    onChange={(e) => setSearchCategory(e.target.value)}
+                />
+                    ;
             case 'raisonSociale':
-                return <input placeholder="Rechercher raison sociale"
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher raison sociale"
                     onChange={(e) => setSearchRaisonSociale(e.target.value)} />;
             case 'secteur':
-                return <input placeholder="Rechercher secteur" onChange={(e) => setSearchSecteur(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher secteur" onChange={(e) => setSearchSecteur(e.target.value)} />;
             case 'pays':
-                return <input placeholder="Rechercher pays" onChange={(e) => setSearchPays(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher pays" onChange={(e) => setSearchPays(e.target.value)} />;
             case 'ville':
-                return <input placeholder="Rechercher ville" onChange={(e) => setSearchVille(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher ville" onChange={(e) => setSearchVille(e.target.value)} />;
             case 'email':
-                return <input placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} />;
             case 'phone':
-                return <input placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} />;
             case 'registreDeCommerce':
-                return <input placeholder="Rechercher registre de commerce"
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher registre de commerce"
                     onChange={(e) => setSearchRegistreDeCommerce(e.target.value)} />;
             case 'identifiantFiscale':
-                return <input placeholder="Rechercher identifiant fiscal"
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher identifiant fiscal"
                     onChange={(e) => setSearchIdentifiantFiscale(e.target.value)} />;
             case 'patente':
-                return <input placeholder="Rechercher patente" onChange={(e) => setSearchPatente(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher patente" onChange={(e) => setSearchPatente(e.target.value)} />;
             case 'cnss':
-                return <input placeholder="Rechercher cnss" onChange={(e) => setSearchCnss(e.target.value)} />;
+                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none" placeholder="Rechercher cnss" onChange={(e) => setSearchCnss(e.target.value)} />;
             default:
                 return null;
         }
@@ -164,10 +173,10 @@ export default function SysAllOrganismes() {
 
     //Function that deletes the user
     async function deleteOrganism(organismId) {
-        console.log("userId to be deleted is -->", userId)
+        console.log("organism to be deleted is -->", organismId)
         console.log(isTokenExpired())
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/organismes/${userId}`, {
+            const response = await fetch(`http://localhost:8080/api/v1/organismes/${organismId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -176,14 +185,15 @@ export default function SysAllOrganismes() {
             });
 
             if (response.ok) {
-                getAllConsultant();
+                getAllOrganimes();
                 console.log("User deleted successfully ..");
-                toast.success("Ce consultant est éliminé de l'application")
+                toast.success("Cet organism est éliminé de l'application")
             } else {
-                throw new Error(`Failed to delete user: ${response.status} ${response.statusText}`);
+                toast.error(response.statusText)
+                throw new Error(`Failed to delete organism: ${response.status} ${response.statusText}`);
             }
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Error deleting organism:', error);
             // Handle error
             throw error; // Optionally re-throw the error for the caller to handle
         }
@@ -200,12 +210,12 @@ export default function SysAllOrganismes() {
                     <MdOutlineDomainAdd onClick={() => setAddOrganismVisible(true)}
                         className="ml-4 w-7 h-7 text-gray-700 cursor-pointer" />
                     {/* Button to export table as Excel */}
-                    <button onClick={exportToExcel} className='bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
+                    <button onClick={exportToExcel} className='bg-sky-400 text-white py-2 px-4  font-p_extra_light md:font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 hover:bg-neutral-500'>
                         Exporter (Format Excel)
                     </button>
                 </div>
-                <div className="flex flex-row gap-4">
-                    <select value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
+                <div className="flex flex-row gap-4 ">
+                    <select className="rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500 block w-full sm:text-sm" value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
                         <option value="category">Catégorie</option>
                         <option value="raisonSociale">Raison Sociale</option>
                         <option value="secteur">Secteur</option>
@@ -337,6 +347,7 @@ export default function SysAllOrganismes() {
                                                     })}
                                                     className="font-medium text-blue-600 hover:underline">Modifier</a>
                                                 <a href="#"
+                                                    onClick={() => setConfirmDelete({ organismId: id[index], value: true })}
                                                     className="font-medium text-red-500 hover:underline">Supprimer</a>
                                             </div>
                                         </td>
@@ -349,7 +360,29 @@ export default function SysAllOrganismes() {
                 </table >
             </div >
             {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />}
-            {modifyOrganismVisible.value && <SysAddOrganism organismDtls={modifyOrganismVisible} onClose={() => setModifyOrganismVisible(false)} />}
+            {modifyOrganismVisible.value && <SysAddOrganism organismDtls={modifyOrganismVisible} onClose={() => setModifyOrganismVisible({ value: false })} />}
+            <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ organismId: null, value: false })} popup>
+                <Modal.Header />
+                <Modal.Body>
+                    <div className="text-center">
+                        <HiOutlineExclamationCircle className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
+                        <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+                            Êtes-vous sûr que vous voulez supprimer cet organism ?
+                        </h3>
+                        <div className="flex justify-center gap-4">
+                            <Button color="failure" onClick={() => {
+                                setConfirmDelete(false)
+                                deleteOrganism(confirmDelete.organismId)
+                            }}>
+                                {"Oui, je suis sur"}
+                            </Button>
+                            <Button color="gray" onClick={() => setConfirmDelete({ organismId: null, value: null })}>
+                                Non, Annuler
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </>
     );
 }
