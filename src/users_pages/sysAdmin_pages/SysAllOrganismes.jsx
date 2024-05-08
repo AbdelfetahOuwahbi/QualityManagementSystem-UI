@@ -2,34 +2,37 @@ import React, { useState, useEffect } from "react";
 import { MdOutlineDomainAdd } from "react-icons/md";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { Datepicker, Modal, Button } from "flowbite-react";
+import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import SysAddOrganism from "./SysAddOrganism";
 import { getAllEntreprises } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
+import SysMainPage from "./SysMainPage";
 
 
 export default function SysAllOrganismes() {
 
+    const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
+
     const [addOrganismVisible, setAddOrganismVisible] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState({ organismId: null, value: false });
-    const [modifyOrganismVisible, setModifyOrganismVisible] = useState(
-        {
-            value: false,
-            organismId: null,
-            Category: "",
-            Pays: "",
-            Secteur: "",
-            Ville: "",
-            Phone: "",
-            Email: "",
-            Patente: "",
-            Cnss: "",
-            Identifiant_fiscale: "",
-            Registre_de_commerce: "",
-            Raison_Sociale: ""
-        });
+    const [modifyOrganismVisible, setModifyOrganismVisible] = useState(false);
+    const [organismDtls, setOrganismDtls] = useState({
+        organismId: null,
+        Category: "",
+        Pays: "",
+        Secteur: "",
+        Ville: "",
+        Phone: "",
+        Email: "",
+        Patente: "",
+        Cnss: "",
+        Identifiant_fiscale: "",
+        Registre_de_commerce: "",
+        Raison_Sociale: ""
+    })
 
     const [id, setId] = useState([]);
     const [category, setCategory] = useState([]);
@@ -205,6 +208,13 @@ export default function SysAllOrganismes() {
                 position="top-center"
                 reverseOrder={false}
             />
+
+            <div className="flex p-4 w-full justify-between">
+                {/* Bars Icon That toogles the visibility of the menu */}
+                <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
+            </div>
+
+            <div className='border-t border-gray-300 py-4'></div>
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
                     <MdOutlineDomainAdd onClick={() => setAddOrganismVisible(true)}
@@ -330,21 +340,24 @@ export default function SysAllOrganismes() {
                                         <td className="px-6 py-4">
                                             <div className="flex gap-4">
                                                 <a href="#"
-                                                    onClick={() => setModifyOrganismVisible({
-                                                        value: !modifyOrganismVisible.value,
-                                                        organismId: id[index],
-                                                        Category: category[index],
-                                                        Pays: pays[index],
-                                                        Secteur: secteur[index],
-                                                        Ville: ville[index],
-                                                        Phone: phone[index],
-                                                        Email: email[index],
-                                                        Patente: patente[index],
-                                                        Cnss: cnss[index],
-                                                        Identifiant_fiscale: identifiantFiscale[index],
-                                                        Registre_de_commerce: registreDeCommerce[index],
-                                                        Raison_Sociale: raisonSociale[index]
-                                                    })}
+                                                    onClick={() => {
+                                                        setOrganismDtls({
+                                                            organismId: id[index],
+                                                            Category: category[index],
+                                                            Pays: pays[index],
+                                                            Secteur: secteur[index],
+                                                            Ville: ville[index],
+                                                            Phone: phone[index],
+                                                            Email: email[index],
+                                                            Patente: patente[index],
+                                                            Cnss: cnss[index],
+                                                            Identifiant_fiscale: identifiantFiscale[index],
+                                                            Registre_de_commerce: registreDeCommerce[index],
+                                                            Raison_Sociale: raisonSociale[index]
+                                                        })
+                                                        setModifyOrganismVisible(!modifyOrganismVisible);
+                                                    }
+                                                    }
                                                     className="font-medium text-blue-600 hover:underline">Modifier</a>
                                                 <a href="#"
                                                     onClick={() => setConfirmDelete({ organismId: id[index], value: true })}
@@ -359,8 +372,9 @@ export default function SysAllOrganismes() {
                     </tbody>
                 </table >
             </div >
+            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />}
-            {modifyOrganismVisible.value && <SysAddOrganism organismDtls={modifyOrganismVisible} onClose={() => setModifyOrganismVisible({ value: false })} />}
+            {modifyOrganismVisible && <SysAddOrganism organismDtls={organismDtls} onClose={() => setModifyOrganismVisible(false)} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ organismId: null, value: false })} popup>
                 <Modal.Header />
                 <Modal.Body>

@@ -4,17 +4,21 @@ import { Toaster, toast } from "react-hot-toast";
 import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
-export default function SysAddConsultant({ consultantDtls, onClose }) {
+export default function SysAddConsultant({consultantDtls, onClose }) {
 
-    console.log("received --->", consultantDtls)
+    console.log("received in SysADDConsultant --->", consultantDtls)
+
+    const navigate = useNavigate(); // Utilize useNavigate for programmatic navigation
+
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
     // If consultantDtls is provided and has an organismId, we'll include it in consultantDetails
 
-    
+
     const [consultantDetails, setConsultantDetails] = useState({
         first_name: consultantDtls?.first_name || "",
         last_name: consultantDtls?.last_name || "",
@@ -26,7 +30,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
     });
 
     console.log("this is consultant details after binding -->", consultantDetails)
-    
+
     const [organismId, setOrganismId] = useState([]);
     const [organismName, setOrganismName] = useState([]);
 
@@ -148,16 +152,17 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                         "lastname": consultantDetails.last_name,
                         "email": consultantDetails.email,
                         "phone": consultantDetails.phone,
-                        "password": consultantDetails.password,
                     }),
                 });
                 console.log("first, the response is -->", response)
                 if (response?.status === 200 || response?.status === 201) {
-                    toast.success("Cet Organisme est modifié avec succès..");
+                    toast.success("Ce Consultant est modifié avec succès..");
                     setTimeout(() => {
                         setModalOpen(false);
                         setIsLoading(false);
                     }, 2000);
+                    console.log("Navigating Now !")
+                    window.location.reload()
                 }
             } catch (error) {
                 setIsLoading(false);
@@ -260,19 +265,26 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             </select>
                         </div>
                         <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="password" value="Mot de passe initial" />
-                            </div>
-                            <TextInput
-                                id="password"
-                                type="password"
-                                value={consultantDetails.password}
-                                onChange={(event) => setConsultantDetails({
-                                    ...consultantDetails,
-                                    password: event.target.value
-                                })}
-                                required
-                            />
+                            {!consultantDtls ? (
+                                <>
+                                    <div className="mb-2 block">
+                                        <Label htmlFor="password" value="Mot de passe initial" />
+                                    </div>
+                                    <TextInput
+                                        id="password"
+                                        type="password"
+                                        value={consultantDetails.password}
+                                        onChange={(event) => setConsultantDetails({
+                                            ...consultantDetails,
+                                            password: event.target.value
+                                        })}
+                                        required
+                                    />
+                                </>
+                            ) :
+                                (null)
+                            }
+
                         </div>
                         <div className="w-full">
                             {consultantDtls ? (

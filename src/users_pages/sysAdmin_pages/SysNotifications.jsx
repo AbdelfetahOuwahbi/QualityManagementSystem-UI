@@ -2,20 +2,24 @@ import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
 import { Spinner } from "flowbite-react";
 import toast, { Toaster } from "react-hot-toast";
+import { FaBars } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { getAllNotifications } from "../CommonApiCalls";
 import { markNotificationAsRead } from "../CommonApiCalls";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import SysAddConsultant from "./SysAddConsultant";
+import SysMainPage from "./SysMainPage";
 
 export default function SysNotifications() {
+
+    const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
 
     //Loading Variables For Better UX
     const [isLoading, setIsLoading] = useState(false);
     //To show the notification details under the notif card
     const [notifDetailsShowen, setNotifDetailsShowen] = useState([]);
-
+    //Toogler of the add Or modify Consultant visibility
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
 
     //Notification Properties
@@ -108,6 +112,14 @@ export default function SysNotifications() {
                 position="top-center"
                 reverseOrder={false}
             />
+
+            <div className="flex p-4 w-full justify-between">
+                {/* Bars Icon That toogles the visibility of the menu */}
+                <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
+            </div>
+
+            <div className='border-t border-gray-300 py-4'></div>
+
             <div className="w-full h-auto flex flex-col">
                 <div className="w-full h-10 py-7 px-4 md:px-14 flex items-center">
                     <h1 className='text-4xl font-p_bold'>Notifications</h1>
@@ -193,6 +205,7 @@ export default function SysNotifications() {
                 }
 
             </div>
+            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {/* To be dealth with that when the he clicks add the infos to be showen by default on the input */}
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
         </>

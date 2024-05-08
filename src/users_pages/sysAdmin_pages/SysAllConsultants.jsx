@@ -1,34 +1,33 @@
 import React, { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import SysAddConsultant from "./SysAddConsultant";
 import { Button, Modal, ToggleSwitch } from "flowbite-react";
+import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import toast, { Toaster } from "react-hot-toast";
-import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../CommonApiCalls";
 import Cookies from "js-cookie";
+import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../CommonApiCalls";
+import SysAddConsultant from "./SysAddConsultant";
+import SysMainPage from "./SysMainPage";
 
 export default function SysAllConsultants() {
 
+    const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
 
     //Toogler for the addConsultant Modal
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
-
     //for the alert of confirming delete
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
-
     //Data to be sent to Modify the consultant
-    const [modifyConsultantVisible, setModifyConsultantVisible] = useState(
-        {
-            value: false,
-            userId: null,
-            first_name: "",
-            last_name: "",
-            email: "",
-            phone: "",
-        }
-    );
+    const [modifyConsultantVisible, setModifyConsultantVisible] = useState(false);
+    const [consultantDtls, setConsultantDtls] = useState({
+        userId: null,
+        first_name: "",
+        last_name: "",
+        email: "",
+        phone: "",
+    })
 
 
     // Consultant Properties
@@ -37,7 +36,7 @@ export default function SysAllConsultants() {
     const [lastName, setLastName] = useState([]);
     const [email, setEmail] = useState([]);
     const [phone, setPhone] = useState([]);
-    const [role, setRole] = useState([]);
+    // const [role, setRole] = useState([]);
     const [organismeName, setOrganismeName] = useState([]);
     // toogler of the switch that locks/unlocks consultant account
     const [isAccountLocked, setIsAccountLocked] = useState([]);
@@ -66,7 +65,7 @@ export default function SysAllConsultants() {
         setLastName([]);
         setEmail([]);
         setPhone([]);
-        setRole([]);
+        // setRole([]);
         setOrganismeName([])
         try {
             const response = await fetch("http://localhost:8080/api/v1/users/consultants", {
@@ -91,7 +90,7 @@ export default function SysAllConsultants() {
                     setLastName((prev) => [...prev, data[i].lastname]);
                     setEmail((prev) => [...prev, data[i].email]);
                     setPhone((prev) => [...prev, data[i].phone]);
-                    setRole((prev) => [...prev, "Consultant"]);
+                    // setRole((prev) => [...prev, "Consultant"]);
                     setIsAccountLocked((prev) => [...prev, !data[i].accountNonLocked]);
                     setOrganismeName((prev) => [...prev, data[i].organismeDeCertification.raisonSocial]);
                 }
@@ -174,7 +173,7 @@ export default function SysAllConsultants() {
                             duration: 3000,
                         }
                     )
-                } else if(data.includes("locked")) {
+                } else if (data.includes("locked")) {
                     toast.success(`Le compte du consultant ${first_name} a été bloqué .. `,
                         {
                             duration: 3000,
@@ -219,6 +218,14 @@ export default function SysAllConsultants() {
     return (
         <>
             <Toaster position="top-center" reverseOrder={false} />
+
+            <div className="flex p-4 w-full justify-between">
+                {/* Bars Icon That toogles the visibility of the menu */}
+                <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
+            </div>
+
+            <div className='border-t border-gray-300 py-4'></div>
+
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
                     <TiUserAdd onClick={() => setAddConsultantVisible(true)}
@@ -263,9 +270,9 @@ export default function SysAllConsultants() {
                             <th scope="col" className="px-6 py-3">
                                 Téléphone
                             </th>
-                            <th scope="col" className="px-6 py-3">
+                            {/* <th scope="col" className="px-6 py-3">
                                 Rôle
-                            </th>
+                            </th> */}
                             <th scope="col" className="px-6 py-3">
                                 Organisme
                             </th>
@@ -291,7 +298,7 @@ export default function SysAllConsultants() {
                                         <td className="px-6 py-4">{lastName[index]}</td>
                                         <td className="px-6 py-4">{email[index]}</td>
                                         <td className="px-6 py-4">{phone[index]}</td>
-                                        <td className="px-6 py-4">{role[index]}</td>
+                                        {/* <td className="px-6 py-4">{role[index]}</td> */}
                                         <td className="px-6 py-4">{organismeName[index]}</td>
                                         <td>
                                             <ToggleSwitch
@@ -309,16 +316,18 @@ export default function SysAllConsultants() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex gap-4">
-                                                <a href="#" onClick={() =>
-                                                    setModifyConsultantVisible(
+                                                <a href="#" onClick={() => {
+                                                    setConsultantDtls(
                                                         {
-                                                            value: true,
                                                             userId: id[index],
                                                             first_name: firstName[index],
                                                             last_name: lastName[index],
                                                             email: email[index],
                                                             phone: phone[index],
                                                         })
+                                                    setModifyConsultantVisible(!modifyConsultantVisible)
+                                                }
+
                                                 } className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
                                                 <a href="#" onClick={() => setConfirmDelete({ userId: id[index], value: true })} className="font-medium text-red-500 dark:text-blue-500 hover:underline" >Supprimer</a>
                                             </div>
@@ -331,8 +340,9 @@ export default function SysAllConsultants() {
                     </tbody>
                 </table>
             </div>
+            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
-            {modifyConsultantVisible.value && <SysAddConsultant consultantDtls={modifyConsultantVisible} onClose={() => setModifyConsultantVisible({ value: false })} />}
+            {modifyConsultantVisible && <SysAddConsultant consultantDtls={consultantDtls} onClose={() => setModifyConsultantVisible(false)} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ userId: null, value: false })} popup>
                 <Modal.Header />
                 <Modal.Body>

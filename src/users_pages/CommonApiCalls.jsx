@@ -16,15 +16,40 @@ export function isTokenExpired() {
     return decodedToken.exp < currentTimestamp;
 }
 
+//Function that checks wether the user have access or not
+export function doesHeHaveAccess(resource) { //I will pass this ressource as a string (Eg : "RHDocuments:READ")
+
+    const userRolesEncoded = Cookies.get("userRoles");
+
+    if (userRolesEncoded) {
+        const userRolesJSON = decodeURIComponent(userRolesEncoded);
+
+        try {
+            const userRoles = JSON.parse(userRolesJSON);
+
+            for (const role of userRoles) {
+                if (role.name.includes(resource)) {
+                    return true;
+                }
+            }
+        } catch (error) {
+            console.error("Error parsing userRoles JSON:", error);
+            return false;
+        }
+    }
+
+    return false;
+}
+
 //Function that Locks or unlocks a user's Account
 
 export async function lockOrUnlockUser(userId) {
     try {
         const response = await fetch(`http://localhost:8080/api/v1/auth/lock/${userId}`, {
-            method: 'PUT', 
+            method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization' : `Bearer ${Cookies.get("JWT")}`
+                'Authorization': `Bearer ${Cookies.get("JWT")}`
             },
         });
 
@@ -37,7 +62,7 @@ export async function lockOrUnlockUser(userId) {
         }
     } catch (error) {
         console.error('Error locking/unlocking user:', error);
-        throw error; 
+        throw error;
     }
 }
 

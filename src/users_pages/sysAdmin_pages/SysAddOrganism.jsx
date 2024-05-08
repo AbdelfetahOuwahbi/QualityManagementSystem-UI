@@ -96,10 +96,13 @@ export default function SysAddOrganism({ organismDtls, onClose }) {
                 console.log("first, the response is -->", response)
                 if (response?.status === 200 || response?.status === 201) {
                     toast.success("Cet Organisme est modifié avec succès..");
+                    window.location.href = "/SysAdmin"
                     setTimeout(() => {
                         setModalOpen(false);
                         setIsLoading(false);
                     }, 2000);
+                }else {
+                    toast.error("Vous devez changer les informations modifiables ..");
                 }
             } catch (error) {
                 setIsLoading(false);
