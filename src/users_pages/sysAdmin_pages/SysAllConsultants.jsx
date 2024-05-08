@@ -216,11 +216,6 @@ export default function SysAllConsultants() {
         }
     };
 
-
-    useEffect(() => {
-        console.log("Is Account non Locked in useEffect -->", isAccountLocked)
-    }, [isAccountLocked])
-
     return (
         <>
             <Toaster position="top-center" reverseOrder={false} />
