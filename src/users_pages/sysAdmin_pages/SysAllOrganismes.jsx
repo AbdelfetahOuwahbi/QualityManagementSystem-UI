@@ -132,7 +132,12 @@ export default function SysAllOrganismes() {
     // Function to export table data as Excel
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.table_to_sheet(document.getElementById("organismTable"));
+        const tableClone = document.getElementById("organismTable").cloneNode(true);
+        const rows = tableClone.getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].lastChild.remove();
+        }
+        const ws = XLSX.utils.table_to_sheet(tableClone);
         XLSX.utils.book_append_sheet(wb, ws, "Organismes de certifications");
         XLSX.writeFile(wb, "Organismes de certifications.xlsx");
     };

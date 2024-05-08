@@ -161,7 +161,6 @@ export default function SysAddConsultant({consultantDtls, onClose }) {
                         setModalOpen(false);
                         setIsLoading(false);
                     }, 2000);
-                    console.log("Navigating Now !")
                     window.location.reload()
                 }
             } catch (error) {

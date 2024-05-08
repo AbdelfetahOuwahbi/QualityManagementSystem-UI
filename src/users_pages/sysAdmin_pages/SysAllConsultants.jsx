@@ -129,7 +129,13 @@ export default function SysAllConsultants() {
     // Function to export table data as Excel
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.table_to_sheet(document.getElementById("consultantsTable"));
+        const tableClone = document.getElementById("consultantsTable").cloneNode(true);
+        const rows = tableClone.getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].lastChild.remove();
+            rows[i].lastChild.remove();
+        }
+        const ws = XLSX.utils.table_to_sheet(tableClone);
         XLSX.utils.book_append_sheet(wb, ws, "Consultants");
         XLSX.writeFile(wb, "Consultants.xlsx");
     };
