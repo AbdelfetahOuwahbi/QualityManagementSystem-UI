@@ -6,14 +6,14 @@ import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 
-export default function SysAddOrganism({ organismDtls, onClose }) {
+export default function SysAddOrganism({ onClose }) {
 
     // organismDtls ? console.log(organismDtls) : console.log("did not provide details..");
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [organismDetails, setOrganismDetails] = useState(
-        organismDtls || {
+        {
             Category: "",
             Raison_Sociale: "",
             Secteur: "",
@@ -67,53 +67,6 @@ export default function SysAddOrganism({ organismDtls, onClose }) {
             }
         }
     }
-
-    //Function that updates and organism
-    async function updateOrganism(organismDetails) {
-        // Checking the validity of the token
-        if (!isTokenInCookies()) {
-            window.location.href = "/";
-        } else if (isTokenExpired()) {
-            Cookies.remove("JWT");
-            window.location.href = "/";
-        } else {
-            try {
-                setIsLoading(true);
-                const response = await updateEntreprise(
-                    organismDetails.Category,
-                    organismDetails.Pays,
-                    organismDetails.Secteur,
-                    organismDetails.Ville,
-                    organismDetails.Phone,
-                    organismDetails.Email,
-                    organismDetails.Patente,
-                    organismDetails.Cnss,
-                    organismDetails.Identifiant_fiscale,
-                    organismDetails.Registre_de_commerce,
-                    organismDetails.Raison_Sociale,
-                    organismDetails.organismId
-                );
-                console.log("first, the response is -->", response)
-                if (response?.status === 200 || response?.status === 201) {
-                    toast.success("Cet Organisme est modifié avec succès..");
-                    
-                    setTimeout(() => {
-                        setModalOpen(false);
-                        setIsLoading(false);
-                    }, 2000);
-                    window.location.reload()
-                }else {
-                    toast.error("Vous devez changer les informations modifiables ..");
-                }
-            } catch (error) {
-                setIsLoading(false);
-                console.error(error); // Handle errors
-                toast.error("Une erreur s'est produite lors de la modification de cet organisme.");
-            }
-        }
-    }
-
-
 
     return (
         <>
@@ -240,11 +193,9 @@ export default function SysAddOrganism({ organismDtls, onClose }) {
                             />
                         </div>
                         <div className="w-full">
-                            {organismDtls ? (
-                                <Button onClick={() => updateOrganism(organismDetails)}>{isLoading ? <Spinner /> : "Modifier"}</Button>
-                            ) : (
-                                <Button onClick={() => saveOrganism(organismDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
-                            )}
+
+                            <Button onClick={() => saveOrganism(organismDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
+
                         </div>
                     </div>
                 </Modal.Body>

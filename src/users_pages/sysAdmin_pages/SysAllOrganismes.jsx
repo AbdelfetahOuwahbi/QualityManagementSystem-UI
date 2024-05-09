@@ -18,21 +18,6 @@ export default function SysAllOrganismes() {
 
     const [addOrganismVisible, setAddOrganismVisible] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState({ organismId: null, value: false });
-    const [modifyOrganismVisible, setModifyOrganismVisible] = useState(false);
-    const [organismDtls, setOrganismDtls] = useState({
-        organismId: null,
-        Category: "",
-        Pays: "",
-        Secteur: "",
-        Ville: "",
-        Phone: "",
-        Email: "",
-        Patente: "",
-        Cnss: "",
-        Identifiant_fiscale: "",
-        Registre_de_commerce: "",
-        Raison_Sociale: ""
-    })
 
     const [id, setId] = useState([]);
     const [category, setCategory] = useState([]);
@@ -346,21 +331,6 @@ export default function SysAllOrganismes() {
                                             <div className="flex gap-4">
                                                 <a href="#"
                                                     onClick={() => {
-                                                        setOrganismDtls({
-                                                            organismId: id[index],
-                                                            Category: category[index],
-                                                            Pays: pays[index],
-                                                            Secteur: secteur[index],
-                                                            Ville: ville[index],
-                                                            Phone: phone[index],
-                                                            Email: email[index],
-                                                            Patente: patente[index],
-                                                            Cnss: cnss[index],
-                                                            Identifiant_fiscale: identifiantFiscale[index],
-                                                            Registre_de_commerce: registreDeCommerce[index],
-                                                            Raison_Sociale: raisonSociale[index]
-                                                        })
-                                                        setModifyOrganismVisible(!modifyOrganismVisible);
                                                     }
                                                     }
                                                     className="font-medium text-blue-600 hover:underline">Modifier</a>
@@ -379,7 +349,6 @@ export default function SysAllOrganismes() {
             </div >
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />}
-            {modifyOrganismVisible && <SysAddOrganism organismDtls={organismDtls} onClose={() => setModifyOrganismVisible(false)} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ organismId: null, value: false })} popup>
                 <Modal.Header />
                 <Modal.Body>

@@ -19,16 +19,6 @@ export default function SysAllConsultants() {
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
     //for the alert of confirming delete
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
-    //Data to be sent to Modify the consultant
-    const [modifyConsultantVisible, setModifyConsultantVisible] = useState(false);
-    const [consultantDtls, setConsultantDtls] = useState({
-        userId: null,
-        first_name: "",
-        last_name: "",
-        email: "",
-        phone: "",
-    })
-
 
     // Consultant Properties
     const [id, setId] = useState([]);
@@ -318,15 +308,6 @@ export default function SysAllConsultants() {
                                         <td className="px-6 py-4">
                                             <div className="flex gap-4">
                                                 <a href="#" onClick={() => {
-                                                    setConsultantDtls(
-                                                        {
-                                                            userId: id[index],
-                                                            first_name: firstName[index],
-                                                            last_name: lastName[index],
-                                                            email: email[index],
-                                                            phone: phone[index],
-                                                        })
-                                                    setModifyConsultantVisible(!modifyConsultantVisible)
                                                 }
 
                                                 } className="font-medium text-blue-600 dark:text-blue-500 hover:underline">Modifier</a>
@@ -343,7 +324,6 @@ export default function SysAllConsultants() {
             </div>
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
-            {modifyConsultantVisible && <SysAddConsultant consultantDtls={consultantDtls} onClose={() => setModifyConsultantVisible(false)} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ userId: null, value: false })} popup>
                 <Modal.Header />
                 <Modal.Body>

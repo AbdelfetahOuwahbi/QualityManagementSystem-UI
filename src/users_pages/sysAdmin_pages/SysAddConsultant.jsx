@@ -4,13 +4,8 @@ import { Toaster, toast } from "react-hot-toast";
 import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
-import { useNavigate } from "react-router-dom";
 
-export default function SysAddConsultant({consultantDtls, onClose }) {
-
-    console.log("received in SysADDConsultant --->", consultantDtls)
-
-    const navigate = useNavigate(); // Utilize useNavigate for programmatic navigation
+export default function SysAddConsultant({ onClose }) {
 
 
     const [modalOpen, setModalOpen] = useState(true);
@@ -20,16 +15,16 @@ export default function SysAddConsultant({consultantDtls, onClose }) {
 
 
     const [consultantDetails, setConsultantDetails] = useState({
-        first_name: consultantDtls?.first_name || "",
-        last_name: consultantDtls?.last_name || "",
-        email: consultantDtls?.email || "",
+        first_name: "",
+        last_name: "",
+        email: "",
         password: "",
-        phone: consultantDtls?.phone || "",
-        organism: consultantDtls?.organismId || "",
-        userId: consultantDtls?.userId || ""
+        phone: "",
+        organism: "",
+        userId: ""
     });
 
-    console.log("this is consultant details after binding -->", consultantDetails)
+    // console.log("this is consultant details after binding -->", consultantDetails)
 
     const [organismId, setOrganismId] = useState([]);
     const [organismName, setOrganismName] = useState([]);
@@ -129,48 +124,6 @@ export default function SysAddConsultant({consultantDtls, onClose }) {
         }
     }
 
-    //Function that updates a consultant
-    async function updateConsultant(consultantDetails) {
-        console.log("consultant details before performing the update -->", consultantDetails)
-        // Checking the validity of the token
-        if (!isTokenInCookies()) {
-            window.location.href = "/";
-        } else if (isTokenExpired()) {
-            Cookies.remove("JWT");
-            window.location.href = "/";
-        } else {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:8080/api/v1/users/consultants/${consultantDetails.userId}?organismeId=${consultantDetails.organism}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
-                    },
-                    body: JSON.stringify({
-                        "firstname": consultantDetails.first_name,
-                        "lastname": consultantDetails.last_name,
-                        "email": consultantDetails.email,
-                        "phone": consultantDetails.phone,
-                    }),
-                });
-                console.log("first, the response is -->", response)
-                if (response?.status === 200 || response?.status === 201) {
-                    toast.success("Ce Consultant est modifié avec succès..");
-                    setTimeout(() => {
-                        setModalOpen(false);
-                        setIsLoading(false);
-                    }, 2000);
-                    window.location.reload()
-                }
-            } catch (error) {
-                setIsLoading(false);
-                console.error(error); // Handle errors
-                toast.error("Une erreur s'est produite lors de la modification de cet organisme.");
-            }
-        }
-    }
-
 
     return (
         <>
@@ -235,7 +188,7 @@ export default function SysAddConsultant({consultantDtls, onClose }) {
                                     ...consultantDetails,
                                     phone: event.target.value
                                 })}
-                                required
+                                required={true}
                             />
                         </div>
                         <div>
@@ -264,33 +217,26 @@ export default function SysAddConsultant({consultantDtls, onClose }) {
                             </select>
                         </div>
                         <div>
-                            {!consultantDtls ? (
-                                <>
-                                    <div className="mb-2 block">
-                                        <Label htmlFor="password" value="Mot de passe initial" />
-                                    </div>
-                                    <TextInput
-                                        id="password"
-                                        type="password"
-                                        value={consultantDetails.password}
-                                        onChange={(event) => setConsultantDetails({
-                                            ...consultantDetails,
-                                            password: event.target.value
-                                        })}
-                                        required
-                                    />
-                                </>
-                            ) :
-                                (null)
-                            }
+
+                            <div className="mb-2 block">
+                                <Label htmlFor="password" value="Mot de passe initial" />
+                            </div>
+                            <TextInput
+                                id="password"
+                                type="password"
+                                value={consultantDetails.password}
+                                onChange={(event) => setConsultantDetails({
+                                    ...consultantDetails,
+                                    password: event.target.value
+                                })}
+                                required
+                            />
 
                         </div>
                         <div className="w-full">
-                            {consultantDtls ? (
-                                <Button onClick={() => updateConsultant(consultantDetails)}>{isLoading ? <Spinner /> : "Modifier"}</Button>
-                            ) : (
-                                <Button onClick={() => saveConsultant(consultantDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
-                            )}
+
+                            <Button onClick={() => saveConsultant(consultantDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
+
                         </div>
                     </div>
                 </Modal.Body>

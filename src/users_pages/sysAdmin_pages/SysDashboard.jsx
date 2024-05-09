@@ -12,6 +12,7 @@ import toast, { Toaster } from 'react-hot-toast';
 export default function SysDashboard() {
   const [consultants, setConsultants] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);  // State for user count
+  const [totalConsultants, setTotalConsultants] = useState(0);  // State for Consultant count
 
   // How many notifications did the SysAdmin Receive
   const [notifsNumber, setNotifsNumber] = useState(0);
@@ -27,6 +28,7 @@ export default function SysDashboard() {
   })
 
 
+  //Counting all notifs when the Dashboard Page loads
   useEffect(() => {
     if (!isTokenInCookies()) {
       window.location.href = "/"
@@ -78,8 +80,10 @@ export default function SysDashboard() {
     })
       .then(response => response.json())
       .then(data => {
+        console.log("consultants are -->", data)
         setConsultants(data);
         const consultantsCount = data.length;
+        console.log("number of consultants is -->", consultantsCount)
         setTotalConsultants(consultantsCount);
       })
       .catch(error => console.error('Error fetching consultants data:', error));
@@ -94,20 +98,29 @@ export default function SysDashboard() {
     })
       .then(response => response.json())
       .then(data => {
-        setTotalUsers(data.count);  // Assuming the response format has a count property
+        console.log("number of users is -->", data)
+        setTotalUsers(data);
       })
       .catch(error => console.error('Error fetching user count:', error));
   }, []);
 
-  const getTotal = (key) => {
-    if (!consultants) return 0;
-    // Si la clé est 'organismeDeCertification', traiter différemment pour obtenir des ID uniques
-    if (key === 'organismeDeCertification') {
-      const uniqueIds = new Set(consultants.map(consultant => consultant[key]?.id).filter(id => id !== undefined));
-      return uniqueIds.size;
+  const countUniqueOrganismes = (organisationType, data) => {
+    const uniqueOrganisation = new Set();
+    if (organisationType === "Organism") {
+      data.forEach((consultant) => {
+        if (consultant.organismeDeCertification) {
+          uniqueOrganisation.add(consultant.organismeDeCertification.id);
+        }
+      });
+    } else {
+      data.forEach((consultant) => {
+        if (consultant.entreprises.id) {
+          uniqueOrganisation.add(consultant.entreprises.id);
+        }
+      });
     }
-    // Comportement précédent pour les autres clés
-    return consultants.reduce((acc, consultant) => acc + (consultant[key]?.length || 0), 0);
+    console.log('Total unique organisations:', uniqueOrganisation.size);
+    return uniqueOrganisation.size;
   };
 
   //Function that Changes the Password for SysAdmin
@@ -135,38 +148,34 @@ export default function SysDashboard() {
       title: "Total Users",
       content: totalUsers,
       icon: <FaUsers className="text-3xl text-white" />,
-      color: "bg-purple-500",
+      color: "bg-gradient-to-r from-cyan-500 to-blue-500",
       change: "+5.0% vs last 90 days"
     }, {
       title: "Total Consultants",
       content: consultants.length,
       icon: <FaUserTie className="text-3xl text-white" />,
-      color: "bg-green-500"
+      color: "bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%"
     },
     {
       title: "Total Organisations",
-      content: getTotal('organismeDeCertification'),
+      content: countUniqueOrganismes("Organism", consultants),
       icon: <FaBuilding className="text-3xl text-white" />,
-      color: "bg-blue-500"
+      color: "bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%"
     },
     {
       title: "Total Enterprises",
-      content: getTotal('entreprises'),
+      content: "",
       icon: <FaRegHandshake className="text-3xl text-white" />,
-      color: "bg-yellow-500"
+      color: "bg-gradient-to-r from-cyan-500 to-blue-500"
     }
   ];
-
-  useEffect(() => {
-    console.log("current pass -->", changedPasswordProperties.currentPassword)
-  }, [changedPasswordProperties.currentPassword])
 
   return (
     <>
       <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col w-full h-auto">
 
-        <div className="flex p-4 w-full justify-between">
+        <div className="flex p-4 w-full items-center justify-between">
           {/* Bars Icon That toogles the visibility of the menu */}
           <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
 
@@ -176,7 +185,7 @@ export default function SysDashboard() {
               <IoIosNotificationsOutline onClick={() => window.location.href = '/SysNotifications'} className='w-6 h-6 cursor-pointer text-neutral-600' />
               {/* This part will be dealed with once we start getting data from our api */}
               {notifsNumber !== 0 &&
-                <div className="absolute top-0 right-0 -mr-[1px] -mt-[-1px] w-3 h-3 rounded-full bg-red-600 flex items-center justify-center">
+                <div className="absolute top-0 right-0 -mr-[1px] -mt-[-12px] w-3 h-3 rounded-full bg-red-600 flex items-center justify-center">
                   <p className="text-white text-xs font-thin">{notifsNumber}</p>
                 </div>
               }
@@ -227,6 +236,12 @@ export default function SysDashboard() {
 
         </div>
         <div className='border-t border-gray-300 py-4'></div>
+
+        <div className="w-full h-10 py-7 px-4 md:px-14 flex items-center">
+          <h1 className='text-4xl font-p_bold'>Dashboard</h1>
+        </div>
+        <div className='border-t border-gray-300 w-96 mb-10'></div>
+
       </div>
 
 
@@ -234,41 +249,15 @@ export default function SysDashboard() {
         <div className="flex flex-wrap justify-between">
           {cardData.map((card, index) => (
             <Card key={index}
-              className={`${card.color} text-white shadow-lg transition-shadow duration-300 p-4 mb-4 md:w-1/4`}>
+              className={`${card.color} flex text-white shadow-lg duration-300  flex-col mb-4 md:flex-row w-full md:w-1/2`}>
               <div>
-                <h5 className="text-xl font-bold">{card.title}</h5>
-                <p className="text-2xl font-bold">{card.content}</p>
-                <p className="text-sm opacity-75">{card.change}</p>
-                <div>{card.icon}</div>
+                <h5 className="text-xl font-p_bold">{card.title}</h5>
+                <p className="text-2xl font-p_semi_bold">{card.content}</p>
+                <p className="text-sm font-p_extra_light opacity-75">{card.change}</p>
+                <div className='w-6 h-6'>{card.icon}</div>
               </div>
             </Card>
           ))}
-        </div>
-        <div className="flex flex-col md:flex-row space-x-4">
-          <div className="md:w-1/2 md:ml-auto">
-            <div className="overflow-auto">
-              <Table striped={true} hoverable={true}>
-                <Table.Head>
-                  <Table.HeadCell>Entreprise</Table.HeadCell>
-                  <Table.HeadCell>Consultant</Table.HeadCell>
-                  <Table.HeadCell>Organisme</Table.HeadCell>
-                </Table.Head>
-                <Table.Body>
-                  {consultants.map(consultant => (
-                    consultant.entreprises.map((entreprise, index) => (
-                      <Table.Row key={index}>
-                        <Table.Cell>{entreprise.raisonSocial}</Table.Cell>
-                        <Table.Cell>{consultant.firstname + " " + consultant.lastname}</Table.Cell>
-                        <Table.Cell>{consultant.organismeDeCertification.raisonSocial}</Table.Cell>
-                      </Table.Row>
-                    ))
-                  ))}
-                </Table.Body>
-              </Table>
-
-            </div>
-          </div>
-
         </div>
       </div>
       {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
