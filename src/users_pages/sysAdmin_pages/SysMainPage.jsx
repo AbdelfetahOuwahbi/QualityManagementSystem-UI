@@ -22,23 +22,13 @@ import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import { handleLogout } from "../CommonApiCalls";
 import SysDashboard from "./SysDashboard";
 
-export default function SysMainPage() {
-  const [isOpen, setIsOpen] = useState(false);
-
-
-  //Controlling the content to display
-  const [displayedContent, setDisplayedContent] = useState("Dashboard");
-  const handleClose = () => setIsOpen(false);
+export default function SysMainPage({onClose}) {
+  const [isOpen, setIsOpen] = useState(true);
 
   // How many notifications did the SysAdmin Receive
   const [notifsNumber, setNotifsNumber] = useState(0);
 
-
-
   useEffect(() => {
-    //Checking the validity of the token starts
-    // console.log("is the token is Cookies -> ", isTokenInCookies());
-    // console.log("is the token Expired -> ", isTokenExpired());
     if (!isTokenInCookies()) {
       window.location.href = "/"
     } else if (isTokenExpired()) {
@@ -79,51 +69,8 @@ export default function SysMainPage() {
 
   return (
     <>
-      <div className="flex flex-col w-full h-auto">
-
-        <div className="flex p-4 w-full justify-between">
-          {/* Bars Icon That toogles the visibility of the menu */}
-          <FaBars onClick={() => setIsOpen(true)} className='w-6 h-6 cursor-pointer text-neutral-600' />
-          {
-            displayedContent === "Dashboard" &&
-
-            <div className="flex justify-between gap-6">
-              {/* Notification Icon and Indicator */}
-              <div className="relative flex items-center">
-                <IoIosNotificationsOutline onClick={() => setDisplayedContent("Notifications")} className='w-6 h-6 cursor-pointer text-neutral-600' />
-                {/* This part will be dealed with once we start getting data from our api */}
-                {notifsNumber !== 0 &&
-                  <div className="absolute top-0 right-0 -mr-[1px] -mt-[-1px] w-3 h-3 rounded-full bg-red-600 flex items-center justify-center">
-                    <p className="text-white text-xs font-thin">{notifsNumber}</p>
-                  </div>
-                }
-              </div>
-
-
-              {/* Settings Icon */}
-              <CiSettings className='w-6 h-6 cursor-pointer text-neutral-600' />
-            </div>
-          }
-        </div>
-        <div className='border-t border-gray-300 py-4'></div>
-        {/* The Content to Display Based On The Clicked Menu Button*/}
-        {displayedContent === "Dashboard" ?
-          <SysDashboard /> :
-          displayedContent === "Notifications" ?
-            <SysNotifications /> :
-            displayedContent === "ConsultantsList" ?
-              <SysAllConsultants /> :
-              displayedContent === "AddConsultant" ?
-                <SysAddConsultant /> :
-                displayedContent === "OrganismesList" ?
-                  <SysAllOrganismes /> :
-                  displayedContent === "AddOrganism" ?
-                    <SysAddOrganism /> : null
-        }
-      </div>
-
       {/* The Navigation Menu */}
-      <Drawer open={isOpen} onClose={handleClose}>
+      <Drawer open={isOpen} onClose={onClose}>
         <Drawer.Header />
         <Drawer.Items>
           {/* Profile Image */}
@@ -140,25 +87,19 @@ export default function SysMainPage() {
               <Sidebar.ItemGroup>
 
                 <Sidebar.Item onClick={() => {
-                  setDisplayedContent("Dashboard")
-                  setIsOpen(false)
-                }} href="#" icon={HiChartPie}>
+                }} href="/SysDashboard" icon={HiChartPie}>
                   Dashboard
                 </Sidebar.Item>
 
                 <Sidebar.Item onClick={() => {
-                  setDisplayedContent("Notifications")
-                  setIsOpen(false)
-                }} href="#" icon={IoMdNotificationsOutline} label={notifsNumber}>
+                }} href="/SysNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
                   Boite
                 </Sidebar.Item>
 
                 <Sidebar.Collapse icon={FaUsersLine} label="Consultants SMQ">
 
                   <Sidebar.Item onClick={() => {
-                    setDisplayedContent("ConsultantsList")
-                    setIsOpen(false)
-                  }} icon={CiBoxList} href="#">Liste des Consultants SMQ
+                  }} icon={CiBoxList} href="/SysAllConsultants">Liste des Consultants SMQ
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
@@ -166,14 +107,12 @@ export default function SysMainPage() {
                 <Sidebar.Collapse icon={GoOrganization} label="Orga. de Cerification">
 
                   <Sidebar.Item onClick={() => {
-                    setDisplayedContent("OrganismesList")
-                    setIsOpen(false)
-                  }} icon={CiBoxList} href="#">Liste des Organismes
+                  }} icon={CiBoxList} href="/SysAllOrganismes">Liste des Organismes
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
 
-                <Sidebar.Item onClick={() => handleLogout()} href="#" icon={FaSignOutAlt}>
+                <Sidebar.Item onClick={() => handleLogout()} icon={FaSignOutAlt}>
                   Déconnexion
                 </Sidebar.Item>
 

@@ -1,21 +1,21 @@
 import React, {useEffect, useState} from "react";
 import {TiUserAdd} from "react-icons/ti";
 import {HiOutlineExclamationCircle} from "react-icons/hi";
-import SysAddConsultant from "./SysAddConsultant";
-import {Button, Modal, ToggleSwitch} from "flowbite-react";
+import {Button, FloatingLabel, Modal, ToggleSwitch} from "flowbite-react";
+import {FaBars} from "react-icons/fa";
 import * as XLSX from "xlsx";
 import toast, {Toaster} from "react-hot-toast";
-import {isTokenExpired, isTokenInCookies, lockOrUnlockUser} from "../CommonApiCalls";
 import Cookies from "js-cookie";
+import {isTokenExpired, isTokenInCookies, lockOrUnlockUser} from "../CommonApiCalls";
+import SysMainPage from "./SysMainPage";
 
 export default function SysAllConsultants() {
-    // Ajouter un nouvel état pour suivre l'index de la ligne en cours de modification
-    const [editingIndex, setEditingIndex] = useState(-1); // -1 signifie qu'aucune ligne n'est en cours de modification
+
+    const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
 
     //Toogler for the addConsultant Modal
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
     const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
-
     //for the alert of confirming delete
     const [confirmDelete, setConfirmDelete] = useState({userId: null, value: false});
 
@@ -26,31 +26,36 @@ export default function SysAllConsultants() {
     const [email, setEmail] = useState([]);
     const [phone, setPhone] = useState([]);
     const [organismeName, setOrganismeName] = useState([]);
+    const [organismeId, setOrganismeId] = useState([]);
     // toogler of the switch that locks/unlocks consultant account
     const [isAccountLocked, setIsAccountLocked] = useState([]);
 
+    // Ajouter un nouvel état pour suivre l'index de la ligne en cours de modification
+    const [editingIndex, setEditingIndex] = useState(-1); // -1 signifie qu'aucune ligne n'est en cours de modification
 
     // Search states for each field
     const [searchFirstName, setSearchFirstName] = useState('');
     const [searchLastName, setSearchLastName] = useState('');
     const [searchEmail, setSearchEmail] = useState('');
     const [searchPhone, setSearchPhone] = useState('');
+    const [searchRole, setSearchRole] = useState('');
     const [searchOrganismeName, setSearchOrganismeName] = useState('');
+
 
     // State to store all organismes
     const [organismes, setOrganismes] = useState([]);
+    const   [idToSendOrganism, setIdToSendOrganism] = useState(0);
 
     const [originalData, setOriginalData] = useState({});
     const handleEditClick = (index) => {
-        const currentData = {
+        setOriginalData({
             firstName: firstName[index],
             lastName: lastName[index],
             email: email[index],
             phone: phone[index],
             organismeName: organismeName[index],
             isAccountLocked: isAccountLocked[index]
-        };
-        setOriginalData(currentData);
+        });
         setEditingIndex(index);
     };
 
@@ -103,6 +108,7 @@ export default function SysAllConsultants() {
                     setEmail((prev) => [...prev, data[i].email]);
                     setPhone((prev) => [...prev, data[i].phone]);
                     setIsAccountLocked((prev) => [...prev, !data[i].accountNonLocked]);
+                    setOrganismeId((prev) => [...prev, data[i].organismeDeCertification.id]);
                     setOrganismeName((prev) => [...prev, data[i].organismeDeCertification.raisonSocial]);
                 }
             } else {
@@ -132,8 +138,8 @@ export default function SysAllConsultants() {
             } else {
                 console.log("Already Got all consultants ..");
             }
-            fetchOrganismes();  // Votre fonction pour charger les données des organismes
 
+            fetchOrganismes();  // Votre fonction pour charger les données des organismes
         }
     }, []);
 
@@ -157,7 +163,13 @@ export default function SysAllConsultants() {
     // Function to export table data as Excel
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.table_to_sheet(document.getElementById("consultantsTable"));
+        const tableClone = document.getElementById("consultantsTable").cloneNode(true);
+        const rows = tableClone.getElementsByTagName("tr");
+        for (let i = 0; i < rows.length; i++) {
+            rows[i].lastChild.remove();
+            rows[i].lastChild.remove();
+        }
+        const ws = XLSX.utils.table_to_sheet(tableClone);
         XLSX.utils.book_append_sheet(wb, ws, "Consultants");
         XLSX.writeFile(wb, "Consultants.xlsx");
     };
@@ -223,16 +235,21 @@ export default function SysAllConsultants() {
         switch (selectedField) {
             case 'firstName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)} disabled={editingIndex !== -1}/>;
+                              placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
+                              disabled={editingIndex !== -1}/>;
             case 'lastName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)} disabled={editingIndex !== -1}/>;
+                              placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
+                              disabled={editingIndex !== -1}/>;
             case 'email':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)} disabled={editingIndex !== -1}/>;
+                              placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
+                              disabled={editingIndex !== -1}/>;
             case 'phone':
-                return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)} disabled={editingIndex !== -1}/>;
+                return <input type="number"
+                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                              placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
+                              disabled={editingIndex !== -1}/>;
             case 'organisme':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
                               placeholder="Rechercher organisme"
@@ -242,13 +259,56 @@ export default function SysAllConsultants() {
         }
     };
 
+    const updateConsultant = async (indexId,index) => {
+
+        setEditingIndex(-1)
+        // Vérification de la validité du jeton
+        if (!isTokenInCookies()) {
+            window.location.href = "/";
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/";
+        } else {
+            try {
+                console.log("consultant details before performing the update -->", id[index])
+                const response = await fetch(`http://localhost:8080/api/v1/users/consultants/${id[index]}?organismeId=${indexId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    },
+                    body: JSON.stringify({
+                        "firstname": firstName[index],
+                        "lastname": lastName[index],
+                        "email": email[index],
+                        "phone": phone[index],
+                    }),
+                });
+                console.log("first, the response is -->", response);
+                if (response.status === 200 || response.status === 201) {
+                    toast.success("Ce Consultant est modifié avec succès.");
+                }
+            } catch (error) {
+                console.error(error); // Gérer les erreurs
+                toast.error("Une erreur s'est produite lors de la modification de ce consultant.");
+            }
+        }
+    };
+
     return (
         <>
             <Toaster position="top-center" reverseOrder={false}/>
+            <div className="flex p-4 w-full justify-between">
+                {/* Bars Icon That toogles the visibility of the menu */}
+                <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
+                        className='w-6 h-6 cursor-pointer text-neutral-600'/>
+            </div>
+            <div className='border-t border-gray-300 py-4'></div>
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
-                    <TiUserAdd     onClick={editingIndex === -1 ? () => setAddConsultantVisible(true) : null} //editingIndex === -1 pour ne pas cliquer sur le bouton si on est en train de modifier une ligne
-                                   className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                    <TiUserAdd
+                        onClick={editingIndex === -1 ? () => setAddConsultantVisible(true) : null} //editingIndex === -1 pour ne pas cliquer sur le bouton si on est en train de modifier une ligne
+                        className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                     />
                     {/* Button to export table as Excel */}
                     <button
@@ -318,29 +378,56 @@ export default function SysAllConsultants() {
                                 <tr key={index} className="border-b">
                                     {editingIndex === index ? (
                                         <>
-                                            <td className="px-6 py-4"><input type="text" value={firstName[index]}
-                                                                             onChange={(e) => setFirstName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}/>
+                                            <td className="px-6 py-4">
+                                                <FloatingLabel
+                                                    onChange={(e) => setFirstName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                    variant="outlined" label={originalData.firstName} />
                                             </td>
-                                            <td className="px-6 py-4"><input type="text" value={lastName[index]}
-                                                                             onChange={(e) => setLastName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}/>
+                                            <td className="px-6 py-4">
+                                                <FloatingLabel
+                                                onChange={(e) => setLastName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                variant="outlined" label={originalData.lastName} />
                                             </td>
-                                            <td className="px-6 py-4"><input type="text" value={email[index]}
-                                                                             onChange={(e) => setEmail(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}/>
+                                            <td className="px-6 py-4">
+                                                <FloatingLabel
+                                                    onChange={(e) => setEmail(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                    variant="outlined" label={originalData.email} />
                                             </td>
-                                            <td className="px-6 py-4"><input type="text" value={phone[index]}
-                                                                             onChange={(e) => setPhone(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}/>
+                                            <td className="px-6 py-4">
+                                                <FloatingLabel
+                                                    type="number"
+                                                    onChange={(e) => setPhone(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                    variant="outlined" label={originalData.phone} />
                                             </td>
                                             <td className="px-6 py-4">
                                                 <select
+                                                    id="mySelect"
                                                     value={organismeName[index]}
-                                                    onChange={(e) => setOrganismeName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    className="rounded border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    onChange={(e) => {
+                                                        const selectedOrganisme = organismes.find((organisme) => organisme.raisonSocial === e.target.value);
+                                                        if (selectedOrganisme) {
+                                                            setOrganismeId(selectedOrganisme.id); // Assuming setOrganismeId is a state setter for the selected organisme's ID
+                                                        }
+                                                        setOrganismeName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)]);
+                                                    }}
+                                                    onBlur={(e) => {
+                                                        const selectedOrganisme = organismes.find((organisme) => organisme.raisonSocial === e.target.value);
+                                                        if (selectedOrganisme) {
+                                                            console.log('Selected Organisme ID:', selectedOrganisme.id);
+                                                            setIdToSendOrganism(selectedOrganisme.id)
+
+                                                        }
+                                                    }}
+                                                    className="rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500 block w-full sm:text-sm"
+                                                >
                                                     {organismes.map((organisme, idx) => (
                                                         <option key={idx} value={organisme.raisonSocial}>
                                                             {organisme.raisonSocial}
                                                         </option>
                                                     ))}
                                                 </select>
+
+
                                             </td>
                                             <td>
                                                 <ToggleSwitch
@@ -358,11 +445,14 @@ export default function SysAllConsultants() {
                                             </td>
 
                                             <td className="px-6 py-4">
-                                                <button onClick={() => setEditingIndex(-1)}
-                                                        className="text-green-600 hover:underline ml-2">Enregistrer
-                                                </button>
-                                                <button onClick={() => handleCancelClick(index)} className="text-red-600 hover:underline ml-2">Annuler</button>
-
+                                                <div className="flex gap-4">
+                                                    <button onClick={() => updateConsultant(idToSendOrganism || organismeId[index] ,index)}
+                                                            className=" font-medium text-green-600 hover:underline ml-2">Enregistrer
+                                                    </button>
+                                                    <button onClick={() => handleCancelClick(index)}
+                                                            className="font-medium text-red-600 hover:underline">Annuler
+                                                    </button>
+                                                </div>
                                             </td>
                                         </>
                                     ) : (
@@ -388,18 +478,21 @@ export default function SysAllConsultants() {
                                             </td>
 
                                             <td className="px-6 py-4">
-                                                <button onClick={() => handleEditClick(index)}
-                                                        disabled={disableEdit} className={`text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                    Modifier
-                                                </button>
-                                                <a href="#"
-                                                   onClick={(e) => {
-                                                       e.preventDefault(); // Prévenir le comportement par défaut du lien
-                                                       if (!disableEdit) {
-                                                           setConfirmDelete({userId: id[index], value: true});
-                                                       }
-                                                   }}
-                                                   className={`text-red-500 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
+                                                <div className="flex gap-4">
+                                                    <button onClick={() => handleEditClick(index)}
+                                                            disabled={disableEdit}
+                                                            className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        Modifier
+                                                    </button>
+                                                    <a href="#"
+                                                       onClick={(e) => {
+                                                           e.preventDefault(); // Prévenir le comportement par défaut du lien
+                                                           if (!disableEdit) {
+                                                               setConfirmDelete({userId: id[index], value: true});
+                                                           }
+                                                       }}
+                                                       className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
+                                                </div>
                                             </td>
                                         </>
                                     )}
@@ -413,8 +506,10 @@ export default function SysAllConsultants() {
 
                 </table>
             </div>
+            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)}/>}
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)}/>}
-            <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({userId: null, value: false})} popup>
+            <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({userId: null, value: false})}
+                   popup>
                 <Modal.Header/>
                 <Modal.Body>
                     <div className="text-center">
