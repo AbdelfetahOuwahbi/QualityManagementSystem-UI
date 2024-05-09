@@ -41,6 +41,33 @@ export function doesHeHaveAccess(resource) { //I will pass this ressource as a s
     return false;
 }
 
+//Function to change the password
+
+export async function changePassword(currentPassword, newPassword, confirmationPassword) {
+    console.log("received in common calls -->")
+    console.log(currentPassword);
+    console.log(newPassword);
+    console.log(confirmationPassword);
+    try {
+        const response = await fetch("http://localhost:8080/api/v1/auth/changePassword", {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${Cookies.get("JWT")}`
+            },
+            body: JSON.stringify({
+                currentPassword: currentPassword,
+                newPassword: newPassword,
+                confirmationPassword: confirmationPassword
+            })
+        });
+        return response;
+    } catch (error) {
+        console.error("Error changing password:", error);
+        // Handle network errors or other exceptions
+    }
+}
+
 //Function that Locks or unlocks a user's Account
 
 export async function lockOrUnlockUser(userId) {

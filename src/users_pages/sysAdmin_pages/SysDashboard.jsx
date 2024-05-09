@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Table } from "flowbite-react";
+import { Card, Table, Popover, Label, TextInput, Button, FloatingLabel } from "flowbite-react";
 import { FaBuilding, FaRegHandshake, FaUsers, FaUserTie } from 'react-icons/fa';
 import { CiSettings } from "react-icons/ci";
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { FaBars } from "react-icons/fa";
-import { Bar } from 'react-chartjs-2';
-import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { isTokenExpired, isTokenInCookies, countNotifications } from '../CommonApiCalls';
+import { isTokenExpired, isTokenInCookies, countNotifications, changePassword } from '../CommonApiCalls';
 import Cookies from 'js-cookie'
 import SysMainPage from './SysMainPage';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SysDashboard() {
   const [consultants, setConsultants] = useState([]);
@@ -17,6 +16,15 @@ export default function SysDashboard() {
   // How many notifications did the SysAdmin Receive
   const [notifsNumber, setNotifsNumber] = useState(0);
   const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
+  //Settings Popover State
+  const [open, setOpen] = useState(false);
+
+  //Change password properties
+  const [changedPasswordProperties, setChangedPasswordProperties] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmationPassword: "",
+  })
 
 
   useEffect(() => {
@@ -102,7 +110,25 @@ export default function SysDashboard() {
     return consultants.reduce((acc, consultant) => acc + (consultant[key]?.length || 0), 0);
   };
 
-  //
+  //Function that Changes the Password for SysAdmin
+  async function changePasswordForSysAdmin(currentPassword, newPassword, confirmationPassword) {
+    if (newPassword === confirmationPassword) {
+      try {
+        const response = await changePassword(currentPassword, newPassword, confirmationPassword);
+        if (response.ok) {
+          console.log("Password changes successfully for SysAdmin");
+          toast.success("Votre mot de passe a été changé avec succès ..");
+        } else {
+          toast.error("Une erreur s'est produite, ressayer plus tard !!")
+        }
+      } catch (error) {
+        console.error("Error changing password for SysAdmin:", error);
+      }
+    } else {
+      toast.error("Le nouveau mot de passe et sa confirmation ne sont pas identiques !!")
+    }
+  }
+
 
   const cardData = [
     {
@@ -131,8 +157,13 @@ export default function SysDashboard() {
     }
   ];
 
+  useEffect(() => {
+    console.log("current pass -->", changedPasswordProperties.currentPassword)
+  }, [changedPasswordProperties.currentPassword])
+
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col w-full h-auto">
 
         <div className="flex p-4 w-full justify-between">
@@ -151,9 +182,47 @@ export default function SysDashboard() {
               }
             </div>
 
+            <Popover
+              aria-labelledby="area-popover"
+              open={open}
+              onOpenChange={setOpen}
+              content={
+                <div className="flex w-64 flex-col gap-4 p-4 text-sm text-gray-500 dark:text-gray-400">
+                  <h2 id="area-popover" className="font-p_regular text-gray-800 pb-4">vous voulez changer votre mot de passe ?</h2>
 
-            {/* Settings Icon */}
-            <CiSettings className='w-6 h-6 cursor-pointer text-neutral-600' />
+                  <FloatingLabel variant="outlined" type='password' label="Mot de passe existant"
+                    onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, currentPassword: e.target.value })}
+                  />
+
+                  <FloatingLabel variant="outlined" type='password' label="Nouveau Mot de passe"
+                    onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, newPassword: e.target.value })}
+                  />
+
+                  <FloatingLabel variant="outlined" type='password' label="Confirmation"
+                    onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, confirmationPassword: e.target.value })}
+                  />
+
+                  <div className="flex gap-2">
+                    <Button className='bg-sky-500'
+                      onClick={() => {
+                        changePasswordForSysAdmin(changedPasswordProperties.currentPassword,
+                          changedPasswordProperties.newPassword,
+                          changedPasswordProperties.confirmationPassword
+                        )
+                        setOpen(false)
+                      }}>
+                      Enregistrer
+                    </Button>
+                  </div>
+                </div>
+              }
+            >
+              {/* Settings Icon */}
+              <Button>
+                Settings <CiSettings className='w-6 h-6 ml-2 cursor-pointer text-neutral-100' />
+              </Button>
+            </Popover>
+
           </div>
 
         </div>
