@@ -4,6 +4,7 @@ import { Toaster, toast } from "react-hot-toast";
 
 export default function Contact({ onClose }) {
 
+  const [emailError, setEmailError] = useState('');
   const [consultantDetails, setConsultantDetails] = useState([
     {
       first_name: "",
@@ -14,8 +15,25 @@ export default function Contact({ onClose }) {
     }
   ]);
 
+  const validateEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+  };
+
+  const handleEmailChange = (event) => {
+    const newEmail = event.target.value;
+    setConsultantDetails([{ ...consultantDetails[0], email: newEmail }]);
+    if (!validateEmail(newEmail)) {
+      setEmailError('Invalid email format');
+    } else {
+      setEmailError('');
+    }
+  };
+
   async function handleContactUs(first_name, last_name, email, phone, organisation) {
-    if (first_name !== "" && last_name !== "" && email !== "" && phone !== "" && organisation !== "") {
+    if (emailError !== '') {
+      toast.error(emailError);
+    } else if (first_name !== "" && last_name !== "" && email !== "" && phone !== "" && organisation !== "") {
       try {
 
         const response = await fetch("http://localhost:8080/api/v1/notification/send", {
@@ -35,7 +53,7 @@ export default function Contact({ onClose }) {
           setTimeout(() => {
             // Redirect to home page
             window.location.href = '/'; // Change the URL as needed
-        }, 2500);
+          }, 2500);
         }
 
         const data = await response.json();
@@ -82,7 +100,6 @@ export default function Contact({ onClose }) {
                     first_name: event.target.value
                   }
                 ])}
-                required
               />
 
               <div className="mb-2 block">
@@ -98,7 +115,7 @@ export default function Contact({ onClose }) {
                     last_name: event.target.value
                   }
                 ])}
-                required
+
               />
 
               <div className="mb-2 block">
@@ -108,13 +125,8 @@ export default function Contact({ onClose }) {
                 id="email"
                 placeholder="exemple@gmail.com"
                 value={consultantDetails[0].email}
-                onChange={(event) => setConsultantDetails([
-                  {
-                    ...consultantDetails[0],
-                    email: event.target.value
-                  }
-                ])}
-                required
+                onChange={handleEmailChange}
+
               />
 
               <div className="mb-2 block">
@@ -130,7 +142,7 @@ export default function Contact({ onClose }) {
                     phone: event.target.value
                   }
                 ])}
-                required
+
               />
             </div>
             {/* Consultant Details Section Starts */}
@@ -145,7 +157,7 @@ export default function Contact({ onClose }) {
                     ...consultantDetails[0],
                     organisation: Event.target.value
                   }
-                ])} required />
+                ])} />
             </div>
             <div className="w-full">
               <Button onClick={() => handleContactUs(

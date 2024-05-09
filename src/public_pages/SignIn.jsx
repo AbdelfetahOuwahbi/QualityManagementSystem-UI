@@ -4,8 +4,11 @@ import { jwtDecode } from "jwt-decode";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import Contact from "./Contact";
+import { useNavigate } from "react-router-dom";
 
 export default function SignIn({ onClose }) {
+
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -41,13 +44,16 @@ export default function SignIn({ onClose }) {
                         Cookies.set('userRoles', JSON.stringify(data.user.roles), { expires: 7 });
                         //Checking the type of user and redirecting accordingly 
                         if (data.user.roles.some(role => role.name === "Sysadmin")) {
-                            window.location.href = "/SysDashboard";
+                            navigate("/SysDashboard");
                         } else {
-                            window.location.href = "/";
+                            window.location.href = "/ClientDashboard";
                         }
                         break;
                     case "Password must be at least 8 characters long":
                         toast.error("Le mot de passe doit comporter au minimum 8 caractères !!");
+                        break;
+                    case "Invalid email format":
+                        toast.error("Le format d'email est invalid !!");
                         break;
                     case "Authentication failed: Bad credentials":
                         toast.error("L'utilisateur n'existe pas !!");

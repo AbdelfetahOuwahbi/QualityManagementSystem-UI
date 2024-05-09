@@ -32,7 +32,8 @@ export default function SysNotifications() {
     const [notifDate, setNotifDate] = useState([]);
     const [isNotifRead, setIsNotifRead] = useState([]);
 
-
+    //Details to be sent to AddConsultant for auto fill
+    const [consultantDetails, setConsultantDetails] = useState({});
 
     //Ghat executa mra w7da mli ytmonta lcomponent
     //Executed Once when the compenent mounts :)
@@ -49,12 +50,22 @@ export default function SysNotifications() {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     try {
                         const data = await getAllNotifications("SysAdmin", Cookies.get("JWT"));
+                        console.log("data-->", data.length);
                         if (data.length > 0) {
+                            let newNotifs = 0;
+                            for (let i = 0; i < data.length; i++) {
+                                if (!data[i].read) {
+                                    newNotifs++;
+                                }
+                            }
                             setIsLoading(false);
-                            toast('De nouvelles notifications sont disponibles pour vous ..', {
-                                icon: '🔔',
-                                duration: 4000,
-                            });
+                            console.log(newNotifs);
+                            if (newNotifs > 0) {
+                                toast('De nouvelles notifications sont disponibles pour vous ..', {
+                                    icon: '🔔',
+                                    duration: 4000,
+                                });
+                            }
 
                             for (let i = 0; i < data.length; i++) {
                                 setNotifId(prevState => [...prevState, data[i].id]);
@@ -92,10 +103,10 @@ export default function SysNotifications() {
 
     notifMessage.forEach(text => {
         //for debugging purposes
-        console.log("Message:", text);
+        // console.log("Message:", text);
         const matches = text.match(regex);
         //for debugging purposes
-        console.log("Matches:", matches);
+        // console.log("Matches:", matches);
         if (matches) {
             const [, firstName, lastName, email, phone, organisation] = matches;
             extractedData.push({ firstName, lastName, email, phone, organisation });
@@ -104,7 +115,7 @@ export default function SysNotifications() {
 
     //for debugging purposes
     // console.log("Notifications messages -->", notifMessage)
-    // console.log("extractedData from messages -->", extractedData)
+    console.log("extractedData from messages -->", extractedData)
 
     return (
         <>
@@ -139,7 +150,12 @@ export default function SysNotifications() {
                                     // Toogling the variable to show the notif details
                                     setNotifDetailsShowen(prevState => {
                                         const newState = [...prevState];
-                                        newState[index] = !newState[index]; // Toggle the boolean value at the clicked index
+                                        newState[index] = !newState[index];
+                                        return newState;
+                                    });
+                                    setIsNotifRead(prevState => {
+                                        const newState = [...prevState];
+                                        newState[index] = true;
                                         return newState;
                                     });
                                 }} className={`w-full mt-8 h-auto px-6 md:px-16 ${!isNotifRead[index] ? "bg-sky-400 hover:bg-sky-200" : "bg-sky-100"} cursor-pointer flex flex-col border-grey shadow-2xl md:rounded-lg`}>
@@ -192,7 +208,15 @@ export default function SysNotifications() {
                                                         <p className="md:text-2xl font-p_bold">{extractedData[index].organisation}</p>
                                                     </div>
                                                     <div className='flex justify-end'>
-                                                        <button onClick={() => setAddConsultantVisible(true)} className="w-auto h-10 p-2 bg-sky-400 text-white rounded-lg transition-all duration-300 hover:translate-x-2 hover:bg-neutral-200 hover:text-black">Ajouter ce consultant SMQ</button>
+                                                        <button onClick={() => {
+                                                            setConsultantDetails({
+                                                                first_name: extractedData[index].firstName,
+                                                                last_name: extractedData[index].lastName,
+                                                                email: extractedData[index].email,
+                                                                phone: extractedData[index].phone,
+                                                            })
+                                                            setAddConsultantVisible(true)
+                                                        }} className="w-auto h-10 p-2 bg-sky-400 text-white rounded-lg transition-all duration-300 hover:translate-x-2 hover:bg-neutral-200 hover:text-black">Ajouter ce consultant SMQ</button>
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -207,7 +231,7 @@ export default function SysNotifications() {
             </div>
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {/* To be dealth with that when the he clicks add the infos to be showen by default on the input */}
-            {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
+            {addConsultantVisible && <SysAddConsultant consultantDtls={consultantDetails} onClose={() => setAddConsultantVisible(false)} />}
         </>
     );
 }

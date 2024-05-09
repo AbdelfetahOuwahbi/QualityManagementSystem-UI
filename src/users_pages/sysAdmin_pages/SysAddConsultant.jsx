@@ -6,30 +6,33 @@ import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 
-export default function SysAddConsultant({ onClose }) {
+export default function SysAddConsultant({ consultantDtls, onClose }) {
 
+    console.log("received-->", consultantDtls);
+
+    //Navigation
     const navigate = useNavigate();
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
 
-    // If consultantDtls is provided and has an organismId, we'll include it in consultantDetails
-
-
-    const [consultantDetails, setConsultantDetails] = useState({
-        first_name: "",
-        last_name: "",
-        email: "",
-        password: "",
-        phone: "",
-        organism: "",
-        userId: ""
-    });
 
     // console.log("this is consultant details after binding -->", consultantDetails)
 
     const [organismId, setOrganismId] = useState([]);
     const [organismName, setOrganismName] = useState([]);
+
+    const [consultantDetails, setConsultantDetails] = useState(
+        consultantDtls || {
+            first_name: "",
+            last_name: "",
+            email: "",
+            password: "",
+            phone: "",
+            organism: "",
+            userId: ""
+        });
+
 
     // We will get all organismes and put them in Selection For the SysAdmin to select them
     useEffect(() => {
