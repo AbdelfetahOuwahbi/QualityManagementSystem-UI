@@ -68,16 +68,16 @@ export default function Main_page() {
                                 initial={{ scale: 0.5, y: -100 }}
                                 animate={{ scale: 1, y: 0 }}
                                 transition={{ duration: 0.75, delay: 0.2 }}
-                                src={Homephoto} alt="Collaborations" className='w1/2 h-1/2 mt-10' />
+                                src={Homephoto} alt="Collaborations" className='w1/2 h-1/2 object-contain mt-10' />
                             <motion.div
                                 initial={{ opacity: 0, x: -100 }}
                                 animate={{ opacity: 1, x: 0 }}
                                 transition={{ duration: 0.75, delay: 0.2 }}
                                 className='flex-col lg:px-8'>
-                                <h1 className='text-5xl font-p_semi_bold mb-4 text-neutral-600'>Votre allié de confiance pour <br /> concevoir et mettre en œuvre <br /> un système de gestion QSE <br />
+                                <h1 className='text-2xl md:text-5xl font-medium md:font-p_semi_bold mb-4 text-neutral-600'>Votre allié de confiance pour <br /> concevoir et mettre en œuvre <br /> un système de gestion QSE <br />
                                     <span className='text-sky-400 font-p_bold'>intuitif, intelligent et efficace.</span>
                                 </h1 >
-                                <h1 className='text-xl text-neutral-600 font-p_regular'>Optimisez votre gestion QSE en tirant parti du plein potentiel de l'intelligence artificielle.</h1>
+                                <h1 className='md:text-xl text-neutral-600 font-p_light md:font-p_regular'>Optimisez votre gestion QSE en tirant parti du plein potentiel de l'intelligence artificielle.</h1>
 
                                 {/* The Popover on Contact Button Code Starts*/}
                                 <Popover
@@ -85,7 +85,7 @@ export default function Main_page() {
                                       content={PopoverContent}
                                       trigger="hover"
                                 >
-                                <button onClick={() => setIsContactVisible(!isContactVisible)} className='bg-sky-400 text-white mt-4 py-2 px-4 font-p_medium transition-all duration-300 rounded hover:translate-x-2 hover:bg-neutral-500'>
+                                <button onClick={() => setIsContactVisible(!isContactVisible)} className='bg-sky-400 mb-4 md:mb-0 text-white mt-4 py-2 px-4 font-p_medium transition-all duration-300 rounded hover:translate-x-2 hover:bg-neutral-500'>
                                     Contacter nous
                                 </button>
                                 </Popover>

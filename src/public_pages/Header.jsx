@@ -105,6 +105,7 @@ export default function Header() {
                         <button onClick={() => {
                             setContactVisible(!contactVisible)
                             setIsMenuOpen(false);
+                            setIsSticky(!isSticky)
                         }} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
                             Contacter nous
                         </button>

@@ -24,8 +24,8 @@ export default function SysNotifications() {
 
     //Notification Properties
     const [notifId, setNotifId] = useState([]);
-    const [notifSender, setNotifSender] = useState([]);
-    const [notifReceiver, setNotifReceiver] = useState([]);
+    // const [notifSender, setNotifSender] = useState([]);
+    // const [notifReceiver, setNotifReceiver] = useState([]);
 
     const [notifMessage, setNotifMessage] = useState([]);
 
@@ -58,8 +58,8 @@ export default function SysNotifications() {
 
                             for (let i = 0; i < data.length; i++) {
                                 setNotifId(prevState => [...prevState, data[i].id]);
-                                setNotifSender(prevState => [...prevState, data[i].senderId]);
-                                setNotifReceiver(prevState => [...prevState, data[i].receiverId]);
+                                // setNotifSender(prevState => [...prevState, data[i].senderId]);
+                                // setNotifReceiver(prevState => [...prevState, data[i].receiverId]);
                                 setNotifMessage(prevState => [...prevState, data[i].message]);
                                 setNotifDate(prevState => [...prevState, data[i].createdDate]);
                                 setIsNotifRead(prevState => [...prevState, data[i].read]);

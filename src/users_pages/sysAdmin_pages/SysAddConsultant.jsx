@@ -4,9 +4,11 @@ import { Toaster, toast } from "react-hot-toast";
 import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 
 export default function SysAddConsultant({ onClose }) {
 
+    const navigate = useNavigate();
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
@@ -117,6 +119,7 @@ export default function SysAddConsultant({ onClose }) {
                         setModalOpen(false);
                         setIsLoading(false);
                     }, 2000);
+                    navigate("/SysAllConsultants")
                 }
             } catch (error) {
                 console.error('Error saving consultant:', error);
