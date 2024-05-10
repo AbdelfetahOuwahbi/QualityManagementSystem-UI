@@ -2,28 +2,18 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { Drawer, Sidebar } from "flowbite-react";
 import { CiBoxList, CiSettings } from "react-icons/ci";
-import { IoMdPersonAdd, IoIosNotificationsOutline, IoMdNotificationsOutline } from "react-icons/io";
+import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
 import { HiChartPie } from "react-icons/hi";
-import { FaBars, FaUsersLine } from "react-icons/fa6";
+import { FaUsersLine } from "react-icons/fa6";
 import { GoOrganization } from "react-icons/go";
-import { MdAddChart } from "react-icons/md";
 import profile from '../../assets/profile.jpg';
-import Services from "../../public_pages/Services";
-import SysNotifications from "./SysNotifications";
 // Method that counts all notifications
 import { countNotifications } from "../CommonApiCalls";
-
-import SysAddConsultant from "./SysAddConsultant";
-import SysAllConsultants from "./SysAllConsultants";
-import SysAllOrganismes from "./SysAllOrganismes";
-import SysAddOrganism from "./SysAddOrganism";
-import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
-import { handleLogout } from "../CommonApiCalls";
-import SysDashboard from "./SysDashboard";
+//From common Api Calls
+import { isTokenExpired, isTokenInCookies, handleLogout } from "../CommonApiCalls";
 
 export default function SysMainPage({onClose}) {
-  const [isOpen, setIsOpen] = useState(true);
 
   // How many notifications did the SysAdmin Receive
   const [notifsNumber, setNotifsNumber] = useState(0);
@@ -70,7 +60,7 @@ export default function SysMainPage({onClose}) {
   return (
     <>
       {/* The Navigation Menu */}
-      <Drawer open={isOpen} onClose={onClose}>
+      <Drawer open={true} onClose={onClose}>
         <Drawer.Header />
         <Drawer.Items>
           {/* Profile Image */}
@@ -112,7 +102,7 @@ export default function SysMainPage({onClose}) {
 
                 </Sidebar.Collapse>
 
-                <Sidebar.Item onClick={() => handleLogout()} icon={FaSignOutAlt}>
+                <Sidebar.Item className='cursor-pointer' onClick={() => handleLogout()} icon={FaSignOutAlt}>
                   Déconnexion
                 </Sidebar.Item>
 

@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { Card, Table, Popover, Label, TextInput, Button, FloatingLabel } from "flowbite-react";
-import { FaBuilding, FaRegHandshake, FaUsers, FaUserTie } from 'react-icons/fa';
+import { FaBuilding, FaRegHandshake, FaUsers, FaUserTie, FaBars } from 'react-icons/fa';
+import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+import { MdOutlinePassword, MdManageAccounts, MdOutlineSettingsSuggest } from "react-icons/md";
 import { CiSettings } from "react-icons/ci";
 import { IoIosNotificationsOutline } from "react-icons/io";
-import { FaBars } from "react-icons/fa";
 import { isTokenExpired, isTokenInCookies, countNotifications, changePassword } from '../CommonApiCalls';
 import Cookies from 'js-cookie'
 import SysMainPage from './SysMainPage';
 import toast, { Toaster } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
+import profile from '../../assets/profile.jpg'
 
 export default function SysDashboard() {
+
+  //Variable to get all consultants
   const [consultants, setConsultants] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);  // State for user count
   const [totalConsultants, setTotalConsultants] = useState(0);  // State for Consultant count
+
+  //Settings Popover variables (Tooglers)
+  const [willChangePass, setWillChangePass] = useState(false);
+  const [willShowAccountInfos, setWillShowAccountInfos] = useState(false);
+  const [willShowAdvancedSettings, setWillShowAdvancedSettings] = useState(false);
 
   // How many notifications did the SysAdmin Receive
   const [notifsNumber, setNotifsNumber] = useState(0);
@@ -152,7 +162,7 @@ export default function SysDashboard() {
       change: "+5.0% vs last 90 days"
     }, {
       title: "Total Consultants",
-      content: consultants.length,
+      content: totalConsultants,
       icon: <FaUserTie className="text-3xl text-white" />,
       color: "bg-gradient-to-r from-indigo-500 from-10% via-sky-500 via-30% to-emerald-500 to-90%"
     },
@@ -169,6 +179,123 @@ export default function SysDashboard() {
       color: "bg-gradient-to-r from-cyan-500 to-blue-500"
     }
   ];
+
+  //Content of the settings popOver
+  const popOverContent = (
+    <div className='flex flex-col gap-4 py-7 px-4 text-sm text-gray-500 dark:text-gray-400'>
+
+      {/* Password Section */}
+      <div onClick={() => setWillChangePass(!willChangePass)} className='flex items-center justify-around gap-8 cursor-pointer p-2'>
+        <MdOutlinePassword className='w-6 h-6' />
+        <h2 id="area-popover" className="font-p_regular text-gray-800">Changer votre mot de passe ?</h2>
+        {willChangePass ? (
+          <IoIosArrowUp className='w-6 h-6' />
+        ) : (
+          <IoIosArrowDown className='w-6 h-6' />
+        )}
+      </div>
+      <AnimatePresence mode='wait'>
+        {willChangePass && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="flex w-64 flex-col gap-4 p-4 text-sm text-gray-500 dark:text-gray-400">
+
+            <FloatingLabel variant="outlined" type='password' label="Mot de passe existant"
+              onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, currentPassword: e.target.value })}
+            />
+
+            <FloatingLabel variant="outlined" type='password' label="Nouveau Mot de passe"
+              onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, newPassword: e.target.value })}
+            />
+
+            <FloatingLabel variant="outlined" type='password' label="Confirmation"
+              onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, confirmationPassword: e.target.value })}
+            />
+
+            <div className="flex gap-2">
+              <Button className='bg-sky-500'
+                onClick={() => {
+                  changePasswordForSysAdmin(changedPasswordProperties.currentPassword,
+                    changedPasswordProperties.newPassword,
+                    changedPasswordProperties.confirmationPassword
+                  )
+                  setOpen(false)
+                }}>
+                Enregistrer
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className='border-b-2 rounded-lg'></div>
+
+      {/* Account informations Section */}
+      <div onClick={() => setWillShowAccountInfos(!willShowAccountInfos)} className='flex items-center justify-start gap-8 cursor-pointer p-2'>
+        <MdManageAccounts className='w-6 h-6' />
+        <h2 id="area-popover" className="font-p_regular text-gray-800">Votre compte</h2>
+        {willShowAccountInfos ? (
+          <IoIosArrowUp className='w-6 h-6' />
+        ) : (
+          <IoIosArrowDown className='w-6 h-6' />
+        )}
+      </div>
+      <AnimatePresence mode='wait'>
+        {willShowAccountInfos && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className='flex items-center pt-2 justify-between'>
+            <div className='flex items-center justify-around gap-4 cursor-pointer'>
+              <img src={profile} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
+              <h1 className='font-p_medium'> Votre profile </h1>
+            </div>
+            <div>
+              <a className='font-p_regular text-red-500 underline' href="">Désactiver votre compte</a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className='border-b-2 rounded-lg'></div>
+
+      {/* Advanced Settings Section */}
+      <div onClick={() => setWillShowAdvancedSettings(!willShowAdvancedSettings)} className='flex items-center justify-start gap-8 cursor-pointer p-2'>
+        <MdOutlineSettingsSuggest className='w-6 h-6' />
+        <h2 id="area-popover" className="font-p_regular text-gray-800">Votre compte</h2>
+        {willShowAdvancedSettings ? (
+          <IoIosArrowUp className='w-6 h-6' />
+        ) : (
+          <IoIosArrowDown className='w-6 h-6' />
+        )}
+      </div>
+      <AnimatePresence mode='wait'>
+        {willShowAdvancedSettings && (
+          <motion.div
+            initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className='flex flex-col gap-2 pt-2 justify-between'>
+            <div className='flex cursor-pointer'>
+            <a className='font-p_light' href="">Adv Settings 1</a>
+            </div>
+            <div>
+              <a className='font-p_light' href="">Adv Settings 2</a>
+            </div>
+            <div>
+              <a className='font-p_light' href="">Adv Settings 3</a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <div className='border-b-2 rounded-lg'></div>
+    </div>
+
+  );
 
   return (
     <>
@@ -195,40 +322,11 @@ export default function SysDashboard() {
               aria-labelledby="area-popover"
               open={open}
               onOpenChange={setOpen}
-              content={
-                <div className="flex w-64 flex-col gap-4 p-4 text-sm text-gray-500 dark:text-gray-400">
-                  <h2 id="area-popover" className="font-p_regular text-gray-800 pb-4">vous voulez changer votre mot de passe ?</h2>
-
-                  <FloatingLabel variant="outlined" type='password' label="Mot de passe existant"
-                    onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, currentPassword: e.target.value })}
-                  />
-
-                  <FloatingLabel variant="outlined" type='password' label="Nouveau Mot de passe"
-                    onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, newPassword: e.target.value })}
-                  />
-
-                  <FloatingLabel variant="outlined" type='password' label="Confirmation"
-                    onChange={(e) => setChangedPasswordProperties({ ...changedPasswordProperties, confirmationPassword: e.target.value })}
-                  />
-
-                  <div className="flex gap-2">
-                    <Button className='bg-sky-500'
-                      onClick={() => {
-                        changePasswordForSysAdmin(changedPasswordProperties.currentPassword,
-                          changedPasswordProperties.newPassword,
-                          changedPasswordProperties.confirmationPassword
-                        )
-                        setOpen(false)
-                      }}>
-                      Enregistrer
-                    </Button>
-                  </div>
-                </div>
-              }
+              content={popOverContent}
             >
               {/* Settings Icon */}
               <Button>
-                Settings <CiSettings className='w-6 h-6 ml-2 cursor-pointer text-neutral-100' />
+                Paramètres <CiSettings className='w-6 h-6 ml-2 cursor-pointer text-neutral-100' />
               </Button>
             </Popover>
 

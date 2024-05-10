@@ -46,7 +46,7 @@ export default function SignIn({ onClose }) {
                         if (data.user.roles.some(role => role.name === "Sysadmin")) {
                             navigate("/SysDashboard");
                         } else {
-                            window.location.href = "/ClientDashboard";
+                            navigate("/ClientDashboard");
                         }
                         break;
                     case "Password must be at least 8 characters long":
