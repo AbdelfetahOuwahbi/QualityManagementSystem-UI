@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card, Table, Popover, Label, TextInput, Button, FloatingLabel } from "flowbite-react";
+import { Card, Table, Popover, Button, FloatingLabel } from "flowbite-react";
 import { FaBuilding, FaRegHandshake, FaUsers, FaUserTie, FaBars } from 'react-icons/fa';
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
 import { MdOutlinePassword, MdManageAccounts, MdOutlineSettingsSuggest } from "react-icons/md";
@@ -10,9 +10,13 @@ import Cookies from 'js-cookie'
 import SysMainPage from './SysMainPage';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import profile from '../../assets/profile.jpg'
 
 export default function SysDashboard() {
+
+  const navigate = useNavigate();
+
 
   //Variable to get all consultants
   const [consultants, setConsultants] = useState([]);
@@ -250,7 +254,7 @@ export default function SysDashboard() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className='flex items-center pt-2 justify-between'>
-            <div className='flex items-center justify-around gap-4 cursor-pointer'>
+            <div onClick={() => navigate("/Profile", {state : {user : user}})} className='flex items-center justify-around gap-4 cursor-pointer'>
               <img src={profile} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
               <h1 className='font-p_medium'> Votre profile </h1>
             </div>
@@ -265,7 +269,7 @@ export default function SysDashboard() {
       {/* Advanced Settings Section */}
       <div onClick={() => setWillShowAdvancedSettings(!willShowAdvancedSettings)} className='flex items-center justify-start gap-8 cursor-pointer p-2'>
         <MdOutlineSettingsSuggest className='w-6 h-6' />
-        <h2 id="area-popover" className="font-p_regular text-gray-800">Votre compte</h2>
+        <h2 id="area-popover" className="font-p_regular text-gray-800">Paramètres Avancèe</h2>
         {willShowAdvancedSettings ? (
           <IoIosArrowUp className='w-6 h-6' />
         ) : (

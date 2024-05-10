@@ -44,7 +44,8 @@ export default function SignIn({ onClose }) {
                         Cookies.set('userRoles', JSON.stringify(data.user.roles), { expires: 7 });
                         //Checking the type of user and redirecting accordingly 
                         if (data.user.roles.some(role => role.name === "Sysadmin")) {
-                            navigate("/SysDashboard");
+                            console.log("user in SignIn -->", data.user)
+                            navigate("/SysDashboard"); // Ensure 'state' is used to pass the user object
                         } else {
                             navigate("/ClientDashboard");
                         }

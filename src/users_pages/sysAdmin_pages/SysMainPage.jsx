@@ -6,6 +6,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
 import { HiChartPie } from "react-icons/hi";
 import { FaUsersLine } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
 import profile from '../../assets/profile.jpg';
 // Method that counts all notifications
@@ -13,9 +14,12 @@ import { countNotifications } from "../CommonApiCalls";
 //From common Api Calls
 import { isTokenExpired, isTokenInCookies, handleLogout } from "../CommonApiCalls";
 
-export default function SysMainPage({onClose}) {
+export default function SysMainPage({ onClose }) {
+
+  const navigate = useNavigate();
 
   // How many notifications did the SysAdmin Receive
+  const [modalOpen, setModalOpen] = useState(true);
   const [notifsNumber, setNotifsNumber] = useState(0);
 
   useEffect(() => {
@@ -60,11 +64,15 @@ export default function SysMainPage({onClose}) {
   return (
     <>
       {/* The Navigation Menu */}
-      <Drawer open={true} onClose={onClose}>
+      <Drawer open={modalOpen} onClose={onClose}>
         <Drawer.Header />
         <Drawer.Items>
           {/* Profile Image */}
-          <div className='h-auto items-center justify-around flex flex-col cursor-pointer'>
+          <div onClick={() => {
+            navigate("/Profile");
+            setModalOpen(false);
+          }}
+            className='h-auto items-center justify-around flex flex-col cursor-pointer'>
             <img src={profile} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
             {/* username */}
             <div className='py-2'>
