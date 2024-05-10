@@ -284,9 +284,30 @@ export default function SysAllConsultants() {
                         "phone": phone[index],
                     }),
                 });
-                console.log("first, the response is -->", response);
+                const responseBody = await response.json();
+                console.log("Response body -->", responseBody);
+                // Comparer les données modifiées avec les données originales
+                const isDataChanged =
+                    firstName[index] !== originalData.firstName ||
+                    lastName[index] !== originalData.lastName ||
+                    email[index] !== originalData.email ||
+                    phone[index] !== originalData.phone;
                 if (response.status === 200 || response.status === 201) {
-                    toast.success("Ce Consultant est modifié avec succès.");
+                    if(isDataChanged){
+                        toast.success("Ce Consultant est modifié avec succès.");
+                    } else {
+                        toast.error("Aucune modifiaction n'a été effectuée.");
+                    }
+                } else if(responseBody.errorCode == "VALIDATION_ERROR") {
+                    // Diviser les messages d'erreur s'ils sont séparés par des virgules
+                    const errorMessages = responseBody.message.split(',');
+                    errorMessages.forEach(message => {
+                        toast.error(message.trim()); // Afficher chaque message d'erreur dans un toast séparé
+                    });
+                } else if (responseBody.errorCode == "User_email_already_exists") {
+                    toast.error("L'email que vous avez entrez est déjà utilisé!!");
+                } else {
+                    toast.error("Une erreur s'est produite lors de la modification de ce consultant.");
                 }
             } catch (error) {
                 console.error(error); // Gérer les erreurs
@@ -381,23 +402,23 @@ export default function SysAllConsultants() {
                                                 <td className="px-6 py-4">
                                                     <FloatingLabel
                                                         onChange={(e) => setFirstName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                        variant="outlined" label={originalData.firstName} />
+                                                        variant="outlined" label={originalData.firstName} value={firstName[index]} />
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <FloatingLabel
                                                         onChange={(e) => setLastName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                        variant="outlined" label={originalData.lastName} />
+                                                        variant="outlined" label={originalData.lastName} value={lastName[index]} />
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <FloatingLabel
                                                         onChange={(e) => setEmail(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                        variant="outlined" label={originalData.email} />
+                                                        variant="outlined" label={originalData.email} value={email[index]} required />
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <FloatingLabel
                                                         type="number"
                                                         onChange={(e) => setPhone(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                        variant="outlined" label={originalData.phone} />
+                                                        variant="outlined" label={originalData.phone} value={phone[index]} />
                                                 </td>
                                                 <td className="px-6 py-4">
                                                     <select
