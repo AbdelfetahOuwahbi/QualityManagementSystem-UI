@@ -8,6 +8,8 @@ import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../CommonApiCalls";
 import SysMainPage from "./SysMainPage";
+import SysAddConsultant from "./SysAddConsultant";
+import { serverAddress } from "../../ServerAddress";
 
 export default function SysAllConsultants() {
 
@@ -85,7 +87,7 @@ export default function SysAllConsultants() {
         setPhone([]);
         setOrganismeName([])
         try {
-            const response = await fetch("http://localhost:8080/api/v1/users/consultants", {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -146,7 +148,7 @@ export default function SysAllConsultants() {
     // Function to fetch all organismes
     const fetchOrganismes = async () => {
         try {
-            const response = await fetch("http://localhost:8080/api/v1/organismes", {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
                     'Content-Type': 'application/json',
@@ -179,7 +181,7 @@ export default function SysAllConsultants() {
         console.log("userId to be deleted is -->", userId)
         console.log(isTokenExpired())
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/users/consultants/${userId}`, {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -271,7 +273,7 @@ export default function SysAllConsultants() {
         } else {
             try {
                 console.log("consultant details before performing the update -->", id[index])
-                const response = await fetch(`http://localhost:8080/api/v1/users/consultants/${id[index]}?organismeId=${indexId}`, {
+                const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${id[index]}?organismeId=${indexId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -293,12 +295,12 @@ export default function SysAllConsultants() {
                     email[index] !== originalData.email ||
                     phone[index] !== originalData.phone;
                 if (response.status === 200 || response.status === 201) {
-                    if(isDataChanged){
+                    if (isDataChanged) {
                         toast.success("Ce Consultant est modifié avec succès.");
                     } else {
                         toast.error("Aucune modifiaction n'a été effectuée.");
                     }
-                } else if(responseBody.errorCode == "VALIDATION_ERROR") {
+                } else if (responseBody.errorCode == "VALIDATION_ERROR") {
                     // Diviser les messages d'erreur s'ils sont séparés par des virgules
                     const errorMessages = responseBody.message.split(',');
                     errorMessages.forEach(message => {
@@ -486,7 +488,7 @@ export default function SysAllConsultants() {
                                                 <td>
                                                     <ToggleSwitch
                                                         checked={isAccountLocked[index]}
-                                                        label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Debloquer ce Compte"}
+                                                        label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Débloquer ce Compte"}
                                                         onChange={(newValue) => {
                                                             setIsAccountLocked(prevState => {
                                                                 const newState = [...prevState];

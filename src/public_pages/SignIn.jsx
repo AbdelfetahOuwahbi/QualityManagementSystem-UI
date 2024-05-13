@@ -5,6 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import Contact from "./Contact";
 import { useNavigate } from "react-router-dom";
+import { serverAddress } from "../ServerAddress";
 
 export default function SignIn({ onClose }) {
 
@@ -20,7 +21,7 @@ export default function SignIn({ onClose }) {
             toast.error("Tous les champs sont obligatoires !!");
         } else {
             try {
-                const response = await fetch("http://localhost:8080/api/v1/auth/signin", {
+                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signin`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -37,8 +38,8 @@ export default function SignIn({ onClose }) {
                         toast.success("Vous avez été authentifié avec succès ..");
                         const decoded = jwtDecode(data.token);
                         console.log("User Roles", data.user.roles);
-                        console.log("User Token is", data.token);
-                        console.log("User's Email from Decoded JWT is ---> ", decoded);
+                        // console.log("User Token is", data.token);
+                        console.log("User's Id from Decoded JWT is ---> ", decoded.id);
                         // Setting the JWT token, and User Roles in a cookie with an expiration time of 7 days
                         Cookies.set('JWT', data.token, { expires: 7 });
                         Cookies.set('userRoles', JSON.stringify(data.user.roles), { expires: 7 });
@@ -54,7 +55,7 @@ export default function SignIn({ onClose }) {
                         toast.error("Le mot de passe doit comporter au minimum 8 caractères !!");
                         break;
                     case "Invalid email format":
-                        toast.error("Le format d'email est invalid !!");
+                        toast.error(`Le format d'email ${email} est invalid !!`);
                         break;
                     case "Authentication failed: Bad credentials":
                         toast.error("L'utilisateur n'existe pas !!");

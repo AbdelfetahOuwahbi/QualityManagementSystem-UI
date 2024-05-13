@@ -9,6 +9,12 @@ import SysDashboard from './users_pages/sysAdmin_pages/SysDashboard';
 import SysNotifications from './users_pages/sysAdmin_pages/SysNotifications';
 import SysAllConsultants from './users_pages/sysAdmin_pages/SysAllConsultants';
 import SysAllOrganismes from './users_pages/sysAdmin_pages/SysAllOrganismes';
+// Clients routes
+import ClientDashboard from './users_pages/client_pages/ClientDashboard';
+import ClientNotifications from './users_pages/client_pages/ClientNotifications';
+// Consultants routes
+import AllEntreprises from './users_pages/client_pages/consultant_pages/AllEntreprises';
+
 export default function App() {
   return (
     <Router initialRouteName="/">
@@ -23,6 +29,10 @@ export default function App() {
         <Route path="/SysAllConsultants" element={<SysAllConsultants />} />
         <Route path="/SysAllOrganismes" element={<SysAllOrganismes />} />
         {/* Clients Routes */}
+        <Route path="/ClientDashboard" element={<ClientDashboard />} />
+        <Route path="/ClientNotifications" element={<ClientNotifications />} />
+        {/* Consultants Routes */}
+        <Route path="/AllEntreprises" element={<AllEntreprises />} />
       </Routes>
     </Router>
   )

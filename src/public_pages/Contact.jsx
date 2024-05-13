@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Button, Checkbox, Label, Modal, TextInput, Textarea } from "flowbite-react";
 import { Toaster, toast } from "react-hot-toast";
+import { serverAddress } from "../ServerAddress";
 
 export default function Contact({ onClose }) {
 
+  const [openModal, setOpenModal] = useState(true);
   const [emailError, setEmailError] = useState('');
   const [consultantDetails, setConsultantDetails] = useState([
     {
@@ -24,7 +26,7 @@ export default function Contact({ onClose }) {
     const newEmail = event.target.value;
     setConsultantDetails([{ ...consultantDetails[0], email: newEmail }]);
     if (!validateEmail(newEmail)) {
-      setEmailError('Invalid email format');
+      setEmailError(`Format d'email ${newEmail} est invalid`);
     } else {
       setEmailError('');
     }
@@ -36,7 +38,7 @@ export default function Contact({ onClose }) {
     } else if (first_name !== "" && last_name !== "" && email !== "" && phone !== "" && organisation !== "") {
       try {
 
-        const response = await fetch("http://localhost:8080/api/v1/notification/send", {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/contact`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -51,9 +53,8 @@ export default function Contact({ onClose }) {
         if (response.status === 200 || response.status === 201) {
           toast.success('votre message est envoyé avec succès..');
           setTimeout(() => {
-            // Redirect to home page
-            window.location.href = '/'; // Change the URL as needed
-          }, 2500);
+            setOpenModal(false);
+          }, 2000);
         }
 
         const data = await response.json();
@@ -79,7 +80,7 @@ export default function Contact({ onClose }) {
         position="bottom-left"
         reverseOrder={false}
       />
-      <Modal show={true} size="lg" onClose={onClose} popup>
+      <Modal show={openModal} size="lg" onClose={onClose} popup>
         <Modal.Header />
         <Modal.Body>
           <div className="space-y-6">

@@ -1,6 +1,13 @@
+//In this file we'll define the common requests , users usually throw to the server
+
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+//Server Address (to be changed in production)
+import { serverAddress } from "../ServerAddress";
+
+/////////////////////////////////////////// SECURITY ///////////////////////////////////////////////////////////////////////////////
+
 
 //Function that checks if the token is in the cookies
 export function isTokenInCookies() {
@@ -17,6 +24,7 @@ export function isTokenExpired() {
     return decodedToken.exp < currentTimestamp;
 }
 
+// To persist the Session of the user
 export function persistentSession(user) {
     //To use navigation and reroute the user
     const navigate = useNavigate();
@@ -24,6 +32,19 @@ export function persistentSession(user) {
         navigate("/SysDashboard")
     } else {
         navigate("/ClientDashboard")
+    }
+}
+
+export function extractMainRole() {
+    //Checking the existance of userRoles in cookies
+    const userRoles = Cookies.get("userRoles");
+    if (userRoles !== undefined && userRoles !== null && userRoles !== "") {
+        const userRoleArray = JSON.parse(userRoles);
+        const mainRole = userRoleArray
+            .filter(role => ['Sysadmin', 'Consultant', 'Admin', 'Responsable', 'Pilot'].includes(role.name))
+            .map(role => role.name);
+        console.log("Main role of the user:", mainRole[0]);
+        return mainRole[0];
     }
 }
 
@@ -55,12 +76,8 @@ export function doesHeHaveAccess(resource) { //I will pass this ressource as a s
 //Function to change the password
 
 export async function changePassword(currentPassword, newPassword, confirmationPassword) {
-    console.log("received in common calls -->")
-    console.log(currentPassword);
-    console.log(newPassword);
-    console.log(confirmationPassword);
     try {
-        const response = await fetch("http://localhost:8080/api/v1/auth/changePassword", {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/changePassword`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -83,7 +100,7 @@ export async function changePassword(currentPassword, newPassword, confirmationP
 
 export async function lockOrUnlockUser(userId) {
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/auth/lock/${userId}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/lock/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -108,17 +125,20 @@ export async function lockOrUnlockUser(userId) {
 
 //Handling the logout
 
-export const handleLogout = () => {
+export function handleLogout() {
     Cookies.remove("JWT");
     Cookies.remove("userRoles");
-    window.location.href = "/"
+    window.location.href = "/";
 }
+
+
+/////////////////////////////////////////// NOTIFICATIONS ///////////////////////////////////////////////////////////////////////////////
 
 
 //counting all new notifications for a specific user
 export async function countNotifications(userId, token) {
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/notification/countNewNotifications?receiverId=${userId}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/countNewNotifications?receiverId=${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -142,7 +162,7 @@ export async function countNotifications(userId, token) {
 
 export async function getAllNotifications(userId, token) {
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/notification/allNotifications?receiverId=${userId}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/allNotifications?receiverId=${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -162,7 +182,7 @@ export async function getAllNotifications(userId, token) {
 export async function markNotificationAsRead(notificationId, token) {
     try {
 
-        const response = await fetch(`http://localhost:8080/api/v1/notification/markAsRead/${notificationId}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/markAsRead/${notificationId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -182,12 +202,16 @@ export async function markNotificationAsRead(notificationId, token) {
     }
 }
 
+
+/////////////////////////////////////////// ENTREPRISES ///////////////////////////////////////////////////////////////////////////////
+
+
 //Function to add a new Entreprise
 
 export async function saveEntreprise(Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc) {
 
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/organismes`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -223,7 +247,7 @@ export async function saveEntreprise(Category, Pays, Secteur, Ville, Phone, Emai
 export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc, id) {
 
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/organismes/${id}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -257,7 +281,7 @@ export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Em
 //Function that gets all entreprises
 export async function getAllEntreprises(type) {
     try {
-        const response = await fetch(`http://localhost:8080/api/v1/${type === "organism" ? "organismes" : "consulantSMQ/entreprises"}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/${type === "organism" ? "organismes" : "consulantSMQ/entreprises"}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

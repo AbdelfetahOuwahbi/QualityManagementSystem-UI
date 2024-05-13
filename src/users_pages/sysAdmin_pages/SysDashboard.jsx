@@ -12,6 +12,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import profile from '../../assets/profile.jpg'
+import { serverAddress } from '../../ServerAddress';
 
 export default function SysDashboard() {
 
@@ -45,10 +46,10 @@ export default function SysDashboard() {
   //Counting all notifs when the Dashboard Page loads
   useEffect(() => {
     if (!isTokenInCookies()) {
-      window.location.href = "/"
+      navigate("/");
     } else if (isTokenExpired()) {
       Cookies.remove("JWT");
-      window.location.href = "/"
+      navigate("/");
     }
     else {      //Checking the validity of the token ends
       const countNotifs = async () => {
@@ -82,8 +83,8 @@ export default function SysDashboard() {
 
 
   useEffect(() => {
-    const urlConsultants = 'http://localhost:8080/api/v1/users/consultants';
-    const urlUsersCount = 'http://localhost:8080/api/v1/users/count';
+    const urlConsultants = `http://${serverAddress}:8080/api/v1/users/consultants`;
+    const urlUsersCount = `http://${serverAddress}:8080/api/v1/users/count`;
 
     fetch(urlConsultants, {
       method: 'GET',
@@ -118,6 +119,7 @@ export default function SysDashboard() {
       .catch(error => console.error('Error fetching user count:', error));
   }, []);
 
+  //Counting Organizations
   const countUniqueOrganismes = (organisationType, data) => {
     const uniqueOrganisation = new Set();
     if (organisationType === "Organism") {
@@ -143,7 +145,7 @@ export default function SysDashboard() {
       try {
         const response = await changePassword(currentPassword, newPassword, confirmationPassword);
         if (response.ok) {
-          console.log("Password changes successfully for SysAdmin");
+          console.log("Password changed successfully for SysAdmin");
           toast.success("Votre mot de passe a été changé avec succès ..");
         } else {
           toast.error("Une erreur s'est produite, ressayer plus tard !!")
@@ -285,7 +287,7 @@ export default function SysDashboard() {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className='flex flex-col gap-2 pt-2 justify-between'>
             <div className='flex cursor-pointer'>
-            <a className='font-p_light' href="">Adv Settings 1</a>
+              <a className='font-p_light' href="">Adv Settings 1</a>
             </div>
             <div>
               <a className='font-p_light' href="">Adv Settings 2</a>
