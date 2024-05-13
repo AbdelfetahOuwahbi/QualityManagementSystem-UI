@@ -20,11 +20,11 @@ export default function Main_page() {
     const mainRole = userRoleArray
       .filter(role => ['Sysadmin', 'Consultant', 'Pilot'].includes(role.name))
       .map(role => role.name);
-    console.log("Main role of the user:", mainRole[0]);
+    // console.log("Main role of the user:", mainRole[0]);
     if (mainRole[0] === 'Sysadmin') {
       persistentSession("Sysadmin");
-    } else if (mainRole === 'Consultant' || mainRole === 'Pilot') {
-      persistentSession(mainRole)
+    } else {
+      persistentSession(mainRole[0])
     }
   }
 

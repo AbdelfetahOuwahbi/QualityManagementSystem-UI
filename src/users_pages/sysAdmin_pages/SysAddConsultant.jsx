@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Button, Label, Modal, TextInput } from "flowbite-react";
-import { Toaster, toast } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { serverAddress } from "../../ServerAddress";
 
 export default function SysAddConsultant({ consultantDtls, onClose }) {
 
@@ -45,7 +46,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             if (organismId.length === 0) {
                 async function getAllOrganismes() {
                     try {
-                        const response = await fetch(`http://localhost:8080/api/v1/organismes`, {
+                        const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -79,53 +80,57 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             Cookies.remove("JWT");
             window.location.href = "/"
         } else {
-            try {
-                setIsLoading(true);
-                const response = await fetch(`http://localhost:8080/api/v1/auth/signup`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
-                    },
-                    body: JSON.stringify({
-                        "firstname": consultantDetails.first_name,
-                        "lastname": consultantDetails.last_name,
-                        "email": consultantDetails.email,
-                        "phone": consultantDetails.phone,
-                        "password": consultantDetails.password,
-                        "type": "consultant",
-                        "roles": [
-                            {
-                                "name": "Consultant"
-                            }
-                        ],
-                        "organismeId": consultantDetails.organism
-                    }),
-                });
-
-                const data = await response.json();
-                console.log("data after saving consultant is-->", data);
-                if (!response.ok) {
-                    setIsLoading(false);
-                    console.log("error message is --> ", data.message);
-                    if (data.errorCode === "User_email_already_exists") {
-                        toast.error("L'email que vous avez entrez est déjà utilisé, entrer un autre!!");
-                    } else {
-                        toast.error('Une erreur s\'est produite lors du creation de ce consultant.');
-                    }
-                    throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
-                }
-
-                if (response.status === 200 || response.status === 201) {
-                    toast.success('Ce consultant est ajoutè avec succès..');
-                    setTimeout(() => {
-                        setModalOpen(false);
+            if (consultantDetails.organism === '') {
+                toast.error('Vous devez affecter un organisme a ce consultant !!');
+            } else {
+                try {
+                    setIsLoading(true);
+                    const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signup`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                        },
+                        body: JSON.stringify({
+                            "firstname": consultantDetails.first_name,
+                            "lastname": consultantDetails.last_name,
+                            "email": consultantDetails.email,
+                            "phone": consultantDetails.phone,
+                            "password": consultantDetails.password,
+                            "type": "consultant",
+                            "roles": [
+                                {
+                                    "name": "Consultant"
+                                }
+                            ],
+                            "organismeId": consultantDetails.organism
+                        }),
+                    });
+    
+                    const data = await response.json();
+                    console.log("data after saving consultant is-->", data);
+                    if (!response.ok) {
                         setIsLoading(false);
-                    }, 2000);
-                    navigate("/SysAllConsultants")
+                        console.log("error message is --> ", data.message);
+                        if (data.errorCode === "User_email_already_exists") {
+                            toast.error("L'email que vous avez entrez est déjà utilisé, entrer un autre!!");
+                        } else {
+                            toast.error('Une erreur s\'est produite lors du creation de ce consultant.');
+                        }
+                        throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
+                    }
+    
+                    if (response.status === 200 || response.status === 201) {
+                        toast.success('Ce consultant est ajoutè avec succès..');
+                        setTimeout(() => {
+                            setModalOpen(false);
+                            setIsLoading(false);
+                        }, 2000);
+                        navigate("/SysAllConsultants")
+                    }
+                } catch (error) {
+                    console.error('Error saving consultant:', error);
                 }
-            } catch (error) {
-                console.error('Error saving consultant:', error);
             }
         }
     }

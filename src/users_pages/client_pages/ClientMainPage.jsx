@@ -1,23 +1,26 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 import { Drawer, Sidebar } from "flowbite-react";
 import { CiBoxList, CiSettings } from "react-icons/ci";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
 import { HiChartPie } from "react-icons/hi";
-import { FaUsersLine } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
-import profile from '../../assets/profile.jpg';
+import { doesHeHaveAccess, extractMainRole } from "../CommonApiCalls";
+import profile from '../../assets/consultant.jpg';
 // Method that counts all notifications
 import { countNotifications } from "../CommonApiCalls";
-import { serverAddress } from "../../ServerAddress";
 //From common Api Calls
 import { isTokenExpired, isTokenInCookies, handleLogout } from "../CommonApiCalls";
 
-export default function SysMainPage({ onClose }) {
+export default function ClientMainPage({ onClose }) {
 
   const navigate = useNavigate();
+
+  // The main role of a user
+  const mainUserRole = extractMainRole();
 
   // How many notifications did the SysAdmin Receive
   const [modalOpen, setModalOpen] = useState(true);
@@ -32,8 +35,10 @@ export default function SysMainPage({ onClose }) {
     }
     else {      //Checking the validity of the token ends
       const countNotifs = async () => {
+        //userId to send to count notifications
+        const userID = jwtDecode(Cookies.get("JWT")).id;
         try {
-          const data = await countNotifications("SysAdmin", Cookies.get("JWT"));
+          const data = await countNotifications(userID, Cookies.get("JWT"));
           console.log("Number of notifications is --> ", data);
           setNotifsNumber(data);
         } catch (error) {
@@ -77,7 +82,7 @@ export default function SysMainPage({ onClose }) {
             <img src={profile} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
             {/* username */}
             <div className='py-2'>
-              <h1 className='font-p_regular' >Sys Administrateur</h1>
+              <h1 className='font-p_regular' >{mainUserRole}</h1>
             </div>
           </div>
 
@@ -86,30 +91,22 @@ export default function SysMainPage({ onClose }) {
               <Sidebar.ItemGroup>
 
                 <Sidebar.Item onClick={() => {
-                }} href="/SysDashboard" icon={HiChartPie}>
+                }} href="/ClientDashboard" icon={HiChartPie}>
                   Dashboard
                 </Sidebar.Item>
 
                 <Sidebar.Item onClick={() => {
-                }} href="/SysNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
+                }} href="/ClientNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
                   Boite
                 </Sidebar.Item>
-
-                <Sidebar.Collapse icon={FaUsersLine} label="Consultants SMQ">
-
-                  <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/SysAllConsultants">Liste des Consultants SMQ
-                  </Sidebar.Item>
-
-                </Sidebar.Collapse>
-
-                <Sidebar.Collapse icon={GoOrganization} label="Orga. de Cerification">
+                {mainUserRole === "Consultant" &&                 
+                <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clients">
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/SysAllOrganismes">Liste des Organismes
+                  }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
                   </Sidebar.Item>
-
                 </Sidebar.Collapse>
+                }
 
                 <Sidebar.Item className='cursor-pointer' onClick={() => handleLogout()} icon={FaSignOutAlt}>
                   Déconnexion

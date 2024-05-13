@@ -9,6 +9,7 @@ import {getAllEntreprises, isTokenExpired, isTokenInCookies} from "../CommonApiC
 import Cookies from "js-cookie";
 import toast, {Toaster} from "react-hot-toast";
 import SysMainPage from "./SysMainPage";
+import { serverAddress } from "../../ServerAddress";
 
 
 export default function SysAllOrganismes() {
@@ -231,7 +232,7 @@ export default function SysAllOrganismes() {
         console.log("organism to be deleted is -->", organismId)
         console.log(isTokenExpired())
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/organismes/${organismId}`, {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes/${organismId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -265,7 +266,7 @@ export default function SysAllOrganismes() {
             window.location.href = "/";
         } else {
             try {
-                const response = await fetch(`http://localhost:8080/api/v1/organismes/${id[index]}`, {
+                const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes/${id[index]}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
