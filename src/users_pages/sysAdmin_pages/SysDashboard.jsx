@@ -254,7 +254,7 @@ export default function SysDashboard() {
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
             className='flex items-center pt-2 justify-between'>
-            <div onClick={() => navigate("/Profile", {state : {user : user}})} className='flex items-center justify-around gap-4 cursor-pointer'>
+            <div onClick={() => navigate("/Profile")} className='flex items-center justify-around gap-4 cursor-pointer'>
               <img src={profile} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
               <h1 className='font-p_medium'> Votre profile </h1>
             </div>

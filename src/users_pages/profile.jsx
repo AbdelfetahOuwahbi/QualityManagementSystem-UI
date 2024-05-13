@@ -19,11 +19,13 @@ export default function Profile() {
 
   //Ill get the token from cookies
   const token = Cookies.get("JWT");
+  const userRole = Cookies.get("userRoles");
+  console.log("The Role of the user that needs to be parsed because it is stored in cookies-->",userRole);
   //Ill decode it !!
   const decoded = jwtDecode(token);
   //Ill extact the email to send
   const userEmail = decoded.sub;
-  console.log(userEmail);
+  console.log("user email that we will send to change the informations-->",userEmail);
 
 
   const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);

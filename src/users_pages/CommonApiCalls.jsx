@@ -1,19 +1,30 @@
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-
+import { useNavigate } from "react-router-dom";
 
 //Function that checks if the token is in the cookies
 export function isTokenInCookies() {
     const jwt = Cookies.get("JWT");
+    console.log("isTokenInCookies --->", jwt !== undefined && jwt !== null)
     return jwt !== undefined && jwt !== null;
 }
 // Function to check if the token has expired
 export function isTokenExpired() {
-    const jwt = Cookies.get("JWT")
+    const jwt = Cookies.get("JWT");
     const decodedToken = jwtDecode(jwt);
     const currentTimestamp = Math.floor(Date.now() / 1000);
-
+    console.log("isTokenExpired --->", decodedToken.exp < currentTimestamp)
     return decodedToken.exp < currentTimestamp;
+}
+
+export function persistentSession(user) {
+    //To use navigation and reroute the user
+    const navigate = useNavigate();
+    if (user === "Sysadmin") {
+        navigate("/SysDashboard")
+    } else {
+        navigate("/ClientDashboard")
+    }
 }
 
 //Function that checks wether the user have access or not
