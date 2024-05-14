@@ -14,6 +14,7 @@ import ClientDashboard from './users_pages/client_pages/ClientDashboard';
 import ClientNotifications from './users_pages/client_pages/ClientNotifications';
 // Consultants routes
 import AllEntreprises from './users_pages/client_pages/consultant_pages/AllEntreprises';
+import AllDiagnosises from './users_pages/client_pages/consultant_pages/AllDiagnosises';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="/ClientNotifications" element={<ClientNotifications />} />
         {/* Consultants Routes */}
         <Route path="/AllEntreprises" element={<AllEntreprises />} />
+        <Route path="/AllDiagnosises" element={<AllDiagnosises />} />
       </Routes>
     </Router>
   )

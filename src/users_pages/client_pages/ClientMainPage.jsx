@@ -5,15 +5,15 @@ import { Drawer, Sidebar } from "flowbite-react";
 import { CiBoxList, CiSettings } from "react-icons/ci";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
+import { FaCheckToSlot } from "react-icons/fa6";
 import { HiChartPie } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
 import { doesHeHaveAccess, extractMainRole } from "../CommonApiCalls";
 import { serverAddress } from "../../ServerAddress";
 // Method that counts all notifications
-import { countNotifications } from "../CommonApiCalls";
 //From common Api Calls
-import { isTokenExpired, isTokenInCookies, handleLogout } from "../CommonApiCalls";
+import { isTokenExpired, isTokenInCookies, handleLogout, countNotifications } from "../CommonApiCalls";
 
 export default function ClientMainPage({ onClose }) {
 
@@ -127,10 +127,18 @@ export default function ClientMainPage({ onClose }) {
                   Boite
                 </Sidebar.Item>
                 {mainUserRole === "Consultant" &&
-                  <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clients">
+                  <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clientes">
 
                     <Sidebar.Item onClick={() => {
                     }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
+                    </Sidebar.Item>
+                  </Sidebar.Collapse>
+                }
+                {mainUserRole === "Consultant" &&
+                  <Sidebar.Collapse icon={FaCheckToSlot} label="Mes Diagnostics">
+
+                    <Sidebar.Item onClick={() => {
+                    }} icon={FaCheckToSlot} href="/AllDiagnosises">Liste des Diagnostics
                     </Sidebar.Item>
                   </Sidebar.Collapse>
                 }

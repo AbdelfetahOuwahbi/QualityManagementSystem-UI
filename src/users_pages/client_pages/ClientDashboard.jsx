@@ -11,9 +11,10 @@ import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { serverAddress } from '../../ServerAddress';
-import { isTokenExpired, isTokenInCookies, countNotifications, changePassword } from '../CommonApiCalls';
+import { isTokenExpired, isTokenInCookies, countNotifications, changePassword, extractMainRole } from '../CommonApiCalls';
 import profile from '../../assets/consultant.jpg';
 import ClientMainPage from './ClientMainPage';
+import { DiagnosisModal } from './consultant_pages/DiagnosisModal';
 
 export default function ClientDashboard() {
 
@@ -23,6 +24,9 @@ export default function ClientDashboard() {
     const decoded = jwtDecode(Cookies.get("JWT"));
     //then Ill extact the id to send
     const userID = decoded.id;
+
+    // The main role of a user
+    const mainUserRole = extractMainRole();
 
     const [isClientMenuOpen, setIsClientMenuOpen] = useState(false);
 
@@ -287,11 +291,6 @@ export default function ClientDashboard() {
                 </div>
                 <div className='border-t border-gray-300 w-96 mb-10'></div>
 
-                <div className='w-full h-10 flex items-center px-4 md:px-10'>
-                    <button className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}>
-                        Nouveau diagnostic
-                    </button>
-                </div>
 
             </div>
 
