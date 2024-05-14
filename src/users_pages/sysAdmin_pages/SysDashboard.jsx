@@ -364,6 +364,12 @@ export default function SysDashboard() {
           ))}
         </div>
       </div>
+
+      <div className='w-full h-10 flex items-center px-4 md:px-10'>
+        <button className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}>
+          Ajouter une norme
+        </button>
+      </div>
       {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
     </>
   );
