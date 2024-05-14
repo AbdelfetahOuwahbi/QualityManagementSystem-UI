@@ -7,6 +7,9 @@ import { serverAddress } from "../../ServerAddress.jsx";
 import toast from "react-hot-toast";
 
 export default function SysAddNorm({ onClose, show }) {
+
+    const [did_Chapter_Filled_Its_Criterias, setDid_Chapter_Filled_Its_Criterias] = useState(false);
+
     const initialNormeState = {
         code: '',
         label: '',
@@ -173,6 +176,7 @@ export default function SysAddNorm({ onClose, show }) {
     const handleChapitreSubmit = (e) => {
         e.preventDefault();
         saveChapitre();
+        setDid_Chapter_Filled_Its_Criterias(false);
     };
 
     const handleCritereSubmit = (e) => {
@@ -226,27 +230,27 @@ export default function SysAddNorm({ onClose, show }) {
                                 <div className="mb-4">
                                     <Label htmlFor="code">Code</Label>
                                     <TextInput id="code" name="code" value={norme.code}
-                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="label">Label</Label>
                                     <TextInput id="label" name="label" value={norme.label}
-                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="applicationDomain">Application Domain</Label>
                                     <TextInput id="applicationDomain" name="applicationDomain" value={norme.applicationDomain}
-                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="version">Version</Label>
                                     <TextInput type="number" id="version" name="version" value={norme.version}
-                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="description">Description</Label>
                                     <Textarea id="description" name="description" value={norme.description}
-                                              onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="flex justify-end">
                                     <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Next</Button>
@@ -261,17 +265,17 @@ export default function SysAddNorm({ onClose, show }) {
                                         <div className="mb-4">
                                             <Label htmlFor="code">Code</Label>
                                             <TextInput id="code" name="code" value={currentChapitre.code}
-                                                       onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
+                                                onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
                                         </div>
                                         <div className="mb-4">
                                             <Label htmlFor="label">Label</Label>
                                             <TextInput id="label" name="label" value={currentChapitre.label}
-                                                       onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
+                                                onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
                                         </div>
                                         <div className="mb-4">
                                             <Label htmlFor="description">Description</Label>
                                             <Textarea id="description" name="description" value={currentChapitre.description}
-                                                      onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
+                                                onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
                                         </div>
                                         <div className="mb-4">
                                             <Button type="button" onClick={handleChapitreSubmit} className="bg-blue-500 hover:bg-blue-600 text-white">Save Chapitre</Button>
@@ -281,21 +285,22 @@ export default function SysAddNorm({ onClose, show }) {
                                 {fetchChapitre && (
                                     <>
                                         <h3 className="text-xl font-semibold mb-4">Ajouter des Critères</h3>
-                                        {criteres.map((critere, index) => (
+                                        {did_Chapter_Filled_Its_Criterias === false && criteres.map((critere, index) => (
                                             <div key={index} className="mb-4">
                                                 <h4 className="text-lg font-semibold mb-2">Critère {index + 1}</h4>
                                                 <div className="mb-2">
                                                     <Label htmlFor={`description-${index}`}>Description</Label>
                                                     <Textarea id={`description-${index}`} name="description" value={critere.description}
-                                                              onChange={(e) => handleCritereChange(index, e)} required />
+                                                        onChange={(e) => handleCritereChange(index, e)} required />
                                                 </div>
                                                 <div className="mb-2">
                                                     <Label htmlFor={`comment-${index}`}>Commentaire</Label>
                                                     <Textarea id={`comment-${index}`} name="comment" value={critere.comment}
-                                                              onChange={(e) => handleCritereChange(index, e)} required />
+                                                        onChange={(e) => handleCritereChange(index, e)} required />
                                                 </div>
                                             </div>
                                         ))}
+
                                         {!submitted && (
                                             <div className="flex justify-between mb-4">
                                                 <Button type="button" onClick={addCritere} className="bg-blue-500 hover:bg-blue-600 text-white">Ajouter un Critère</Button>
@@ -305,11 +310,13 @@ export default function SysAddNorm({ onClose, show }) {
                                             </div>
                                         )}
                                         <div className="flex justify-between">
+                                            <Button type="button" onClick={() => {
+                                                handleNewChapitre();
+                                                setDid_Chapter_Filled_Its_Criterias(false);
+                                            }} className="bg-yellow-500 hover:bg-yellow-600 text-white">Nouveau Chapitre</Button>
                                             {!submitted && (
-                                                <Button type="submit" className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
+                                                <Button onClick={() => setDid_Chapter_Filled_Its_Criterias(true)} type="submit" className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
                                             )}
-                                            <Button type="button" onClick={handleNewChapitre} className="bg-yellow-500 hover:bg-yellow-600 text-white">Nouveau Chapitre</Button>
-                                            <Button type="button" onClick={handleClose} className="bg-red-500 hover:bg-red-600 text-white">Quitter</Button>
                                         </div>
                                     </>
                                 )}
@@ -326,7 +333,7 @@ export default function SysAddNorm({ onClose, show }) {
                     </Modal.Header>
                     <Modal.Body>
                         <p>Êtes-vous sûr de vouloir quitter ? Toutes les modifications non enregistrées seront perdues.</p>
-                        <div className="flex justify-end">
+                        <div className="flex mt-10 justify-end gap-4">
                             <Button type="button" onClick={confirmClose} className="bg-red-500 hover:bg-red-600 text-white">Oui</Button>
                             <Button type="button" onClick={() => setShowConfirm(false)} className="bg-gray-500 hover:bg-gray-600 text-white">Non</Button>
                         </div>
