@@ -13,11 +13,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import profile from '../../assets/profile.jpg'
 import { serverAddress } from '../../ServerAddress';
+import SysAddNorm from './SysAddNorm'; // Import the SysAddNorm component
 
 export default function SysDashboard() {
 
   const navigate = useNavigate();
-
+// Variable to toggle the visibility of the SysAddNorm component
+  const [showAddNorm, setShowAddNorm] = useState(false);
 
   //Variable to get all consultants
   const [consultants, setConsultants] = useState([]);
@@ -366,11 +368,15 @@ export default function SysDashboard() {
       </div>
 
       <div className='w-full h-10 flex items-center px-4 md:px-10'>
-        <button className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}>
+        <button
+            className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}
+            onClick={() => setShowAddNorm(true)} // Show the SysAddNorm component
+        >
           Ajouter une norme
         </button>
       </div>
       {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
+      <SysAddNorm show={showAddNorm} onClose={() => setShowAddNorm(false)} /> {/* Render the SysAddNorm component */}
     </>
   );
 }
