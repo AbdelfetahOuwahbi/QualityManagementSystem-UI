@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Carousel, Popover } from 'flowbite-react';
 import { motion } from 'framer-motion';
 import Cookies from 'js-cookie';
-import { persistentSession } from '../users_pages/CommonApiCalls';
+import { isTokenExpired, isTokenInCookies, persistentSession } from '../users_pages/CommonApiCalls';
 import Header from './Header';
 import Homephoto from '../assets/Homephoto_2.png';
 import logo from '../assets/logo.png';
@@ -13,20 +13,28 @@ import Contact from './Contact';
 
 export default function Main_page() {
 
-  //Checking the existance of userRoles in cookies
-  const userRoles = Cookies.get("userRoles");
-  if (userRoles !== undefined && userRoles !== null && userRoles !== "") {
-    const userRoleArray = JSON.parse(userRoles);
-    const mainRole = userRoleArray
-      .filter(role => ['Sysadmin', 'Consultant', 'Pilot'].includes(role.name))
-      .map(role => role.name);
-    console.log("Main role of the user:", mainRole[0]);
-    if (mainRole[0] === 'Sysadmin') {
-      persistentSession("Sysadmin");
-    } else {
-      persistentSession(mainRole[0])
-    }
-  }
+  //this is used to persist the session if the user is already logged in 
+  // useEffect(() => {
+  //   if (!isTokenInCookies) {
+  //     console.log("this user must perform login first !!")
+  //   } else {      
+  //     //Checking the existance of userRoles in cookies
+  //     const userRoles = Cookies.get("userRoles");
+  //     if (userRoles !== undefined && userRoles !== null && userRoles !== "") {
+  //       const userRoleArray = JSON.parse(userRoles);
+  //       const mainRole = userRoleArray
+  //         .filter(role => ['Sysadmin', 'Consultant', 'Admin', 'Responsable', 'Pilot'].includes(role.name))
+  //         .map(role => role.name);
+  //       console.log("Main role of the user:", mainRole[0]);
+  //       if (mainRole[0] === 'Sysadmin') {
+  //         persistentSession("Sysadmin");
+  //       } else {
+  //         persistentSession(mainRole[0])
+  //       }
+  //     }
+  //   }
+  // }, [])
+
 
 
   //This Const is used to Toogle the Contact Form visibility

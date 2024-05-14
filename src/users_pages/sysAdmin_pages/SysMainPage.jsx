@@ -9,6 +9,7 @@ import { FaUsersLine } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
 import profile from '../../assets/profile.jpg';
+import { jwtDecode } from "jwt-decode";
 // Method that counts all notifications
 import { countNotifications } from "../CommonApiCalls";
 import { serverAddress } from "../../ServerAddress";
@@ -19,9 +20,15 @@ export default function SysMainPage({ onClose }) {
 
   const navigate = useNavigate();
 
+  const decoded = jwtDecode(Cookies.get("JWT"));
+  //then Ill extact the id to send
+  const userID = decoded.id;
+
   // How many notifications did the SysAdmin Receive
   const [modalOpen, setModalOpen] = useState(true);
   const [notifsNumber, setNotifsNumber] = useState(0);
+  //the Sys Admin's profile Image
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     if (!isTokenInCookies()) {
@@ -44,11 +51,13 @@ export default function SysMainPage({ onClose }) {
       const handleVisibilityChange = () => {
         if (!document.hidden) {
           countNotifs();
+          getProfileImage();
         }
       };
 
       // Initial fetch
       countNotifs();
+      getProfileImage();
 
       // Set up event listener for visibility change
       document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -60,6 +69,23 @@ export default function SysMainPage({ onClose }) {
     }
   }, []);
 
+  //Function that gets the users profile
+
+  const getProfileImage = async () => {
+    try {
+      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/image-path?userId=${userID}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${Cookies.get("JWT")}`
+        }
+      });
+      const data = await response.text();
+      setProfileImage(data); 
+      
+    } catch (error) {
+      console.log("an error happened while fetching the profile image !!");
+    }
+  }
 
 
   return (
@@ -74,7 +100,7 @@ export default function SysMainPage({ onClose }) {
             setModalOpen(false);
           }}
             className='h-auto items-center justify-around flex flex-col cursor-pointer'>
-            <img src={profile} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
+            <img src={`http://${serverAddress}:8080/api/v1/images/${profileImage}`} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
             {/* username */}
             <div className='py-2'>
               <h1 className='font-p_regular' >Sys Administrateur</h1>

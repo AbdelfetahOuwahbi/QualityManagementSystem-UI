@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { Button, Label, Modal, TextInput, Textarea } from "flowbite-react";
 import { toast } from "react-hot-toast";
-import { saveEntreprise, updateEntreprise } from "../CommonApiCalls";
 import { Spinner } from "flowbite-react";
-import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
+import { jwtDecode } from "jwt-decode";
+import { saveEntreprise, updateEntreprise } from "../../CommonApiCalls";
+import { isTokenExpired, isTokenInCookies } from "../../CommonApiCalls";
 import Cookies from "js-cookie";
-import { serverAddress } from "../../ServerAddress";
+import { serverAddress } from "../../../ServerAddress";
 
-export default function SysAddOrganism({ onClose }) {
+export default function AddEntreprise({ onClose }) {
+
+    const decoded = jwtDecode(Cookies.get("JWT"));
+    const userID = decoded.id;
+
 
     // organismDtls ? console.log(organismDtls) : console.log("did not provide details..");
 
     const [modalOpen, setModalOpen] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
-    const [organismDetails, setOrganismDetails] = useState(
+    const [entrepriseDetails, setEntrepriseDetails] = useState(
         {
             Category: "",
             Raison_Sociale: "",
@@ -30,7 +35,7 @@ export default function SysAddOrganism({ onClose }) {
     );
 
     // Function that adds a new organism
-    async function saveOrganism(organismDetails) {
+    async function saveEntrep(entrepriseDetails) {
         // Checking the validity of the token
         if (!isTokenInCookies()) {
             window.location.href = "/";
@@ -41,27 +46,28 @@ export default function SysAddOrganism({ onClose }) {
             try {
                 setIsLoading(true);
                 const response = await saveEntreprise(
-                    null,
-                    "organism",
-                    organismDetails.Category,
-                    organismDetails.Pays,
-                    organismDetails.Secteur,
-                    organismDetails.Ville,
-                    organismDetails.Phone,
-                    organismDetails.Email,
-                    organismDetails.Patente,
-                    organismDetails.Cnss,
-                    organismDetails.Identifiant_fiscale,
-                    organismDetails.Registre_de_commerce,
-                    organismDetails.Raison_Sociale
+                    userID,
+                    "entreprise",
+                    entrepriseDetails.Category,
+                    entrepriseDetails.Pays,
+                    entrepriseDetails.Secteur,
+                    entrepriseDetails.Ville,
+                    entrepriseDetails.Phone,
+                    entrepriseDetails.Email,
+                    entrepriseDetails.Patente,
+                    entrepriseDetails.Cnss,
+                    entrepriseDetails.Identifiant_fiscale,
+                    entrepriseDetails.Registre_de_commerce,
+                    entrepriseDetails.Raison_Sociale
                 );
                 console.log("first, the response is -->", response)
                 if (response?.status === 200 || response?.status === 201) {
-                    toast.success("Cet Organisme est ajouté avec succès..");
+                    toast.success("Cet Entreprise est ajouté avec succès..");
                     setTimeout(() => {
                         setModalOpen(false);
                         setIsLoading(false);
                     }, 2000);
+                    window.location.reload();
                 }
             } catch (error) {
                 setIsLoading(false);
@@ -86,8 +92,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Category"
                                 placeholder="Catégorie"
-                                value={organismDetails.Category}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Category: event.target.value })}
+                                value={entrepriseDetails.Category}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Category: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -96,8 +102,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Raison_Sociale"
                                 placeholder="Raison Sociale"
-                                value={organismDetails.Raison_Sociale}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Raison_Sociale: event.target.value })}
+                                value={entrepriseDetails.Raison_Sociale}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Raison_Sociale: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -106,8 +112,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Secteur"
                                 placeholder="Secteur"
-                                value={organismDetails.Secteur}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Secteur: event.target.value })}
+                                value={entrepriseDetails.Secteur}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Secteur: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -116,8 +122,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Pays"
                                 placeholder="Pays"
-                                value={organismDetails.Pays}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Pays: event.target.value })}
+                                value={entrepriseDetails.Pays}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Pays: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -126,8 +132,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Ville"
                                 placeholder="Ville"
-                                value={organismDetails.Ville}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Ville: event.target.value })}
+                                value={entrepriseDetails.Ville}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Ville: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -136,8 +142,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Email"
                                 placeholder="Email"
-                                value={organismDetails.Email}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Email: event.target.value })}
+                                value={entrepriseDetails.Email}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Email: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -146,8 +152,8 @@ export default function SysAddOrganism({ onClose }) {
                             <TextInput
                                 id="Phone"
                                 placeholder="Phone"
-                                value={organismDetails.Phone}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Phone: event.target.value })}
+                                value={entrepriseDetails.Phone}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Phone: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -157,8 +163,8 @@ export default function SysAddOrganism({ onClose }) {
                                 type="number"
                                 id="Registre_de_commerce"
                                 placeholder="Registre de commerce"
-                                value={organismDetails.Registre_de_commerce}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Registre_de_commerce: event.target.value })}
+                                value={entrepriseDetails.Registre_de_commerce}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Registre_de_commerce: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -168,8 +174,8 @@ export default function SysAddOrganism({ onClose }) {
                                 type="number"
                                 id="Identifiant_fiscale"
                                 placeholder="Identifiant fiscale"
-                                value={organismDetails.Identifiant_fiscale}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Identifiant_fiscale: event.target.value })}
+                                value={entrepriseDetails.Identifiant_fiscale}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Identifiant_fiscale: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -179,8 +185,8 @@ export default function SysAddOrganism({ onClose }) {
                                 type="number"
                                 id="Patente"
                                 placeholder="Patente"
-                                value={organismDetails.Patente}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Patente: event.target.value })}
+                                value={entrepriseDetails.Patente}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Patente: event.target.value })}
                                 required
                             />
                             <div className="mb-2 block">
@@ -190,14 +196,14 @@ export default function SysAddOrganism({ onClose }) {
                                 type="number"
                                 id="Cnss"
                                 placeholder="CNSS"
-                                value={organismDetails.Cnss}
-                                onChange={(event) => setOrganismDetails({ ...organismDetails, Cnss: event.target.value })}
+                                value={entrepriseDetails.Cnss}
+                                onChange={(event) => setEntrepriseDetails({ ...entrepriseDetails, Cnss: event.target.value })}
                                 required
                             />
                         </div>
                         <div className="w-full">
 
-                            <Button onClick={() => saveOrganism(organismDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
+                            <Button onClick={() => saveEntrep(entrepriseDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
 
                         </div>
                     </div>
