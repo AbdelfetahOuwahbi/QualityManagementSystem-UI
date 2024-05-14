@@ -330,7 +330,7 @@ export default function Profile() {
                       </div>
                       <div className="flex flex-col pt-3">
                         <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Email</dt>
-                        <dd className="text-lg font-semibold">{userDetails.email}</dd>
+                        <dd className="text-lg font-semibold pb-3">{userDetails.email}</dd>
                       </div>
 
                       <div className="flex flex-col pt-3">
