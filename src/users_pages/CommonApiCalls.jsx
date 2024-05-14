@@ -26,12 +26,10 @@ export function isTokenExpired() {
 
 // To persist the Session of the user
 export function persistentSession(user) {
-    //To use navigation and reroute the user
-    const navigate = useNavigate();
     if (user === "Sysadmin") {
-        navigate("/SysDashboard")
+        window.location.href = "/SysDashboard";
     } else {
-        navigate("/ClientDashboard")
+        window.location.href = "/ClientDashboard"
     }
 }
 
@@ -208,10 +206,11 @@ export async function markNotificationAsRead(notificationId, token) {
 
 //Function to add a new Entreprise
 
-export async function saveEntreprise(Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc) {
+export async function saveEntreprise(consultantIfExists, type, Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc) {
 
+    console.log("Saving an ", type)
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/${type === "organism" ? "organismes" : `consulantSMQ/entreprises?consulantSMQId=${consultantIfExists}`}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

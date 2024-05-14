@@ -126,7 +126,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             setModalOpen(false);
                             setIsLoading(false);
                         }, 2000);
-                        navigate("/SysAllConsultants")
+                        window.location.reload();
                     }
                 } catch (error) {
                     console.error('Error saving consultant:', error);

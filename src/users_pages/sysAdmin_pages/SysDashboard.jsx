@@ -11,12 +11,16 @@ import SysMainPage from './SysMainPage';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import profile from '../../assets/profile.jpg'
+import { jwtDecode } from 'jwt-decode';
 import { serverAddress } from '../../ServerAddress';
 
 export default function SysDashboard() {
 
   const navigate = useNavigate();
+
+  const decoded = jwtDecode(Cookies.get("JWT"));
+  //then Ill extact the id to send
+  const userID = decoded.id;
 
 
   //Variable to get all consultants
@@ -41,6 +45,9 @@ export default function SysDashboard() {
     newPassword: "",
     confirmationPassword: "",
   })
+
+  //the Sys Admin's profile Image
+  const [profileImage, setProfileImage] = useState(null);
 
 
   //Counting all notifs when the Dashboard Page loads
@@ -117,6 +124,8 @@ export default function SysDashboard() {
         setTotalUsers(data);
       })
       .catch(error => console.error('Error fetching user count:', error));
+
+      getProfileImage();
   }, []);
 
   //Counting Organizations
@@ -155,6 +164,24 @@ export default function SysDashboard() {
       }
     } else {
       toast.error("Le nouveau mot de passe et sa confirmation ne sont pas identiques !!")
+    }
+  }
+
+  //Function that gets the users profile
+
+  const getProfileImage = async () => {
+    try {
+      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/image-path?userId=${userID}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${Cookies.get("JWT")}`
+        }
+      });
+      const data = await response.text();
+      setProfileImage(data);
+
+    } catch (error) {
+      console.log("an error happened while fetching the profile image !!");
     }
   }
 
@@ -257,7 +284,7 @@ export default function SysDashboard() {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className='flex items-center pt-2 justify-between'>
             <div onClick={() => navigate("/Profile")} className='flex items-center justify-around gap-4 cursor-pointer'>
-              <img src={profile} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
+              <img src={`http://${serverAddress}:8080/api/v1/images/${profileImage}`} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
               <h1 className='font-p_medium'> Votre profile </h1>
             </div>
             <div>

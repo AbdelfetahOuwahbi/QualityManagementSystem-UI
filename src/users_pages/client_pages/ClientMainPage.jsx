@@ -9,7 +9,7 @@ import { HiChartPie } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
 import { doesHeHaveAccess, extractMainRole } from "../CommonApiCalls";
-import profile from '../../assets/consultant.jpg';
+import { serverAddress } from "../../ServerAddress";
 // Method that counts all notifications
 import { countNotifications } from "../CommonApiCalls";
 //From common Api Calls
@@ -19,12 +19,19 @@ export default function ClientMainPage({ onClose }) {
 
   const navigate = useNavigate();
 
+  const decoded = jwtDecode(Cookies.get("JWT"));
+  //then Ill extact the id to send
+  const userID = decoded.id;
+
   // The main role of a user
   const mainUserRole = extractMainRole();
 
   // How many notifications did the SysAdmin Receive
   const [modalOpen, setModalOpen] = useState(true);
   const [notifsNumber, setNotifsNumber] = useState(0);
+
+  //the Sys Admin's profile Image
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     if (!isTokenInCookies()) {
@@ -49,11 +56,13 @@ export default function ClientMainPage({ onClose }) {
       const handleVisibilityChange = () => {
         if (!document.hidden) {
           countNotifs();
+          getProfileImage();
         }
       };
 
       // Initial fetch
       countNotifs();
+      getProfileImage();
 
       // Set up event listener for visibility change
       document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -64,6 +73,24 @@ export default function ClientMainPage({ onClose }) {
       };
     }
   }, []);
+
+  //Function that gets the users profile
+
+  const getProfileImage = async () => {
+    try {
+      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/image-path?userId=${userID}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${Cookies.get("JWT")}`
+        }
+      });
+      const data = await response.text();
+      setProfileImage(data);
+
+    } catch (error) {
+      console.log("an error happened while fetching the profile image !!");
+    }
+  }
 
 
 
@@ -79,7 +106,7 @@ export default function ClientMainPage({ onClose }) {
             setModalOpen(false);
           }}
             className='h-auto items-center justify-around flex flex-col cursor-pointer'>
-            <img src={profile} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
+            <img src={`http://${serverAddress}:8080/api/v1/images/${profileImage}`} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
             {/* username */}
             <div className='py-2'>
               <h1 className='font-p_regular' >{mainUserRole}</h1>
@@ -99,13 +126,13 @@ export default function ClientMainPage({ onClose }) {
                 }} href="/ClientNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
                   Boite
                 </Sidebar.Item>
-                {mainUserRole === "Consultant" &&                 
-                <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clients">
+                {mainUserRole === "Consultant" &&
+                  <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clients">
 
-                  <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
-                  </Sidebar.Item>
-                </Sidebar.Collapse>
+                    <Sidebar.Item onClick={() => {
+                    }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
+                    </Sidebar.Item>
+                  </Sidebar.Collapse>
                 }
 
                 <Sidebar.Item className='cursor-pointer' onClick={() => handleLogout()} icon={FaSignOutAlt}>

@@ -556,7 +556,7 @@ export default function SysAllOrganismes() {
                                                        onClick={(e) => {
                                                            e.preventDefault(); // Prévenir le comportement par défaut du lien
                                                            if (!disableEdit) {
-                                                               setConfirmDelete({userId: id[index], value: true});
+                                                               setConfirmDelete({organismId: id[index], value: true});
                                                            }
                                                        }}
                                                        className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>

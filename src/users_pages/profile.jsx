@@ -4,6 +4,7 @@ import { MdEditNote } from "react-icons/md";
 import { TbPointFilled } from "react-icons/tb";
 import { FaCheck } from "react-icons/fa";
 import { FaBars } from 'react-icons/fa6';
+import { CiCamera } from "react-icons/ci";
 import { FloatingLabel } from 'flowbite-react';
 import { motion } from 'framer-motion';
 import { jwtDecode } from 'jwt-decode';
@@ -23,9 +24,9 @@ export default function Profile() {
   const token = Cookies.get("JWT");
   //then Ill decode it !!
   const decoded = jwtDecode(token);
-  //then Ill extact the email to send
+  //then Ill extact the id to send
   const userID = decoded.id;
-  console.log("user id that we will send to change the informations-->", userID);
+  // console.log("user id that we will send to change the informations-->", userID);
 
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -45,12 +46,17 @@ export default function Profile() {
       lastname: "",
       lastModifiedDate: "",
       phone: "",
+      profileImage: null,
       organism: "",
       entreprise: "",
     } || {
 
     }
   )
+
+  //I used this state to toogle the visibility of the camera icon
+  const [isHovered, setIsHovered] = useState(false);
+  const [uploadedImage, setUploadedImage] = useState(null);
 
   useEffect(() => {
     const GetMyData = async () => {
@@ -81,9 +87,9 @@ export default function Profile() {
             'Authorization': ` Bearer ${Cookies.get("JWT")}`
           }
         });
-        console.log("response at profile-->", response)
+        // console.log("response at profile-->", response)
         const data = await response.json();
-        console.log("got user from database -->", data)
+        // console.log("got user from database -->", data)
         setUserDetails(prev => ({ ...prev, id: data.id }));
         setUserDetails(prev => ({ ...prev, accountNonLocked: data.accountNonLocked }));
         setUserDetails(prev => ({ ...prev, createdDate: data.createdDate }));
@@ -92,6 +98,7 @@ export default function Profile() {
         setUserDetails(prev => ({ ...prev, lastname: data.lastname }));
         setUserDetails(prev => ({ ...prev, email: data.email }));
         setUserDetails(prev => ({ ...prev, phone: data.phone }));
+        setUserDetails(prev => ({ ...prev, profileImage: data.imagePath }));
         {
           mainUserRole === "Consultant" ? (
             setUserDetails(prev => ({ ...prev, organism: data.organismeDeCertification.id }))
@@ -162,9 +169,42 @@ export default function Profile() {
     }
   };
 
-  // useEffect(() => {
-  //   console.log(userDetails);
-  // }, [userDetails])
+  //Function that changes the user's profile Image
+  const changeProfileImage = async (event) => {
+
+    //Appending the image to the Form data
+    const formData = new FormData();
+    formData.append('image', event.target.files[0]);
+    console.log("image to be uploaded -->", event.target.files[0]);
+    try {
+      const response = await fetch(`http://localhost:8080/api/v1/public/upload/${userID}`, {
+        method: 'POST',
+        body: formData
+      });
+      if (response.ok) {
+        // the reader that will be filled with the image's buffer (data)
+        const reader = new FileReader();
+        reader.onload = () => {
+          setUploadedImage(reader.result); // Set profileImg to the data URL of the uploaded image
+        };
+        reader.readAsDataURL(event.target.files[0]);
+        toast.success("Votre photo de profil a été changée avec succés ..");
+        console.log('Image uploaded successfully');
+      } else {
+        const data = await response.json();
+        if (data.message === "File size exceeds the maximum limit of 5MB") {
+          console.error('File size exceeds the maximum limit of 5MB');
+          toast.error("La taille du fichier dépasse la limite maximale de 5 Mo !!");
+        } else if (data.message === "Only PNG and JPG image uploads are allowed") {
+          console.error('Only PNG and JPG image uploads are allowed');
+          toast.error("Seuls les téléversements d'images PNG, JPG et JPEG sont autorisés !!");
+        }
+        console.error('Failed to upload image, response is not ok !!');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
 
   return (
     <>
@@ -182,11 +222,26 @@ export default function Profile() {
           <div className="mx-4 md:mx-32 flex flex-row items-center justify-between">
             <div className='flex items-center justify-start gap-4 relative'>
               {/* Profile Image */}
-              <img src={profileImg} alt="Votre profile" className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:scale-110 object-cover" />
-
+              <input
+                type="file"
+                id="fileInput"
+                accept="image/*"
+                className='hidden'
+                onChange={changeProfileImage}
+              />
+              <label htmlFor="fileInput">
+                <img
+                  src={uploadedImage === null ? (userDetails.profileImage === null ? (`http://${serverAddress}:8080/api/v1/images/user.png`) : (`http://${serverAddress}:8080/api/v1/images/${userDetails.profileImage}`)) : (uploadedImage)}
+                  onMouseEnter={() => setIsHovered(true)}
+                  onMouseLeave={() => setIsHovered(false)}
+                  alt="Votre profile"
+                  className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
+              </label>
               {/* Online Indicator Icon */}
               <TbPointFilled className='absolute w-6 h-6 md:w-10 md:h-10 ml-12 mb-10 md:mb-20 md:ml-24 rounded-full text-green-400 bg-white' />
-
+              {isHovered &&
+                <CiCamera className='absolute w-6 h-6 md:w-10 md:h-10 ml-5 mb-2 md:mb-2 md:ml-12 text-white cursor-pointer' />
+              }
               {/* FullName */}
               <h1 className="text-gray-800 dark:text-white lg:text-4xl md:text-3xl sm:text-3xl xs:text-xl font-serif">
                 {userDetails.firstname}
