@@ -106,7 +106,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             "organismeId": consultantDetails.organism
                         }),
                     });
-    
+
                     const data = await response.json();
                     console.log("data after saving consultant is-->", data);
                     if (!response.ok) {
@@ -119,7 +119,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                         }
                         throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
                     }
-    
+
                     if (response.status === 200 || response.status === 201) {
                         toast.success('Ce consultant est ajoutè avec succès..');
                         setTimeout(() => {

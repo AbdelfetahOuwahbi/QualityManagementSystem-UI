@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 export default function SysAddNorm({ onClose, show }) {
 
+    //To toogle the visibilty of criteria fields
     const [did_Chapter_Filled_Its_Criterias, setDid_Chapter_Filled_Its_Criterias] = useState(false);
 
     const initialNormeState = {
