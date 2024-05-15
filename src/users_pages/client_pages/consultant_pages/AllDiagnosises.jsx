@@ -226,9 +226,9 @@ export default function AllDiagnosises() {
                                                     <>
                                                         <button onClick={() => {
                                                             setChosenDiagnosisCode(diagnosisCode[index]);
-                                                            setChosenEntrepriseId(diagnosisEntrepriseId[index]);
+                                                            setChosenEntrepriseId(diagnosisEntrepriseName[index]);
                                                             setChosenNormeId(diagnosisNormId[index]);
-                                                            setAreDiagnosisDetailsShowen(true);
+                                                            setAreDiagnosisDetailsShowen(!areDiagnosisDetailsShown);
                                                         }} className="font-medium text-blue-600 hover:underline">Commencer</button>
                                                         <button onClick={() => {
                                                             setIsChangingDate(diagnosisId[index]);
@@ -257,7 +257,7 @@ export default function AllDiagnosises() {
 
             {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)} />}
             {isDiagnosisModalOpen && <DiagnosisModal onClose={() => setIsDiagnosisModalOpen(false)} />}
-            {areDiagnosisDetailsShown && <NewlyAddedDiagnosises DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntrepriseId={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
+            {areDiagnosisDetailsShown && <NewlyAddedDiagnosises DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntreprise={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
             <Modal show={isDeletingDiagnosis} size="md" onClose={() => setIsDeletingDiagnosis(false)}
                 popup>
                 <Modal.Header />
