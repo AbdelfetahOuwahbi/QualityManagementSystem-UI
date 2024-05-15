@@ -293,7 +293,8 @@ export default function SysAllConsultants() {
                     firstName[index] !== originalData.firstName ||
                     lastName[index] !== originalData.lastName ||
                     email[index] !== originalData.email ||
-                    phone[index] !== originalData.phone;
+                    phone[index] !== originalData.phone ||
+                    organismeName[index] !== originalData.organismeName ;
                 if (response.status === 200 || response.status === 201) {
                     if (isDataChanged) {
                         toast.success("Ce Consultant est modifié avec succès.");
