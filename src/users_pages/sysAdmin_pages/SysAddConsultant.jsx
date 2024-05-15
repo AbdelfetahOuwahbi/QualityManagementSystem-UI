@@ -15,7 +15,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
     const navigate = useNavigate();
 
     const [modalOpen, setModalOpen] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
 
 
     // console.log("this is consultant details after binding -->", consultantDetails)
@@ -82,9 +81,12 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
         } else {
             if (consultantDetails.organism === '') {
                 toast.error('Vous devez affecter un organisme a ce consultant !!');
+            }else if (consultantDetails.first_name === ''){
+                toast.error('Vous devez entrer le nom du consultant !!');
+            }else if (consultantDetails.last_name === ''){
+                toast.error('Vous devez entrer le prénom du consultant !!');
             } else {
                 try {
-                    setIsLoading(true);
                     const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signup`, {
                         method: 'POST',
                         headers: {
@@ -110,11 +112,16 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                     const data = await response.json();
                     console.log("data after saving consultant is-->", data);
                     if (!response.ok) {
-                        setIsLoading(false);
                         console.log("error message is --> ", data.message);
                         if (data.errorCode === "User_email_already_exists") {
                             toast.error("L'email que vous avez entrez est déjà utilisé, entrer un autre!!");
-                        } else {
+                        }else if (data.errorCode === "VALIDATION_ERROR"){
+                            const errorMessages = data.message.split(',');
+                            errorMessages.forEach(message => {
+                                toast.error(message.trim());
+                            });
+                        }
+                            else {
                             toast.error('Une erreur s\'est produite lors du creation de ce consultant.');
                         }
                         throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
@@ -122,10 +129,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
 
                     if (response.status === 200 || response.status === 201) {
                         toast.success('Ce consultant est ajoutè avec succès..');
-                        setTimeout(() => {
-                            setModalOpen(false);
-                            setIsLoading(false);
-                        }, 2000);
                         window.location.reload();
                     }
                 } catch (error) {
@@ -246,7 +249,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                         </div>
                         <div className="w-full">
 
-                            <Button onClick={() => saveConsultant(consultantDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
+                            <Button onClick={() => saveConsultant(consultantDetails)}>Ajouter</Button>
 
                         </div>
                     </div>

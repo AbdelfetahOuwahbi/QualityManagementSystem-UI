@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 //Server Address (to be changed in production)
 import { serverAddress } from "../ServerAddress";
+import {toast} from "react-hot-toast";
 
 /////////////////////////////////////////// SECURITY ///////////////////////////////////////////////////////////////////////////////
 
@@ -230,9 +231,22 @@ export async function saveEntreprise(consultantIfExists, type, Category, Pays, S
                 "raisonSocial": RaiSoc
             }),
         });
-
+        const data = await response.json();
+        console.log("data after saving consultant is-->", data);
         if (!response.ok) {
-            throw new Error(`Failed to save organism: ${response.status} ${response.statusText}`);
+            console.log("error message is --> ", data.message);
+            if (data.errorCode === "User_email_already_exists") {
+                toast.error("L'email que vous avez entrez est déjà utilisé, entrer un autre!!");
+            }else if (data.errorCode === "VALIDATION_ERROR"){
+                const errorMessages = data.message.split(',');
+                errorMessages.forEach(message => {
+                    toast.error(message.trim());
+                });
+            }
+            else {
+                toast.error('Une erreur s\'est produite lors du creation de ce consultant.');
+            }
+            throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
         }
         return response;
 

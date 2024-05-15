@@ -12,7 +12,6 @@ export default function SysAddOrganism({ onClose }) {
     // organismDtls ? console.log(organismDtls) : console.log("did not provide details..");
 
     const [modalOpen, setModalOpen] = useState(true);
-    const [isLoading, setIsLoading] = useState(false);
     const [organismDetails, setOrganismDetails] = useState(
         {
             Category: "",
@@ -39,7 +38,6 @@ export default function SysAddOrganism({ onClose }) {
             window.location.href = "/";
         } else {
             try {
-                setIsLoading(true);
                 const response = await saveEntreprise(
                     null,
                     "organism",
@@ -58,13 +56,9 @@ export default function SysAddOrganism({ onClose }) {
                 console.log("first, the response is -->", response)
                 if (response?.status === 200 || response?.status === 201) {
                     toast.success("Cet Organisme est ajouté avec succès..");
-                    setTimeout(() => {
-                        setModalOpen(false);
-                        setIsLoading(false);
-                    }, 2000);
+                        window.location.reload();
                 }
             } catch (error) {
-                setIsLoading(false);
                 console.error(error); // Handle errors
                 toast.error("Une erreur s'est produite lors de la création de cet organisme.");
             }
@@ -197,7 +191,7 @@ export default function SysAddOrganism({ onClose }) {
                         </div>
                         <div className="w-full">
 
-                            <Button onClick={() => saveOrganism(organismDetails)}>{isLoading ? <Spinner /> : "Ajouter"}</Button>
+                            <Button onClick={() => saveOrganism(organismDetails)}>Ajouter</Button>
 
                         </div>
                     </div>

@@ -21,8 +21,7 @@ export default function SysAddNorm({ onClose, show }) {
 
     const initialChapitreState = {
         code: '',
-        label: '',
-        description: ''
+        label: ''
     };
 
     const initialCritereState = {
@@ -92,7 +91,10 @@ export default function SysAddNorm({ onClose, show }) {
                     errorMessages.forEach(message => {
                         toast.error(message.trim());
                     });
-                } else {
+                } else if (responseBody.errorCode === "Frame_already_exists") {
+                    toast.error(responseBody.message);
+                }
+                else {
                     toast.error("Une erreur s'est produite lors de l'ajout de cette norme.");
                 }
             } catch (error) {
@@ -124,6 +126,13 @@ export default function SysAddNorm({ onClose, show }) {
                 if (response.status === 200 || response.status === 201) {
                     setFetchChapitre(responseBody);
                     toast.success("Chapitre ajouté avec succès.");
+                }else if (responseBody.errorCode === "VALIDATION_ERROR") {
+                    const errorMessages = responseBody.message.split(',');
+                    errorMessages.forEach(message => {
+                        toast.error(message.trim());
+                    });
+                } else if (responseBody.errorCode === "Frame_already_exists") {
+                    toast.error(responseBody.message);
                 } else {
                     toast.error("Une erreur s'est produite lors de l'ajout du chapitre.");
                 }
@@ -157,7 +166,12 @@ export default function SysAddNorm({ onClose, show }) {
                     const responseBody = await response.json();
                     if (response.status === 200 || response.status === 201) {
                         toast.success("Critère ajouté avec succès.");
-                    } else {
+                    }else if (responseBody.errorCode === "VALIDATION_ERROR") {
+                    const errorMessages = responseBody.message.split(',');
+                    errorMessages.forEach(message => {
+                        toast.error(message.trim());
+                    });
+                } else {
                         toast.error("Une erreur s'est produite lors de l'ajout du critère.");
                     }
                 }
@@ -231,27 +245,27 @@ export default function SysAddNorm({ onClose, show }) {
                                 <div className="mb-4">
                                     <Label htmlFor="code">Code</Label>
                                     <TextInput id="code" name="code" value={norme.code}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="label">Label</Label>
                                     <TextInput id="label" name="label" value={norme.label}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="applicationDomain">Application Domain</Label>
                                     <TextInput id="applicationDomain" name="applicationDomain" value={norme.applicationDomain}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="version">Version</Label>
                                     <TextInput type="number" id="version" name="version" value={norme.version}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="description">Description</Label>
                                     <Textarea id="description" name="description" value={norme.description}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} required />
+                                        onChange={(e) => handleChange(e, setNorme, norme)} />
                                 </div>
                                 <div className="flex justify-end">
                                     <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Next</Button>
@@ -271,11 +285,6 @@ export default function SysAddNorm({ onClose, show }) {
                                         <div className="mb-4">
                                             <Label htmlFor="label">Label</Label>
                                             <TextInput id="label" name="label" value={currentChapitre.label}
-                                                onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
-                                        </div>
-                                        <div className="mb-4">
-                                            <Label htmlFor="description">Description</Label>
-                                            <Textarea id="description" name="description" value={currentChapitre.description}
                                                 onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
                                         </div>
                                         <div className="mb-4">
@@ -311,14 +320,17 @@ export default function SysAddNorm({ onClose, show }) {
                                             </div>
                                         )}
                                         <div className="flex justify-between">
-                                            <Button type="button" onClick={() => {
-                                                handleNewChapitre();
-                                                setDid_Chapter_Filled_Its_Criterias(false);
-                                            }} className="bg-yellow-500 hover:bg-yellow-600 text-white">Nouveau Chapitre</Button>
                                             {!submitted && (
                                                 <Button onClick={() => setDid_Chapter_Filled_Its_Criterias(true)} type="submit" className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
                                             )}
                                         </div>
+
+                                        {submitted && (
+                                            <Button type="button" onClick={() => {
+                                                handleNewChapitre();
+                                                setDid_Chapter_Filled_Its_Criterias(false);
+                                            }} className="bg-yellow-500 hover:bg-yellow-600 text-white">Nouveau Chapitre</Button>
+                                        )}
                                     </>
                                 )}
                             </>

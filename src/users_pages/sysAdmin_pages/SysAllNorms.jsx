@@ -42,7 +42,6 @@ export default function SysAllNorms() {
     const [showAddChapterForm, setShowAddChapterForm] = useState(false);
     const [newChapterCode, setNewChapterCode] = useState('');
     const [newChapterLabel, setNewChapterLabel] = useState('');
-    const [newCriteres, setNewCriteres] = useState([{ description: '', comment: '' }]); // New state for adding criteria
 
     useEffect(() => {
         fetchAllNorms();
@@ -111,6 +110,13 @@ export default function SysAllNorms() {
                 toast.success(`${deleteType.charAt(0).toUpperCase() + deleteType.slice(1)} supprimé avec succès.`);
                 fetchAllNorms();
                 setIsConfirmModalOpen(false);
+                if (deleteType === 'chapitre') {
+                    setIsModalOpen(false);
+                    setSelectedChapter(null);
+                } else if (deleteType === 'norme') {
+                    setIsNormModalOpen(false);
+                    setSelectedNorm(null);
+                }
             } else {
                 toast.error(`Erreur lors de la suppression du ${deleteType}.`);
             }
@@ -284,7 +290,7 @@ export default function SysAllNorms() {
     // Function to handle adding a chapter
     const handleAddChapter = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${selectedNorm.id}`, {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -293,7 +299,7 @@ export default function SysAllNorms() {
                 body: JSON.stringify({
                     code: newChapterCode,
                     label: newChapterLabel,
-                    criteres: newCriteres // Add the criteria to the chapter
+                    normeId: selectedNorm.id
                 }),
             });
             if (response.ok) {
@@ -301,7 +307,6 @@ export default function SysAllNorms() {
                 fetchAllNorms();
                 setNewChapterCode('');
                 setNewChapterLabel('');
-                setNewCriteres([{ description: '', comment: '' }]); // Reset criteria state
                 setShowAddChapterForm(false);
             } else {
                 toast.error("Erreur lors de l'ajout du chapitre.");
@@ -312,23 +317,11 @@ export default function SysAllNorms() {
         }
     };
 
-    // Function to handle adding new criterion fields
-    const handleAddCritereField = () => {
-        setNewCriteres([...newCriteres, { description: '', comment: '' }]);
-    };
-
-    // Function to handle changing criteria fields
-    const handleCritereChange = (index, field, value) => {
-        const updatedCriteres = [...newCriteres];
-        updatedCriteres[index][field] = value;
-        setNewCriteres(updatedCriteres);
-    };
-
     return (
         <>
             <Toaster position="top-center" reverseOrder={false} />
             <div className="flex p-4 w-full justify-between">
-                {/* Bars Icon That toggles the visibility of the menu */}
+                {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
                         className='w-6 h-6 cursor-pointer text-neutral-600' />
             </div>
@@ -521,29 +514,6 @@ export default function SysAllNorms() {
                                         <TextInput id="chapterLabel" name="chapterLabel" value={newChapterLabel}
                                                    onChange={(e) => setNewChapterLabel(e.target.value)} required />
                                     </div>
-                                    {newCriteres.map((critere, index) => (
-                                        <div key={index} className="mb-4">
-                                            <Label htmlFor={`critereDescription${index}`}>Description du Critère {index + 1}</Label>
-                                            <TextInput
-                                                id={`critereDescription${index}`}
-                                                name="critereDescription"
-                                                value={critere.description}
-                                                onChange={(e) => handleCritereChange(index, 'description', e.target.value)}
-                                                required
-                                            />
-                                            <Label htmlFor={`critereComment${index}`}>Commentaire du Critère {index + 1}</Label>
-                                            <TextInput
-                                                id={`critereComment${index}`}
-                                                name="critereComment"
-                                                value={critere.comment}
-                                                onChange={(e) => handleCritereChange(index, 'comment', e.target.value)}
-                                                required
-                                            />
-                                        </div>
-                                    ))}
-                                    <Button onClick={handleAddCritereField} color="blue">
-                                        Ajouter un autre Critère
-                                    </Button>
                                     <div className="flex justify-end space-x-2">
                                         <Button color="success" onClick={handleAddChapter}>
                                             Ajouter
