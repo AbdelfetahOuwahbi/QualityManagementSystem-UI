@@ -121,6 +121,10 @@ export default function SysMainPage({ onClose }) {
                   Boite
                 </Sidebar.Item>
 
+                  <Sidebar.Item onClick={() => {
+                  }} icon={CiSettings} href="/SysAllNorms">Normses
+                  </Sidebar.Item>
+
                 <Sidebar.Collapse icon={FaUsersLine} label="Consultants SMQ">
 
                   <Sidebar.Item onClick={() => {

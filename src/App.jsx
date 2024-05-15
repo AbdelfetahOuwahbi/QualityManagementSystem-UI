@@ -14,6 +14,7 @@ import ClientDashboard from './users_pages/client_pages/ClientDashboard';
 import ClientNotifications from './users_pages/client_pages/ClientNotifications';
 // Consultants routes
 import AllEntreprises from './users_pages/client_pages/consultant_pages/AllEntreprises';
+import SysAllNorms from "./users_pages/sysAdmin_pages/SysAllNorms.jsx";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/SysNotifications" element={<SysNotifications />} />
         <Route path="/SysAllConsultants" element={<SysAllConsultants />} />
         <Route path="/SysAllOrganismes" element={<SysAllOrganismes />} />
+        <Route path="/SysAllNorms" element={<SysAllNorms />} />
         {/* Clients Routes */}
         <Route path="/ClientDashboard" element={<ClientDashboard />} />
         <Route path="/ClientNotifications" element={<ClientNotifications />} />
