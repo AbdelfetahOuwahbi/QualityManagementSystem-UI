@@ -3,13 +3,15 @@ import { Datepicker, Modal } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { serverAddress } from "../../../ServerAddress";
-import { NewlyAddedDiagnosises } from "./NewlyAddedDiagnosisDetails";
+import toast from "react-hot-toast";
 
 export function DiagnosisModal({ onClose }) {
 
     const [openModal, setOpenModal] = useState(true);
-    const [areDiagnosisDetailsShown, setAreDiagnosisDetailsShowen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
+    //The unique auto generated code
+    const [code, setCode] = useState("");
     const [diagnosisDate, setDiagnosisDate] = useState(new Date());
     const [chosenNormeId, setChosenNormeId] = useState('');
     const [chosenEntrepriseId, setChosenEntrepriseId] = useState('');
@@ -24,6 +26,23 @@ export function DiagnosisModal({ onClose }) {
     //then Ill extact the id to send
     const userID = decoded.id;
 
+    useEffect(() => {
+        if (entrepriseID.length !== 0) {
+            console.log("Already got all managed entreprises");
+        } else {
+            getAllManagedEntreprises();
+        }
+        if (normID.length !== 0) {
+            console.log("Already got all Norms");
+        } else {
+            getAllNorms();
+        }
+        //Setting up the unique Code
+        setCode(generateRandomCode());
+    }, []);
+
+
+
     // Function to generate a random alphanumeric code
     const generateRandomCode = () => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -35,8 +54,6 @@ export function DiagnosisModal({ onClose }) {
         return code;
     }
 
-    //The unique auto generated code
-    const [code, setCode] = useState("");
 
     //Function that gets all the entreprises managed by the current Consultant 
     const getAllManagedEntreprises = async () => {
@@ -78,20 +95,43 @@ export function DiagnosisModal({ onClose }) {
         }
     }
 
-    useEffect(() => {
-        if (entrepriseID.length !== 0) {
-            console.log("Already got all managed entreprises");
-        } else {
-            getAllManagedEntreprises();
+    //Function that creates a new disgnosis
+    const saveDiagnosis = async () => {
+        try {
+            setIsLoading(true);
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis?normeId=${chosenNormeId}&entrepriseId=${chosenEntrepriseId}&consultantSMQId=${userID}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                },
+                body: JSON.stringify({
+                    "code": code,
+                    "date": diagnosisDate,
+                }),
+            });
+
+            const data = await response.json();
+            console.log("data after saving Diagnosis is-->", data);
+            if (!response.ok) {
+                setIsLoading(false);
+                console.log("error message is --> ", data.message);
+            }
+
+            if (response.status === 200 || response.status === 201) {
+                toast.success('Ce Diagnostic a ètè Chargè avec succès, vous pouvez maintenant le commencer..', {
+                    duration : 3000
+                });
+                setTimeout(() => {
+                    setModalOpen(false);
+                    setIsLoading(false);
+                }, 3000);
+                window.location.href = "/AllDiagnosises";
+            }
+        } catch (error) {
+            console.error('Error saving Diagnosis:', error);
         }
-        if (normID.length !== 0) {
-            console.log("Already got all Norms");
-        } else {
-            getAllNorms();
-        }
-        //Setting up the unique Code
-        setCode(generateRandomCode());
-    }, []);
+    }
 
     return (
         <>
@@ -163,13 +203,12 @@ export function DiagnosisModal({ onClose }) {
                 <div className="border-t-[1px] border-gray-300"></div>
                 <Modal.Footer>
                     <div className='flex items-center justify-center'>
-                        <button onClick={() => setAreDiagnosisDetailsShowen(true)} className={`bg-sky-400 text-white w-full py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-1`}>
+                        <button onClick={saveDiagnosis} className={`bg-sky-400 text-white w-full py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-1`}>
                             Charger le plan
                         </button>
                     </div>
                 </Modal.Footer>
             </Modal>
-            {areDiagnosisDetailsShown && <NewlyAddedDiagnosises chosenNormeId={chosenNormeId} chosenEntrepriseId={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
         </>
     );
 }

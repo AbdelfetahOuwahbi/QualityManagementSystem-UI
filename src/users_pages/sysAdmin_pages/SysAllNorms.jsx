@@ -323,114 +323,116 @@ export default function SysAllNorms() {
             <div className="flex p-4 w-full justify-between">
                 {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
-                        className='w-6 h-6 cursor-pointer text-neutral-600' />
+                    className='w-6 h-6 cursor-pointer text-neutral-600' />
             </div>
             <div className='border-t border-gray-300 py-4'></div>
             <div className="w-full h-10 py-7 px-4 md:px-14 flex items-center">
                 <h1 className='text-4xl font-p_bold'>Referentiels</h1>
-                <div className='w-full h-10 flex items-center px-4 md:px-10'>
-                    <button
-                        className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}
-                        onClick={() => setShowAddNorm(true)} // Show the SysAddNorm component
-                    >
-                        Ajouter une norme
-                    </button>
-                </div>
             </div>
             <div className='border-t border-gray-300 w-96 mb-10'></div>
-            <div className="relative overflow-x-auto shadow-md sm:rounded-lg px-4">
+
+            <div className='w-full h-10 flex items-center px-4 md:px-10'>
+                <button
+                    className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}
+                    onClick={() => setShowAddNorm(true)} // Show the SysAddNorm component
+                >
+                    Ajouter une norme
+                </button>
+            </div>
+
+            <div className="relative mt-10 overflow-x-auto shadow-md sm:rounded-lg px-4">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th className="px-6 py-3">N°</th>
-                        <th className="px-6 py-3">Normes Code</th>
-                        <th className="px-6 py-3">Chapitre Code</th>
-                        <th className="px-6 py-3">Critère Description</th>
-                        <th className="px-6 py-3">Critère Commentaire</th>
-                        <th className="px-6 py-3">Action</th>
-                    </tr>
+                        <tr>
+                            <th className="px-6 py-3">N°</th>
+                            <th className="px-6 py-3">Normes Code</th>
+                            <th className="px-6 py-3">Chapitre Code</th>
+                            <th className="px-6 py-3">Critère Description</th>
+                            <th className="px-6 py-3">Critère Commentaire</th>
+                            <th className="px-6 py-3">Action</th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {norms.map((norm, normIndex) => (
-                        <React.Fragment key={norm.id}>
-                            {norm.chapitres.map((chapitre, chapitreIndex) => (
-                                <React.Fragment key={chapitre.id}>
-                                    {chapitre.criteres.map((critere, critereIndex) => (
-                                        <tr key={critere.id} className="border-b">
-                                            <td className="px-6 py-4">
-                                                {critereIndex === 0 && chapitreIndex === 0 && normIndex + 1}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {critereIndex === 0 && chapitreIndex === 0 && (
-                                                    <span
-                                                        className="cursor-pointer bg-white text-black hover:underline"
-                                                        onClick={() => handleNormClick(norm)}>{norm.code}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {critereIndex === 0 && (
-                                                    <span
-                                                        className="cursor-pointer bg-white text-black hover:underline"
-                                                        onClick={() => handleChapterClick(chapitre, norm.id)}>{chapitre.code}</span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {editingIndex === critere.id ? (
-                                                    <FloatingLabel
-                                                        onChange={(e) => setEditedDescription(e.target.value)}
-                                                        variant="outlined" label={critere.description} value={editedDescription} />
-                                                ) : (
-                                                    critere.description
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {editingIndex === critere.id ? (
-                                                    <FloatingLabel
-                                                        onChange={(e) => setEditedComment(e.target.value)}
-                                                        variant="outlined" label={critere.comment} value={editedComment} />
-                                                ) : (
-                                                    critere.comment
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 flex flex-col gap-2">
-                                                {editingIndex === critere.id ? (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleUpdate(chapitre.id)}
-                                                            className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
-                                                        >
-                                                            Enregistrer
-                                                        </button>
-                                                        <button
-                                                            onClick={handleCancelClick}
-                                                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
-                                                        >
-                                                            Annuler
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        <button
-                                                            onClick={() => handleEditClick(critere.id, critere)}
-                                                            className="font-medium text-blue-600 hover:underline"
-                                                        >
-                                                            Modifier
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleDelete(critere.id)}
-                                                            className="font-medium text-red-600 hover:underline"
-                                                        >
-                                                            Supprimer
-                                                        </button>
-                                                    </>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </React.Fragment>
-                            ))}
-                        </React.Fragment>
-                    ))}
+                        {norms.map((norm, normIndex) => (
+                            <React.Fragment key={norm.id}>
+                                {norm.chapitres.map((chapitre, chapitreIndex) => (
+                                    <React.Fragment key={chapitre.id}>
+                                        {chapitre.criteres.map((critere, critereIndex) => (
+                                            <tr key={critere.id} className="border-b">
+                                                <td className="px-6 py-4">
+                                                    {critereIndex === 0 && chapitreIndex === 0 && normIndex + 1}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {critereIndex === 0 && chapitreIndex === 0 && (
+                                                        <span
+                                                            className="cursor-pointer bg-white text-black hover:underline"
+                                                            onClick={() => handleNormClick(norm)}>{norm.code}</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {critereIndex === 0 && (
+                                                        <span
+                                                            className="cursor-pointer bg-white text-black hover:underline"
+                                                            onClick={() => handleChapterClick(chapitre, norm.id)}>{chapitre.code}</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {editingIndex === critere.id ? (
+                                                        <FloatingLabel
+                                                            onChange={(e) => setEditedDescription(e.target.value)}
+                                                            variant="outlined" label={critere.description} value={editedDescription} />
+                                                    ) : (
+                                                        critere.description
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {editingIndex === critere.id ? (
+                                                        <FloatingLabel
+                                                            onChange={(e) => setEditedComment(e.target.value)}
+                                                            variant="outlined" label={critere.comment} value={editedComment} />
+                                                    ) : (
+                                                        critere.comment
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4 flex flex-col gap-2">
+                                                    {editingIndex === critere.id ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleUpdate(chapitre.id)}
+                                                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
+                                                            >
+                                                                Enregistrer
+                                                            </button>
+                                                            <button
+                                                                onClick={handleCancelClick}
+                                                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
+                                                            >
+                                                                Annuler
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button
+                                                                onClick={() => handleEditClick(critere.id, critere)}
+                                                                className="font-medium text-blue-600 hover:underline"
+                                                            >
+                                                                Modifier
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(critere.id)}
+                                                                className="font-medium text-red-600 hover:underline"
+                                                            >
+                                                                Supprimer
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </React.Fragment>
+                                ))}
+                            </React.Fragment>
+                        ))}
                     </tbody>
                 </table>
             </div>
@@ -507,12 +509,12 @@ export default function SysAllNorms() {
                                     <div className="mb-4">
                                         <Label htmlFor="chapterCode">Code</Label>
                                         <TextInput id="chapterCode" name="chapterCode" value={newChapterCode}
-                                                   onChange={(e) => setNewChapterCode(e.target.value)} required />
+                                            onChange={(e) => setNewChapterCode(e.target.value)} required />
                                     </div>
                                     <div className="mb-4">
                                         <Label htmlFor="chapterLabel">Label</Label>
                                         <TextInput id="chapterLabel" name="chapterLabel" value={newChapterLabel}
-                                                   onChange={(e) => setNewChapterLabel(e.target.value)} required />
+                                            onChange={(e) => setNewChapterLabel(e.target.value)} required />
                                     </div>
                                     <div className="flex justify-end space-x-2">
                                         <Button color="success" onClick={handleAddChapter}>
@@ -601,12 +603,12 @@ export default function SysAllNorms() {
                                     <div className="mb-4">
                                         <Label htmlFor="description">Description</Label>
                                         <TextInput id="description" name="description" value={newCritereDescription}
-                                                   onChange={(e) => setNewCritereDescription(e.target.value)} required />
+                                            onChange={(e) => setNewCritereDescription(e.target.value)} required />
                                     </div>
                                     <div className="mb-4">
                                         <Label htmlFor="comments">Commentaire</Label>
                                         <TextInput id="comments" name="comments" value={newCritereComment}
-                                                   onChange={(e) => setNewCritereComment(e.target.value)} required />
+                                            onChange={(e) => setNewCritereComment(e.target.value)} required />
                                     </div>
                                     <div className="flex justify-end space-x-2">
                                         <Button color="success" onClick={handleAddCritere}>

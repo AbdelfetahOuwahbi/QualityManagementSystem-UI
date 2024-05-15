@@ -527,7 +527,6 @@ export default function SysAllConsultants() {
                             return null;
                         })}
                     </tbody>
-
                 </table>
             </div>
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
