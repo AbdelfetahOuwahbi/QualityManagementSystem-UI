@@ -15,6 +15,9 @@ export function DiagnosisModal({ onClose }) {
     const [diagnosisDate, setDiagnosisDate] = useState(new Date());
     const [chosenNormeId, setChosenNormeId] = useState('');
     const [chosenEntrepriseId, setChosenEntrepriseId] = useState('');
+    //We'll need it to fill the diagnosis details entity
+    // const [diagnosisId, setDiagnosisId] = useState('');
+    const [specificNorm, setSpecificNorm] = useState({});
 
     const [entrepriseID, setEntrepriseID] = useState([]);
     const [entrepriseName, setEntrepriseName] = useState([]);
@@ -25,6 +28,7 @@ export function DiagnosisModal({ onClose }) {
     const decoded = jwtDecode(Cookies.get("JWT"));
     //then Ill extact the id to send
     const userID = decoded.id;
+    console.log(userID);
 
     useEffect(() => {
         if (entrepriseID.length !== 0) {
@@ -119,20 +123,68 @@ export function DiagnosisModal({ onClose }) {
             }
 
             if (response.status === 200 || response.status === 201) {
+                console.log("Diagnoossiiiisss -->",data.id);
                 toast.success('Ce Diagnostic a ètè Chargè avec succès, vous pouvez maintenant le commencer..', {
-                    duration : 3000
+                    duration: 3000
                 });
                 setTimeout(() => {
-                    setModalOpen(false);
+                    setOpenModal(false);
                     setIsLoading(false);
                 }, 3000);
-                window.location.href = "/AllDiagnosises";
+                //Calling the method that fills the diagnosis details table
+                fillDiagnosisDetails(data.id, specificNorm);
             }
         } catch (error) {
             console.error('Error saving Diagnosis:', error);
         }
     }
 
+    //Function that fills the diagnosis details
+    const fillDiagnosisDetails = async (diagnosis_id, norm) => {
+        console.log("Norm to be handled -->", norm);
+        try {
+            for (const chapitre of norm.chapitres) {
+                for (const critere of chapitre.criteres) {
+                    const response = await fetch(`http://${serverAddress}:8080/api/v1/details?diagnosisId=${diagnosis_id}&critereId=${critere.id}&consultantSMQId=${userID}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                        },
+                        body: JSON.stringify({
+                            'status': "NA",
+                        })
+                    });
+
+                    const data = await response.json();
+                    console.log(`Filled diagnosis details for critere id ${critere.id} -->`, data);
+                }
+            }
+            window.location.href = "/AllDiagnosises";
+        } catch (error) {
+            console.log("error filling diagnosis Details-->", error);
+        }
+    }
+
+    useEffect(() => {
+        //Function that gets the specific Norm
+        const getSpecificNorm = async () => {
+            try {
+                const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/${chosenNormeId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    }
+                });
+                const data = await response.json();
+                console.log("Got the specific norm -->", data);
+                setSpecificNorm(data);
+            } catch (error) {
+                console.log("Error getting the specific Norm -->", error);
+            }
+        }
+        getSpecificNorm();
+    }, [chosenNormeId])
     return (
         <>
             <Modal show={openModal} size="xl" popup onClose={onClose}>
