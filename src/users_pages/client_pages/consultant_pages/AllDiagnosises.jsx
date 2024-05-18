@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import ClientMainPage from '../ClientMainPage';
 import { DiagnosisModal } from './DiagnosisModal';
 import { serverAddress } from '../../../ServerAddress';
-import { NewlyAddedDiagnosises } from './NewlyAddedDiagnosisDetails';
+import { Diagnosises } from './DiagnosisDetails';
 
 export default function AllDiagnosises() {
 
@@ -16,6 +16,7 @@ export default function AllDiagnosises() {
     //Table to fill with the norm, chapter and criterias
     const [areDiagnosisDetailsShown, setAreDiagnosisDetailsShowen] = useState(false);
     //Norm Id And Entreprise Id that will be sent to the Table 
+    const [chosenDiagnosisId, setChosenDiagnosisId] = useState('');
     const [chosenDiagnosisCode, setChosenDiagnosisCode] = useState('');
     const [chosenNormeId, setChosenNormeId] = useState('');
     const [chosenEntrepriseId, setChosenEntrepriseId] = useState('');
@@ -79,7 +80,9 @@ export default function AllDiagnosises() {
     }, [])
 
     //Function that updates a diagnosis
-    const updateDiagnosis = async (diagnosis, dateToChange) => {
+    const updateDiagnosis = async (diagnosis, code, dateToChange) => {
+        console.log(diagnosis);
+        console.log(dateToChange);
         if (dateToChange.getTime() < new Date().getTime()) {
             console.log("You can't change to a date in the past !!");
             toast.error("vous devez choisir une date supérieur al la date d'aujourd'hui !!")
@@ -93,6 +96,7 @@ export default function AllDiagnosises() {
                     },
                     body: JSON.stringify({
                         "date": dateToChange,
+                        "code": code,
                     }),
                 });
                 if (response.ok) {
@@ -103,7 +107,7 @@ export default function AllDiagnosises() {
 
                     setTimeout(() => {
                         window.location.reload();
-                    }, 2000);
+                    }, 1000);
 
                 } else {
                     console.error("Failed to update diagnosis. Status:", response.status);
@@ -142,6 +146,10 @@ export default function AllDiagnosises() {
             throw error; // Optionally re-throw the error for the caller to handle
         }
     }
+
+    useEffect(() => {
+        console.log(diagnosisId);
+    }, [diagnosisId])
 
 
     return (
@@ -215,24 +223,27 @@ export default function AllDiagnosises() {
                                 <td className="px-6 py-4">{diagnosisNormName[index]}</td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center gap-4">
-                                        {isdiagnosisDone[index] === false &&
+                                        {isdiagnosisDone[index] !== "done" &&
                                             <>
                                                 {isChangingDate === diagnosisId[index] ?
                                                     <>
-                                                        <button onClick={() => updateDiagnosis(diagnosisId[index], dateToChange)} className="font-medium text-green-500 hover:underline">Enregistrer</button>
+                                                        <button onClick={() => updateDiagnosis(diagnosisId[index], diagnosisCode[index], dateToChange)} className="font-medium text-green-500 hover:underline">Enregistrer</button>
                                                         <button onClick={() => setIsChangingDate(false)} className="font-medium text-red-600 hover:underline">Annuler</button>
                                                     </>
                                                     :
                                                     <>
                                                         <button onClick={() => {
+                                                            setChosenDiagnosisId(diagnosisId[index])
                                                             setChosenDiagnosisCode(diagnosisCode[index]);
                                                             setChosenEntrepriseId(diagnosisEntrepriseName[index]);
                                                             setChosenNormeId(diagnosisNormId[index]);
                                                             setAreDiagnosisDetailsShowen(!areDiagnosisDetailsShown);
-                                                        }} className="font-medium text-blue-600 hover:underline">Commencer</button>
-                                                        <button onClick={() => {
-                                                            setIsChangingDate(diagnosisId[index]);
-                                                        }} className="font-medium text-green-500 hover:underline">Changer La date</button>
+                                                        }} className="font-medium text-blue-600 hover:underline">{isdiagnosisDone[index] === "notStarted" ? "Commencer" : "Continuer"}</button>
+                                                        {isdiagnosisDone[index] === "notStarted" &&
+                                                            <button onClick={() => {
+                                                                setIsChangingDate(diagnosisId[index]);
+                                                            }} className="font-medium text-green-500 hover:underline">Changer La date</button>
+                                                        }
                                                         <button onClick={() => {
                                                             setIsDeletingDiagnosis(true);
                                                             setDiagnosisToDelete(diagnosisId[index]);
@@ -242,7 +253,7 @@ export default function AllDiagnosises() {
 
                                             </>
                                         }
-                                        {isdiagnosisDone[index] === true &&
+                                        {isdiagnosisDone[index] === "done" &&
                                             <h1 className='font-p_black text-gray-500 opacity-70'>(Deja fait le {diagnosisDate[index].replace('T', ' a ')})</h1>
                                         }
                                     </div>
@@ -257,7 +268,7 @@ export default function AllDiagnosises() {
 
             {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)} />}
             {isDiagnosisModalOpen && <DiagnosisModal onClose={() => setIsDiagnosisModalOpen(false)} />}
-            {areDiagnosisDetailsShown && <NewlyAddedDiagnosises DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntreprise={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
+            {areDiagnosisDetailsShown && <Diagnosises diagnosisId={chosenDiagnosisId} DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntreprise={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
             <Modal show={isDeletingDiagnosis} size="md" onClose={() => setIsDeletingDiagnosis(false)}
                 popup>
                 <Modal.Header />
