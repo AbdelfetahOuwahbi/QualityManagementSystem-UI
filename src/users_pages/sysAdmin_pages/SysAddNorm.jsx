@@ -7,10 +7,6 @@ import { serverAddress } from "../../ServerAddress.jsx";
 import toast from "react-hot-toast";
 
 export default function SysAddNorm({ onClose, show }) {
-
-    //To toogle the visibilty of criteria fields
-    const [did_Chapter_Filled_Its_Criterias, setDid_Chapter_Filled_Its_Criterias] = useState(false);
-
     const initialNormeState = {
         code: '',
         label: '',
@@ -21,22 +17,16 @@ export default function SysAddNorm({ onClose, show }) {
 
     const initialChapitreState = {
         code: '',
-        label: ''
-    };
-
-    const initialCritereState = {
-        description: '',
-        comment: ''
+        label: '',
+        criteres: [{ description: '', comment: '' }]
     };
 
     const [step, setStep] = useState(1);
     const [norme, setNorme] = useState(initialNormeState);
-    const [currentChapitre, setCurrentChapitre] = useState(initialChapitreState);
-    const [criteres, setCriteres] = useState([initialCritereState]);
-    const [fetchNorme, setFetchNorme] = useState({});
-    const [fetchChapitre, setFetchChapitre] = useState(null);
-    const [submitted, setSubmitted] = useState(false);
+    const [chapitres, setChapitres] = useState([initialChapitreState]);
+    const [currentChapitreIndex, setCurrentChapitreIndex] = useState(0);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [chapitreValidated, setChapitreValidated] = useState(false);
 
     useEffect(() => {
         if (!show) {
@@ -47,11 +37,9 @@ export default function SysAddNorm({ onClose, show }) {
     const resetForm = () => {
         setStep(1);
         setNorme(initialNormeState);
-        setCurrentChapitre(initialChapitreState);
-        setCriteres([initialCritereState]);
-        setFetchNorme({});
-        setFetchChapitre(null);
-        setSubmitted(false);
+        setChapitres([initialChapitreState]);
+        setCurrentChapitreIndex(0);
+        setChapitreValidated(false);
     };
 
     const handleChange = (e, setState, state) => {
@@ -65,7 +53,81 @@ export default function SysAddNorm({ onClose, show }) {
         setStep(step + 1);
     };
 
-    const saveNorme = async () => {
+    const handlePreviousStep = () => {
+        setStep(step - 1);
+    };
+
+    const handleChapitreChange = (e) => {
+        const updatedChapitres = chapitres.map((chapitre, index) =>
+            index === currentChapitreIndex ? { ...chapitre, [e.target.name]: e.target.value } : chapitre
+        );
+        setChapitres(updatedChapitres);
+    };
+
+    const handleCritereChange = (critereIndex, e) => {
+        const updatedChapitres = chapitres.map((chapitre, index) => {
+            if (index === currentChapitreIndex) {
+                const updatedCriteres = chapitre.criteres.map((critere, i) =>
+                    i === critereIndex ? { ...critere, [e.target.name]: e.target.value } : critere
+                );
+                return { ...chapitre, criteres: updatedCriteres };
+            }
+            return chapitre;
+        });
+        setChapitres(updatedChapitres);
+    };
+
+    const addChapitre = () => {
+        setChapitres([...chapitres, initialChapitreState]);
+        setCurrentChapitreIndex(chapitres.length);
+        setChapitreValidated(false);
+    };
+
+    const addCritere = () => {
+        const updatedChapitres = chapitres.map((chapitre, index) => {
+            if (index === currentChapitreIndex) {
+                return { ...chapitre, criteres: [...chapitre.criteres, { description: '', comment: '' }] };
+            }
+            return chapitre;
+        });
+        setChapitres(updatedChapitres);
+    };
+
+    const removeCritere = (critereIndex) => {
+        const updatedChapitres = chapitres.map((chapitre, index) => {
+            if (index === currentChapitreIndex && chapitre.criteres.length > 1) {
+                const updatedCriteres = chapitre.criteres.filter((_, i) => i !== critereIndex);
+                return { ...chapitre, criteres: updatedCriteres };
+            }
+            return chapitre;
+        });
+        setChapitres(updatedChapitres);
+    };
+
+    const validateChapitre = () => {
+        const currentChapitre = chapitres[currentChapitreIndex];
+        const isCodeUnique = chapitres.every((chapitre, index) => index === currentChapitreIndex || chapitre.code !== currentChapitre.code);
+
+        if (!isCodeUnique) {
+            toast.error("Le code du chapitre doit être unique.");
+            return;
+        }
+
+        if (!currentChapitre.code || !currentChapitre.label) {
+            toast.error("Tous les champs du chapitre doivent être remplis.");
+            return;
+        }
+
+        const invalidCritere = currentChapitre.criteres.find(critere => !critere.description || !critere.comment);
+        if (invalidCritere) {
+            toast.error("Tous les champs des critères doivent être remplis.");
+            return;
+        }
+
+        setChapitreValidated(true);
+    };
+
+    const handleFinalSubmit = async () => {
         if (!isTokenInCookies()) {
             window.location.href = "/";
         } else if (isTokenExpired()) {
@@ -73,7 +135,8 @@ export default function SysAddNorm({ onClose, show }) {
             window.location.href = "/";
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/normes`, {
+                // Save Norme
+                let response = await fetch(`http://${serverAddress}:8080/api/v1/normes`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -81,145 +144,55 @@ export default function SysAddNorm({ onClose, show }) {
                     },
                     body: JSON.stringify(norme),
                 });
-                const responseBody = await response.json();
-                if (response.status === 200 || response.status === 201) {
-                    toast.success("Norme ajoutée avec succès.");
-                    setFetchNorme(responseBody); // Enregistrer la réponse pour utiliser l'ID de la norme
-                    handleNextStep();
-                } else if (responseBody.errorCode === "VALIDATION_ERROR") {
-                    const errorMessages = responseBody.message.split(',');
+                const responseNorme = await response.json();
+                if (responseNorme.errorCode === "VALIDATION_ERROR"){
+                    const errorMessages = responseNorme.message.split(',');
                     errorMessages.forEach(message => {
                         toast.error(message.trim());
                     });
-                } else if (responseBody.errorCode === "Frame_already_exists") {
-                    toast.error(responseBody.message);
+                }else if(responseNorme.errorCode === "Frame_already_exists") {
+                    toast.error(responseNorme.message);
                 }
-                else {
-                    toast.error("Une erreur s'est produite lors de l'ajout de cette norme.");
-                }
-            } catch (error) {
-                console.error(error);
-                toast.error("Une erreur s'est produite lors de l'ajout de cette norme.");
-            }
-        }
-    };
 
-    const saveChapitre = async () => {
-        if (!isTokenInCookies()) {
-            window.location.href = "/";
-        } else if (isTokenExpired()) {
-            Cookies.remove("JWT");
-            window.location.href = "/";
-        } else {
-            try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${fetchNorme.id}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
-                    },
-                    body: JSON.stringify({
-                        ...currentChapitre,
-                    }),
-                });
-                const responseBody = await response.json();
-                if (response.status === 200 || response.status === 201) {
-                    setFetchChapitre(responseBody);
-                    toast.success("Chapitre ajouté avec succès.");
-                }else if (responseBody.errorCode === "VALIDATION_ERROR") {
-                    const errorMessages = responseBody.message.split(',');
-                    errorMessages.forEach(message => {
-                        toast.error(message.trim());
-                    });
-                } else if (responseBody.errorCode === "Frame_already_exists") {
-                    toast.error(responseBody.message);
-                } else {
-                    toast.error("Une erreur s'est produite lors de l'ajout du chapitre.");
-                }
-            } catch (error) {
-                console.error(error);
-                toast.error("Une erreur s'est produite lors de l'ajout du chapitre.");
-            }
-        }
-    };
-
-    const saveCriteres = async () => {
-        if (!isTokenInCookies()) {
-            window.location.href = "/";
-        } else if (isTokenExpired()) {
-            Cookies.remove("JWT");
-            window.location.href = "/";
-        } else {
-            try {
-                for (let i = 0; i < criteres.length; i++) {
-                    const critere = criteres[i];
-                    const response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${fetchChapitre.id}`, {
+                // Save Chapitres and Criteres
+                for (const chapitre of chapitres) {
+                    response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${responseNorme.id}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${Cookies.get("JWT")}`,
                         },
-                        body: JSON.stringify({
-                            ...critere,
-                        }),
+                        body: JSON.stringify({ code: chapitre.code, label: chapitre.label }),
                     });
-                    const responseBody = await response.json();
-                    if (response.status === 200 || response.status === 201) {
-                        toast.success("Critère ajouté avec succès.");
-                    }else if (responseBody.errorCode === "VALIDATION_ERROR") {
-                    const errorMessages = responseBody.message.split(',');
-                    errorMessages.forEach(message => {
-                        toast.error(message.trim());
-                    });
-                } else {
-                        toast.error("Une erreur s'est produite lors de l'ajout du critère.");
+                    const responseChapitre = await response.json();
+                    if (response.status !== 200 && response.status !== 201) {
+                        throw new Error(responseChapitre.message || "Erreur lors de l'ajout du chapitre.");
+                    }
+
+                    for (const critere of chapitre.criteres) {
+                        response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${responseChapitre.id}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                            },
+                            body: JSON.stringify(critere),
+                        });
+                        const responseCritere = await response.json();
+                        if (response.status !== 200 && response.status !== 201) {
+                            throw new Error(responseCritere.message || "Erreur lors de l'ajout du critère.");
+                        }
                     }
                 }
-                setSubmitted(true); // Définir submitted à true après avoir soumis les critères
+
+                toast.success("Norme, chapitres et critères ajoutés avec succès.");
+                resetForm();
+                onClose();
             } catch (error) {
                 console.error(error);
-                toast.error("Une erreur s'est produite lors de l'ajout des critères.");
+                toast.error(error.message || "Une erreur s'est produite.");
             }
         }
-    };
-
-    const handleNormeSubmit = (e) => {
-        e.preventDefault();
-        saveNorme();
-    };
-
-    const handleChapitreSubmit = (e) => {
-        e.preventDefault();
-        saveChapitre();
-        setDid_Chapter_Filled_Its_Criterias(false);
-    };
-
-    const handleCritereSubmit = (e) => {
-        e.preventDefault();
-        saveCriteres();
-    };
-
-    const handleNewChapitre = () => {
-        setFetchChapitre(null); // Reset fetchChapitre to add a new chapitre
-        setCriteres([initialCritereState]); // Reset criteres
-        setSubmitted(false); // Reset submitted
-    };
-
-    const addCritere = () => {
-        setCriteres([...criteres, { description: '', comment: '' }]);
-    };
-
-    const removeCritere = () => {
-        if (criteres.length > 1) {
-            setCriteres(criteres.slice(0, -1));
-        }
-    };
-
-    const handleCritereChange = (index, e) => {
-        const updatedCriteres = criteres.map((critere, i) =>
-            i === index ? { ...critere, [e.target.name]: e.target.value } : critere
-        );
-        setCriteres(updatedCriteres);
     };
 
     const handleClose = () => {
@@ -238,100 +211,86 @@ export default function SysAddNorm({ onClose, show }) {
                     Ajouter une Norme
                 </Modal.Header>
                 <Modal.Body>
-                    <form onSubmit={step === 1 ? handleNormeSubmit : handleCritereSubmit}>
+                    <form onSubmit={(e) => { e.preventDefault(); handleFinalSubmit(); }}>
                         {step === 1 && (
                             <>
                                 <h2 className="text-2xl font-bold mb-4">Ajouter une Norme</h2>
                                 <div className="mb-4">
                                     <Label htmlFor="code">Code</Label>
                                     <TextInput id="code" name="code" value={norme.code}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} />
+                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="label">Label</Label>
                                     <TextInput id="label" name="label" value={norme.label}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} />
+                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
-                                    <Label htmlFor="applicationDomain">Application Domain</Label>
+                                    <Label htmlFor="applicationDomain">Domaine d'Application</Label>
                                     <TextInput id="applicationDomain" name="applicationDomain" value={norme.applicationDomain}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} />
+                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="version">Version</Label>
                                     <TextInput type="number" id="version" name="version" value={norme.version}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} />
+                                               onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
                                 <div className="mb-4">
                                     <Label htmlFor="description">Description</Label>
                                     <Textarea id="description" name="description" value={norme.description}
-                                        onChange={(e) => handleChange(e, setNorme, norme)} />
+                                              onChange={(e) => handleChange(e, setNorme, norme)} required />
                                 </div>
-                                <div className="flex justify-end">
-                                    <Button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white">Next</Button>
+                                <div className="flex justify-between">
+                                    <Button type="button" onClick={handleNextStep} className="bg-blue-500 hover:bg-blue-600 text-white">Next</Button>
                                 </div>
                             </>
                         )}
                         {step === 2 && (
                             <>
-                                <h2 className="text-2xl font-bold mb-4">Ajouter un Chapitre et ses Critères</h2>
-                                {!fetchChapitre && (
+                                {!chapitreValidated && (
                                     <>
+                                        <h2 className="text-2xl font-bold mb-4">Ajouter un Chapitre et ses Critères</h2>
                                         <div className="mb-4">
-                                            <Label htmlFor="code">Code</Label>
-                                            <TextInput id="code" name="code" value={currentChapitre.code}
-                                                onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
+                                            <Label htmlFor="code">Code du Chapitre</Label>
+                                            <TextInput id="code" name="code" value={chapitres[currentChapitreIndex].code}
+                                                       onChange={handleChapitreChange} required />
                                         </div>
                                         <div className="mb-4">
-                                            <Label htmlFor="label">Label</Label>
-                                            <TextInput id="label" name="label" value={currentChapitre.label}
-                                                onChange={(e) => handleChange(e, setCurrentChapitre, currentChapitre)} required />
+                                            <Label htmlFor="label">Label du Chapitre</Label>
+                                            <TextInput id="label" name="label" value={chapitres[currentChapitreIndex].label}
+                                                       onChange={handleChapitreChange} required />
                                         </div>
                                         <div className="mb-4">
-                                            <Button type="button" onClick={handleChapitreSubmit} className="bg-blue-500 hover:bg-blue-600 text-white">Save Chapitre</Button>
+                                            <h3 className="text-xl font-semibold mb-4">Ajouter des Critères</h3>
+                                            {chapitres[currentChapitreIndex].criteres.map((critere, critereIndex) => (
+                                                <div key={critereIndex} className="mb-4">
+                                                    <h4 className="text-lg font-semibold mb-2">Critère {critereIndex + 1}</h4>
+                                                    <div className="mb-2">
+                                                        <Label htmlFor={`description-${critereIndex}`}>Description</Label>
+                                                        <Textarea id={`description-${critereIndex}`} name="description" value={critere.description}
+                                                                  onChange={(e) => handleCritereChange(critereIndex, e)} required />
+                                                    </div>
+                                                    <div className="mb-2">
+                                                        <Label htmlFor={`comment-${critereIndex}`}>Commentaire</Label>
+                                                        <Textarea id={`comment-${critereIndex}`} name="comment" value={critere.comment}
+                                                                  onChange={(e) => handleCritereChange(critereIndex, e)} required />
+                                                    </div>
+                                                    <Button type="button" onClick={() => removeCritere(critereIndex)} className="bg-red-500 hover:bg-red-600 text-white">Supprimer le Critère</Button>
+                                                </div>
+                                            ))}
+                                            <Button type="button" onClick={addCritere} className="bg-blue-500 hover:bg-blue-600 text-white">Ajouter un Critère</Button>
+                                        </div>
+                                        <div className="flex justify-between">
+                                            <Button type="button" onClick={handlePreviousStep} className="bg-gray-500 hover:bg-gray-600 text-white">Back</Button>
+                                            <Button type="button" onClick={validateChapitre} className="bg-green-500 hover:bg-green-600 text-white">Valider le Chapitre</Button>
                                         </div>
                                     </>
                                 )}
-                                {fetchChapitre && (
-                                    <>
-                                        <h3 className="text-xl font-semibold mb-4">Ajouter des Critères</h3>
-                                        {did_Chapter_Filled_Its_Criterias === false && criteres.map((critere, index) => (
-                                            <div key={index} className="mb-4">
-                                                <h4 className="text-lg font-semibold mb-2">Critère {index + 1}</h4>
-                                                <div className="mb-2">
-                                                    <Label htmlFor={`description-${index}`}>Description</Label>
-                                                    <Textarea id={`description-${index}`} name="description" value={critere.description}
-                                                        onChange={(e) => handleCritereChange(index, e)} required />
-                                                </div>
-                                                <div className="mb-2">
-                                                    <Label htmlFor={`comment-${index}`}>Commentaire</Label>
-                                                    <Textarea id={`comment-${index}`} name="comment" value={critere.comment}
-                                                        onChange={(e) => handleCritereChange(index, e)} required />
-                                                </div>
-                                            </div>
-                                        ))}
-
-                                        {!submitted && (
-                                            <div className="flex justify-between mb-4">
-                                                <Button type="button" onClick={addCritere} className="bg-blue-500 hover:bg-blue-600 text-white">Ajouter un Critère</Button>
-                                                {criteres.length > 1 && (
-                                                    <Button type="button" onClick={removeCritere} className="bg-red-500 hover:bg-red-600 text-white">Supprimer le Dernier Critère</Button>
-                                                )}
-                                            </div>
-                                        )}
-                                        <div className="flex justify-between">
-                                            {!submitted && (
-                                                <Button onClick={() => setDid_Chapter_Filled_Its_Criterias(true)} type="submit" className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
-                                            )}
-                                        </div>
-
-                                        {submitted && (
-                                            <Button type="button" onClick={() => {
-                                                handleNewChapitre();
-                                                setDid_Chapter_Filled_Its_Criterias(false);
-                                            }} className="bg-yellow-500 hover:bg-yellow-600 text-white">Nouveau Chapitre</Button>
-                                        )}
-                                    </>
+                                {chapitreValidated && (
+                                    <div className="flex justify-between">
+                                        <Button type="button" onClick={addChapitre} className="bg-yellow-500 hover:bg-yellow-600 text-white">Ajouter un autre Chapitre</Button>
+                                        <Button type="submit" className="bg-green-500 hover:bg-green-600 text-white">Submit</Button>
+                                    </div>
                                 )}
                             </>
                         )}

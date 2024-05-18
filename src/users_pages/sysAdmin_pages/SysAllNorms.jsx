@@ -5,22 +5,31 @@ import SysMainPage from './SysMainPage';
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls.jsx";
 import Cookies from "js-cookie";
 import { serverAddress } from "../../ServerAddress.jsx";
-import { Button, FloatingLabel, Modal, Label, TextInput } from "flowbite-react";
-import SysAddNorm from './SysAddNorm'; // Import the SysAddNorm component
+import { Button, FloatingLabel, Modal, Label, TextInput, Textarea } from "flowbite-react";
+import SysAddNorm from './SysAddNorm';
 
 export default function SysAllNorms() {
+    // État pour gérer l'ouverture et la fermeture du menu système
     const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
+
+    // État pour stocker la liste des normes
     const [norms, setNorms] = useState([]);
+
+    // États pour gérer l'édition d'un critère
     const [editingIndex, setEditingIndex] = useState(null);
     const [editingCritere, setEditingCritere] = useState(null);
     const [editedDescription, setEditedDescription] = useState('');
     const [editedComment, setEditedComment] = useState('');
+
+    // États pour gérer l'ouverture et la fermeture de la modal de chapitre
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedChapter, setSelectedChapter] = useState(null);
     const [isEditingChapter, setIsEditingChapter] = useState(false);
     const [editedChapterCode, setEditedChapterCode] = useState('');
     const [editedChapterLabel, setEditedChapterLabel] = useState('');
-    const [selectedNormeId, setSelectedNormeId] = useState(null); // Nouvel état pour stocker normeId
+    const [selectedNormeId, setSelectedNormeId] = useState(null);
+
+    // États pour gérer l'ouverture et la fermeture de la modal de norme
     const [isNormModalOpen, setIsNormModalOpen] = useState(false);
     const [isEditingNorm, setIsEditingNorm] = useState(false);
     const [editedNormCode, setEditedNormCode] = useState('');
@@ -30,23 +39,29 @@ export default function SysAllNorms() {
     const [editedVersion, setEditedVersion] = useState('');
     const [selectedNorm, setSelectedNorm] = useState(null);
 
+    // États pour gérer la modal de confirmation de suppression
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [itemToDelete, setItemToDelete] = useState(null);
     const [deleteType, setDeleteType] = useState('');
+
+    // État pour gérer l'affichage du formulaire d'ajout de norme
     const [showAddNorm, setShowAddNorm] = useState(false);
+
+    // États pour gérer l'ajout d'un nouveau critère
     const [newCritereDescription, setNewCritereDescription] = useState('');
     const [newCritereComment, setNewCritereComment] = useState('');
     const [showAddCritereForm, setShowAddCritereForm] = useState(false);
 
-    // New state for adding chapter
+    // États pour gérer l'ajout d'un nouveau chapitre
     const [showAddChapterForm, setShowAddChapterForm] = useState(false);
     const [newChapterCode, setNewChapterCode] = useState('');
     const [newChapterLabel, setNewChapterLabel] = useState('');
+    const [newChapterCriteres, setNewChapterCriteres] = useState([{ description: '', comment: '' }]);
 
     useEffect(() => {
         fetchAllNorms();
     }, []);
-
+    // Fonction pour récupérer toutes les normes
     const fetchAllNorms = async () => {
         if (!isTokenInCookies()) {
             window.location.href = "/";
@@ -69,25 +84,13 @@ export default function SysAllNorms() {
             }
         }
     };
-
+    // Fonction pour ouvrir la modal de confirmation de suppression
     const openConfirmModal = (item, type) => {
         setItemToDelete(item);
         setDeleteType(type);
         setIsConfirmModalOpen(true);
     };
-
-    const handleDelete = (critereId) => {
-        openConfirmModal(critereId, 'critere');
-    };
-
-    const handleDeleteChapter = (chapitreId) => {
-        openConfirmModal(chapitreId, 'chapitre');
-    };
-
-    const handleDeleteNorm = (normId) => {
-        openConfirmModal(normId, 'norme');
-    };
-
+    // Fonction pour supprimer un chapitre ou un critère ou une norme selon son type
     const confirmDelete = async () => {
         let url;
         if (deleteType === 'critere') {
@@ -126,20 +129,27 @@ export default function SysAllNorms() {
         }
     };
 
+
+    // Fonctions liées aux critères---------------------------------------------------------------------
+    // Ouvrir la modal pour confirmer la suppression d'un critère
+    const handleDelete = (critereId) => {
+        openConfirmModal(critereId, 'critere');
+    };
+    // Fonction pour gérer l'édition d'un critère
     const handleEditClick = (index, critere) => {
         setEditingIndex(index);
         setEditingCritere(critere);
         setEditedDescription(critere.description);
         setEditedComment(critere.comment);
     };
-
+    // Annuler l'édition d'un critère
     const handleCancelClick = () => {
         setEditingIndex(null);
         setEditingCritere(null);
         setEditedDescription('');
         setEditedComment('');
     };
-
+    // Mettre à jour un critère existant
     const handleUpdate = async (chapitreId) => {
         try {
             const response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${editingCritere.id}?chapitreId=${chapitreId}`, {
@@ -165,7 +175,64 @@ export default function SysAllNorms() {
             toast.error("Erreur lors de la mise à jour du critère.");
         }
     };
+    // Gérer les changements dans les champs des nouveaux critères
+    const handleCritereChange = (e, index) => {
+        const { name, value } = e.target;
+        const updatedCriteres = newChapterCriteres.map((critere, i) =>
+            i === index ? { ...critere, [name]: value } : critere
+        );
+        setNewChapterCriteres(updatedCriteres);
+    };
+    // Ajouter un nouveau critère à un chapitre existant
+    const handleAddCritereToChapter = async () => {
+        if (!newCritereDescription || !newCritereComment) {
+            toast.error("Tous les champs des critères doivent être remplis.");
+            return;
+        }
 
+        try {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${selectedChapter.id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ description: newCritereDescription, comment: newCritereComment }),
+            });
+
+            if (response.ok) {
+                toast.success("Critère ajouté avec succès.");
+                fetchAllNorms();
+                setNewCritereDescription('');
+                setNewCritereComment('');
+                setShowAddCritereForm(false);
+            } else {
+                const errorData = await response.json();
+                console.error("Erreur lors de l'ajout du critère:", errorData);
+                toast.error("Erreur lors de l'ajout du critère. " + (errorData.message || ''));
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du critère:", error);
+            toast.error("Erreur lors de l'ajout du critère.");
+        }
+    };
+    // Ajouter un nouveau critère pour un nouveau chapitre
+    const addNewCritere = () => {
+        setNewChapterCriteres([...newChapterCriteres, { description: '', comment: '' }]);
+    };
+    // Supprimer un critère du formulaire d'ajout de chapitre
+    const removeCritere = (index) => {
+        if (newChapterCriteres.length > 1) {
+            setNewChapterCriteres(newChapterCriteres.filter((_, i) => i !== index));
+        }
+    };
+
+    // Fonctions liées aux chapitres---------------------------------------------------------------------
+    // Ouvrir la modal pour confirmer la suppression d'un chapitre
+    const handleDeleteChapter = (chapitreId) => {
+        openConfirmModal(chapitreId, 'chapitre');
+    };
+    // Gérer la sélection d'un chapitre
     const handleChapterClick = (chapter, normeId) => {
         setSelectedChapter(chapter);
         setSelectedNormeId(normeId); // Stocker normeId
@@ -173,14 +240,14 @@ export default function SysAllNorms() {
         setEditedChapterLabel(chapter.label);
         setIsModalOpen(true);
     };
-
+    // Fermer la modal de chapitre
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedChapter(null);
         setIsEditingChapter(false);
         setShowAddCritereForm(false);
     };
-
+    // Mettre à jour un chapitre existant
     const handleUpdateChapter = async () => {
         // Ajoutez votre logique de mise à jour du chapitre ici
         try {
@@ -195,11 +262,20 @@ export default function SysAllNorms() {
                     label: editedChapterLabel
                 }),
             });
-            if (response.ok) {
+            const responseBody = await response.json();
+            console.log("responseBody ->>",responseBody)
+            if (response.status === 200 || response.status === 201) {
                 toast.success("Chapitre mis à jour avec succès.");
                 fetchAllNorms();
                 handleCloseModal();
-            } else {
+            }else if (responseBody.errorCode === "VALIDATION_ERROR"){
+                const errorMessages = responseBody.message.split(',');
+                errorMessages.forEach(message => {
+                    toast.error(message.trim());
+                });
+            }else if(responseBody.errorCode === "Frame_already_exists") {
+                toast.error(responseBody.message);
+            }else {
                 toast.error("Erreur lors de la mise à jour du chapitre.");
             }
         } catch (error) {
@@ -207,7 +283,63 @@ export default function SysAllNorms() {
             toast.error("Erreur lors de la mise à jour du chapitre.");
         }
     };
+    // Ajouter un nouveau chapitre
+    const handleAddChapter = async () => {
+        // Vérifiez si tous les critères ont des descriptions et des commentaires
+        if (newChapterCriteres.some(critere => !critere.description || !critere.comment)) {
+            toast.error("Tous les champs des critères doivent être remplis.");
+            return;
+        }
 
+        console.log("newChapterCriteres", newChapterCriteres);
+        console.log("newChapterCode", newChapterCode);
+        console.log("newChapterLabel", newChapterLabel);
+
+        // Créez l'objet à envoyer dans la requête
+        const chapitreData = {
+            code: newChapterCode,
+            label: newChapterLabel,
+            criteres: newChapterCriteres
+        };
+
+        console.log("chapitreData", chapitreData);
+
+        try {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${selectedNorm.id}`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(chapitreData),
+            });
+
+            // Vérifiez le statut de la réponse
+            if (response.ok) {
+                toast.success("Chapitre ajouté avec succès.");
+                fetchAllNorms();
+                setNewChapterCode('');
+                setNewChapterLabel('');
+                setNewChapterCriteres([{ description: '', comment: '' }]);
+                setShowAddChapterForm(false);
+            } else {
+                // Loggez le message d'erreur retourné par l'API
+                const errorData = await response.json();
+                console.error("Erreur lors de l'ajout du chapitre:", errorData);
+                toast.error("Erreur lors de l'ajout du chapitre. " + (errorData.message || ''));
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du chapitre:", error);
+            toast.error("Erreur lors de l'ajout du chapitre.");
+        }
+    };
+
+    // Fonctions liées aux normes---------------------------------------------------------------------
+    // Ouvrir la modal pour confirmer la suppression d'une norme
+    const handleDeleteNorm = (normId) => {
+        openConfirmModal(normId, 'norme');
+    };
+    // Gérer la sélection d'une norme
     const handleNormClick = (norm) => {
         setSelectedNorm(norm);
         setEditedNormCode(norm.code);
@@ -218,7 +350,7 @@ export default function SysAllNorms() {
         setIsEditingNorm(false);
         setIsNormModalOpen(true);
     };
-
+    // Mettre à jour une norme existante
     const handleUpdateNorm = async () => {
         try {
             const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/${selectedNorm.id}`, {
@@ -235,11 +367,19 @@ export default function SysAllNorms() {
                     version: editedVersion,
                 }),
             });
-            if (response.ok) {
-                toast.success("Norme mise à jour avec succès.");
+            const responseBody = await response.json();
+            if (response.status === 200 || response.status === 201) {
+                toast.success("Chapitre mis à jour avec succès.");
                 fetchAllNorms();
                 handleCloseNormModal();
-            } else {
+            }else if (responseBody.errorCode === "VALIDATION_ERROR"){
+                const errorMessages = responseBody.message.split(',');
+                errorMessages.forEach(message => {
+                    toast.error(message.trim());
+                });
+            }else if(responseBody.errorCode === "Frame_already_exists") {
+                toast.error(responseBody.message);
+            }else {
                 toast.error("Erreur lors de la mise à jour de la norme.");
             }
         } catch (error) {
@@ -247,7 +387,7 @@ export default function SysAllNorms() {
             toast.error("Erreur lors de la mise à jour de la norme.");
         }
     };
-
+    // Fermer la modal de norme
     const handleCloseNormModal = () => {
         setIsNormModalOpen(false);
         setSelectedNorm(null);
@@ -259,63 +399,6 @@ export default function SysAllNorms() {
         setEditedVersion('');
     };
 
-    const handleAddCritere = async () => {
-        try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${selectedChapter.id}`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    description: newCritereDescription,
-                    comment: newCritereComment
-                }),
-            });
-            if (response.ok) {
-                toast.success("Critère ajouté avec succès.");
-                fetchAllNorms();
-                setNewCritereDescription('');
-                setNewCritereComment('');
-                setShowAddCritereForm(false);
-            } else {
-                toast.error("Erreur lors de l'ajout du critère.");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Erreur lors de l'ajout du critère.");
-        }
-    };
-
-    // Function to handle adding a chapter
-    const handleAddChapter = async () => {
-        try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    code: newChapterCode,
-                    label: newChapterLabel,
-                    normeId: selectedNorm.id
-                }),
-            });
-            if (response.ok) {
-                toast.success("Chapitre ajouté avec succès.");
-                fetchAllNorms();
-                setNewChapterCode('');
-                setNewChapterLabel('');
-                setShowAddChapterForm(false);
-            } else {
-                toast.error("Erreur lors de l'ajout du chapitre.");
-            }
-        } catch (error) {
-            console.error(error);
-            toast.error("Erreur lors de l'ajout du chapitre.");
-        }
-    };
 
     return (
         <>
@@ -323,19 +406,17 @@ export default function SysAllNorms() {
             <div className="flex p-4 w-full justify-between">
                 {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
-                    className='w-6 h-6 cursor-pointer text-neutral-600' />
+                        className='w-6 h-6 cursor-pointer text-neutral-600' />
             </div>
             <div className='border-t border-gray-300 py-4'></div>
             <div className="w-full h-10 py-7 px-4 md:px-14 flex items-center">
                 <h1 className='text-4xl font-p_bold'>Referentiels</h1>
             </div>
             <div className='border-t border-gray-300 w-96 mb-10'></div>
-
             <div className='w-full h-10 flex items-center px-4 md:px-10'>
                 <button
-                    className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}
-                    onClick={() => setShowAddNorm(true)} // Show the SysAddNorm component
-                >
+                    className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}// Show the SysAddNorm component
+                    onClick={() => setShowAddNorm(true)}>
                     Ajouter une norme
                 </button>
             </div>
@@ -343,96 +424,105 @@ export default function SysAllNorms() {
             <div className="relative mt-10 overflow-x-auto shadow-md sm:rounded-lg px-4">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th className="px-6 py-3">N°</th>
-                            <th className="px-6 py-3">Normes Code</th>
-                            <th className="px-6 py-3">Chapitre Code</th>
-                            <th className="px-6 py-3">Critère Description</th>
-                            <th className="px-6 py-3">Critère Commentaire</th>
-                            <th className="px-6 py-3">Action</th>
-                        </tr>
+                    <tr>
+                        <th className="px-6 py-3">N°</th>
+                        <th className="px-6 py-3">Normes Code</th>
+                        <th className="px-6 py-3">Chapitre Code</th>
+                        <th className="px-6 py-3">Critère Description</th>
+                        <th className="px-6 py-3">Critère Commentaire</th>
+                        <th className="px-6 py-3">Action</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {norms.map((norm, normIndex) => (
+                    {norms.map((norm, normIndex) => {
+                        const totalCriteres = norm.chapitres.reduce((acc, chapitre) => acc + chapitre.criteres.length, 0);
+                        return (
                             <React.Fragment key={norm.id}>
-                                {norm.chapitres.map((chapitre, chapitreIndex) => (
-                                    <React.Fragment key={chapitre.id}>
-                                        {chapitre.criteres.map((critere, critereIndex) => (
-                                            <tr key={critere.id} className="border-b">
-                                                <td className="px-6 py-4">
-                                                    {critereIndex === 0 && chapitreIndex === 0 && normIndex + 1}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {critereIndex === 0 && chapitreIndex === 0 && (
-                                                        <span
-                                                            className="cursor-pointer bg-white text-black hover:underline"
-                                                            onClick={() => handleNormClick(norm)}>{norm.code}</span>
+                                {norm.chapitres.map((chapitre, chapitreIndex) => {
+                                    const totalCriteresChapitre = chapitre.criteres.length;
+                                    return (
+                                        <React.Fragment key={chapitre.id}>
+                                            {chapitre.criteres.map((critere, critereIndex) => (
+                                                <tr key={critere.id} className="border-b">
+                                                    {chapitreIndex === 0 && critereIndex === 0 && (
+                                                        <td className="px-6 py-4" rowSpan={totalCriteres}>
+                                                            {normIndex + 1}
+                                                        </td>
                                                     )}
-                                                </td>
-                                                <td className="px-6 py-4">
+                                                    {chapitreIndex === 0 && critereIndex === 0 && (
+                                                        <td className="px-6 py-4" rowSpan={totalCriteres}>
+                                        <span
+                                            className="cursor-pointer bg-white text-black hover:underline"
+                                            onClick={() => handleNormClick(norm)}>{norm.label}</span>
+                                                        </td>
+                                                    )}
                                                     {critereIndex === 0 && (
-                                                        <span
-                                                            className="cursor-pointer bg-white text-black hover:underline"
-                                                            onClick={() => handleChapterClick(chapitre, norm.id)}>{chapitre.code}</span>
+                                                        <td className="px-6 py-4" rowSpan={totalCriteresChapitre}>
+                                        <span
+                                            className="cursor-pointer bg-white text-black hover:underline"
+                                            onClick={() => handleChapterClick(chapitre, norm.id)}>{chapitre.label}</span>
+                                                        </td>
                                                     )}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {editingIndex === critere.id ? (
-                                                        <FloatingLabel
-                                                            onChange={(e) => setEditedDescription(e.target.value)}
-                                                            variant="outlined" label={critere.description} value={editedDescription} />
-                                                    ) : (
-                                                        critere.description
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4">
-                                                    {editingIndex === critere.id ? (
-                                                        <FloatingLabel
-                                                            onChange={(e) => setEditedComment(e.target.value)}
-                                                            variant="outlined" label={critere.comment} value={editedComment} />
-                                                    ) : (
-                                                        critere.comment
-                                                    )}
-                                                </td>
-                                                <td className="px-6 py-4 flex flex-col gap-2">
-                                                    {editingIndex === critere.id ? (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleUpdate(chapitre.id)}
-                                                                className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
-                                                            >
-                                                                Enregistrer
-                                                            </button>
-                                                            <button
-                                                                onClick={handleCancelClick}
-                                                                className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
-                                                            >
-                                                                Annuler
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <button
-                                                                onClick={() => handleEditClick(critere.id, critere)}
-                                                                className="font-medium text-blue-600 hover:underline"
-                                                            >
-                                                                Modifier
-                                                            </button>
-                                                            <button
-                                                                onClick={() => handleDelete(critere.id)}
-                                                                className="font-medium text-red-600 hover:underline"
-                                                            >
-                                                                Supprimer
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </React.Fragment>
-                                ))}
+                                                    <td className="px-6 py-4">
+                                                        {editingIndex === critere.id ? (
+                                                            <FloatingLabel
+                                                                onChange={(e) => setEditedDescription(e.target.value)}
+                                                                variant="outlined" label={critere.description} value={editedDescription} />
+                                                        ) : (
+                                                            critere.description
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {editingIndex === critere.id ? (
+                                                            <FloatingLabel
+                                                                onChange={(e) => setEditedComment(e.target.value)}
+                                                                variant="outlined" label={critere.comment} value={editedComment} />
+                                                        ) : (
+                                                            critere.comment
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4 flex flex-col gap-2">
+                                                        {editingIndex === critere.id ? (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleUpdate(chapitre.id)}
+                                                                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
+                                                                >
+                                                                    Enregistrer
+                                                                </button>
+                                                                <button
+                                                                    onClick={handleCancelClick}
+                                                                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
+                                                                >
+                                                                    Annuler
+                                                                </button>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => handleEditClick(critere.id, critere)}
+                                                                    className="font-medium text-blue-600 hover:underline"
+                                                                >
+                                                                    Modifier
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(critere.id)}
+                                                                    className="font-medium text-red-600 hover:underline"
+                                                                >
+                                                                    Supprimer
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </React.Fragment>
+                                    );
+                                })}
                             </React.Fragment>
-                        ))}
+                        );
+                    })}
+
                     </tbody>
                 </table>
             </div>
@@ -502,21 +592,66 @@ export default function SysAllNorms() {
                                 </>
                             )}
 
-                            {/* Formulaire pour ajouter un chapitre */}
                             {showAddChapterForm && (
                                 <div className="space-y-6 mt-6">
                                     <h2 className="text-2xl font-bold mb-4">Ajouter un Chapitre</h2>
                                     <div className="mb-4">
                                         <Label htmlFor="chapterCode">Code</Label>
-                                        <TextInput id="chapterCode" name="chapterCode" value={newChapterCode}
-                                            onChange={(e) => setNewChapterCode(e.target.value)} required />
+                                        <TextInput
+                                            id="chapterCode"
+                                            name="chapterCode"
+                                            value={newChapterCode}
+                                            onChange={(e) => setNewChapterCode(e.target.value)}
+                                            required
+                                        />
                                     </div>
                                     <div className="mb-4">
                                         <Label htmlFor="chapterLabel">Label</Label>
-                                        <TextInput id="chapterLabel" name="chapterLabel" value={newChapterLabel}
-                                            onChange={(e) => setNewChapterLabel(e.target.value)} required />
+                                        <TextInput
+                                            id="chapterLabel"
+                                            name="chapterLabel"
+                                            value={newChapterLabel}
+                                            onChange={(e) => setNewChapterLabel(e.target.value)}
+                                            required
+                                        />
                                     </div>
-                                    <div className="flex justify-end space-x-2">
+                                    <h3 className="text-xl font-semibold mb-4">Ajouter des Critères</h3>
+                                    {newChapterCriteres.map((critere, index) => (
+                                        <div key={index} className="mb-4">
+                                            <h4 className="text-lg font-semibold mb-2">Critère {index + 1}</h4>
+                                            <div className="mb-2">
+                                                <Label htmlFor={`description-${index}`}>Description</Label>
+                                                <Textarea
+                                                    id={`description-${index}`}
+                                                    name="description"
+                                                    value={critere.description}
+                                                    onChange={(e) => handleCritereChange(e, index)}
+                                                    required
+                                                />
+                                            </div>
+                                            <div className="mb-2">
+                                                <Label htmlFor={`comment-${index}`}>Commentaire</Label>
+                                                <Textarea
+                                                    id={`comment-${index}`}
+                                                    name="comment"
+                                                    value={critere.comment}
+                                                    onChange={(e) => handleCritereChange(e, index)}
+                                                    required
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                onClick={() => removeCritere(index)}
+                                                className="bg-red-500 hover:bg-red-600 text-white"
+                                            >
+                                                Supprimer le Critère
+                                            </Button>
+                                        </div>
+                                    ))}
+                                    <Button type="button" onClick={addNewCritere} className="bg-blue-500 hover:bg-blue-600 text-white">
+                                        Ajouter un Critère
+                                    </Button>
+                                    <div className="flex justify-end space-x-2 mt-4">
                                         <Button color="success" onClick={handleAddChapter}>
                                             Ajouter
                                         </Button>
@@ -596,22 +731,31 @@ export default function SysAllNorms() {
                                 </>
                             )}
 
-                            {/* Formulaire pour ajouter un critère */}
                             {showAddCritereForm && (
                                 <div className="space-y-6 mt-6">
                                     <h2 className="text-2xl font-bold mb-4">Ajouter un Critère</h2>
                                     <div className="mb-4">
                                         <Label htmlFor="description">Description</Label>
-                                        <TextInput id="description" name="description" value={newCritereDescription}
-                                            onChange={(e) => setNewCritereDescription(e.target.value)} required />
+                                        <TextInput
+                                            id="description"
+                                            name="description"
+                                            value={newCritereDescription}
+                                            onChange={(e) => setNewCritereDescription(e.target.value)}
+                                            required
+                                        />
                                     </div>
                                     <div className="mb-4">
                                         <Label htmlFor="comments">Commentaire</Label>
-                                        <TextInput id="comments" name="comments" value={newCritereComment}
-                                            onChange={(e) => setNewCritereComment(e.target.value)} required />
+                                        <TextInput
+                                            id="comments"
+                                            name="comments"
+                                            value={newCritereComment}
+                                            onChange={(e) => setNewCritereComment(e.target.value)}
+                                            required
+                                        />
                                     </div>
                                     <div className="flex justify-end space-x-2">
-                                        <Button color="success" onClick={handleAddCritere}>
+                                        <Button color="success" onClick={handleAddCritereToChapter}>
                                             Ajouter
                                         </Button>
                                         <Button color="light" onClick={() => setShowAddCritereForm(false)}>
