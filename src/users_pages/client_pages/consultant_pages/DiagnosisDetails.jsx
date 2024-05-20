@@ -7,7 +7,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { serverAddress } from "../../../ServerAddress";
 
-export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenNormeId, onClose }) {
+export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenNormeId, onClose }) {
 
   const navigate = useNavigate();
 
@@ -160,12 +160,23 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
         },
         body: JSON.stringify({
           "code": DiagnosisCode,
-          "is_done": Diagstate,
+          "isDone": Diagstate,
         })
       });
-      const data = await response.json();
-      console.log("data from the updating the diagnosis state --> ", data);
-      // navigate("/AllDiagnosises");
+      if (response.ok) {
+        console.log("Data is saved, you cannot delete the diagnosis anymore ..");
+        toast.success("les informations de ce diagnostic sont souvergarder, vous pouvez a tout moment detruire le diagnostic prochainement ..", {
+          duration: 3000,
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000)
+      } else {
+        console.log("response was not ok in updating the diagnosis state ..");
+        toast.error("les informations de ce diagnostic ne sont pas enregistrer, ressayer plus tard ..", {
+          duration: 1000,
+        });
+      }
     } catch (error) {
       console.log("error while updating the diagnosis state --->", error);
     }
@@ -227,7 +238,8 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
           <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
               <tr>
-                <th scope="col" className="px-6 py-3">Critères</th>
+                <th scope="col" className="px-6 py-3">Critère description</th>
+                <th scope="col" className="px-6 py-3">Critère commentaire</th>
                 <th scope="col" className="px-6 py-3">Conforme / Non Conforme / NA</th>
               </tr>
             </thead>
@@ -237,6 +249,7 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
                   const diagnosis = diagnosisDetails?.find(d => d.critereId === criteria.id);
                   return diagnosis ? (
                     <tr key={Criteriaindex} className="border-b">
+                      <td className="px-6 py-4">{criteria.description}</td>
                       <td className="px-6 py-4">{criteria.comment}</td>
                       <td className="px-5 py-5">
                         <div className='flex place-items-center gap-2'>

@@ -7,7 +7,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import ClientMainPage from '../ClientMainPage';
 import { DiagnosisModal } from './DiagnosisModal';
 import { serverAddress } from '../../../ServerAddress';
-import { Diagnosises } from './DiagnosisDetails';
+import { DiagnosisDetails } from './DiagnosisDetails';
 
 export default function AllDiagnosises() {
 
@@ -268,7 +268,7 @@ export default function AllDiagnosises() {
 
             {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)} />}
             {isDiagnosisModalOpen && <DiagnosisModal onClose={() => setIsDiagnosisModalOpen(false)} />}
-            {areDiagnosisDetailsShown && <Diagnosises diagnosisId={chosenDiagnosisId} DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntreprise={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
+            {areDiagnosisDetailsShown && <DiagnosisDetails diagnosisId={chosenDiagnosisId} DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntreprise={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
             <Modal show={isDeletingDiagnosis} size="md" onClose={() => setIsDeletingDiagnosis(false)}
                 popup>
                 <Modal.Header />
