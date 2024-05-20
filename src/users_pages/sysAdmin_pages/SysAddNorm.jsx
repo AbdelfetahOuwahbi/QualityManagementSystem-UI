@@ -27,6 +27,7 @@ export default function SysAddNorm({ onClose, show }) {
     const [currentChapitreIndex, setCurrentChapitreIndex] = useState(0);
     const [showConfirm, setShowConfirm] = useState(false);
     const [chapitreValidated, setChapitreValidated] = useState(false);
+    const [codeExists, setCodeExists] = useState(false);
 
     useEffect(() => {
         if (!show) {
@@ -49,7 +50,26 @@ export default function SysAddNorm({ onClose, show }) {
         });
     };
 
-    const handleNextStep = () => {
+    const handleNextStep = async () => {
+        if (step === 1) {
+            // Validation des champs de la norme
+            if (!norme.code || !norme.label || !norme.applicationDomain || !norme.version || !norme.description) {
+                toast.error("Tous les champs de la norme doivent être remplis.");
+                return;
+            }
+
+            if (isNaN(norme.version) || norme.version <= 0) {
+                toast.error("La version doit être un nombre positif.");
+                return;
+            }
+
+            // Vérification si le code de la norme existe déjà
+            const exists = await checkIfCodeExists(norme.code);
+            if (exists) {
+                toast.error("Le code de la norme existe déjà.");
+                return;
+            }
+        }
         setStep(step + 1);
     };
 
@@ -127,6 +147,23 @@ export default function SysAddNorm({ onClose, show }) {
         setChapitreValidated(true);
     };
 
+    const checkIfCodeExists = async (code) => {
+        try {
+            const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/existByCode?normCode=${code}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                },
+            });
+            const exists = await response.json();
+            return exists;
+        } catch (error) {
+            console.error(error);
+            toast.error("Une erreur s'est produite lors de la vérification du code.");
+            return false;
+        }
+    };
+
     const handleFinalSubmit = async () => {
         if (!isTokenInCookies()) {
             window.location.href = "/";
@@ -150,8 +187,10 @@ export default function SysAddNorm({ onClose, show }) {
                     errorMessages.forEach(message => {
                         toast.error(message.trim());
                     });
-                }else if(responseNorme.errorCode === "Frame_already_exists") {
+                    return;
+                } else if(responseNorme.errorCode === "Frame_already_exists") {
                     toast.error(responseNorme.message);
+                    return;
                 }
 
                 // Save Chapitres and Criteres

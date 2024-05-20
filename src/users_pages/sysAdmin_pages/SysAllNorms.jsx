@@ -109,6 +109,7 @@ export default function SysAllNorms() {
                     'Content-Type': 'application/json',
                 },
             });
+            const errorData = await response.json();
             if (response.ok) {
                 toast.success(`${deleteType.charAt(0).toUpperCase() + deleteType.slice(1)} supprimé avec succès.`);
                 fetchAllNorms();
@@ -120,6 +121,8 @@ export default function SysAllNorms() {
                     setIsNormModalOpen(false);
                     setSelectedNorm(null);
                 }
+            }else if(errorData.errorCode == "Frame_already_exists"){
+                toast.error(errorData.message);
             } else {
                 toast.error(`Erreur lors de la suppression du ${deleteType}.`);
             }
