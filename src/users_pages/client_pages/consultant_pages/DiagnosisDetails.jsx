@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Button, Modal, Checkbox } from "flowbite-react";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { serverAddress } from "../../../ServerAddress";
 
 export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenNormeId, onClose }) {
+
+  const navigate = useNavigate();
 
   const [openModal, setOpenModal] = useState(true);
   const [norms, setNorms] = useState({});
@@ -15,17 +18,23 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
   const [selectedChapter, setSelectedChapter] = useState('');
   const [criteriasForSelectedChapter, setCriteriasForSelectedChapter] = useState([]);
 
-  //Checkboxes Click-Ability Variable (if a checkbox is checked, the other checkboxes should be disabled)
+  //Checkboxes That will be fill with the status in the diagnosis details
   const [statusRelatedCheckbox, setStatusRelatedCheckbox] = useState([{
     compliant: false,
     nonCompliant: false,
     NA: false,
   }]);
 
+
   const [diagnosisDetails, setDiagnosisDetails] = useState([]);
 
   //Variable that controls the visibility and appearance of some UI items related to diagnosis
   const [alreadyStartedDiagnosis, setAlreadyStartedDiagnosis] = useState(false);
+
+  //getting diagnosis details whenever the user switches chapters
+  useEffect(() => {
+    getDiagnosisDetails();
+  }, [criteriasForSelectedChapter])
 
   // Setting the checkboxes
   useEffect(() => {
@@ -39,8 +48,8 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
     });
     setStatusRelatedCheckbox(initialCheckboxState);
     //Checks if the consultant has started the diagnosis or not
-    const diagnosis = diagnosisDetails.find(d => d.status !== null);
-    if (diagnosis) {
+    const diagnosisStarted = diagnosisDetails.find(d => d.status !== null);
+    if (diagnosisStarted) {
       setAlreadyStartedDiagnosis(true);
     }
   }, [criteriasForSelectedChapter, diagnosisDetails]);
@@ -111,9 +120,9 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
 
   //Function that updates the Compliancy of a criteria
   const updateCriteriaCompliancy = async (criteriaId, Compliancy) => {
-    console.log("Updating To --> ", Compliancy);
-    console.log("in criteria Id ->", criteriaId);
-    console.log("and diagnosis id ->", diagnosisId);
+    // console.log("Updating To --> ", Compliancy);
+    // console.log("in criteria Id ->", criteriaId);
+    // console.log("and diagnosis id ->", diagnosisId);
     try {
       const response = await fetch(`http://${serverAddress}:8080/api/v1/details/updateSpecific?critereId=${criteriaId}&diagnosisId=${diagnosisId}`, {
         method: 'PUT',
@@ -138,13 +147,41 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
     }
   }
 
-  useEffect(() => {
-    console.log("these are the diagnosis details (as an array) --> ", diagnosisDetails);
-  }, [diagnosisDetails])
+  //Function that updates the diagnosisState
+  async function updateDiagnosisState(Diagstate) {
+    // console.log("code of the diagnosis --> ",DiagnosisCode);
+    // console.log("state to load --> ",Diagstate);
+    try {
+      const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis/${diagnosisId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Cookies.get("JWT")}`
+        },
+        body: JSON.stringify({
+          "code": DiagnosisCode,
+          "is_done": Diagstate,
+        })
+      });
+      const data = await response.json();
+      console.log("data from the updating the diagnosis state --> ", data);
+      // navigate("/AllDiagnosises");
+    } catch (error) {
+      console.log("error while updating the diagnosis state --->", error);
+    }
+  }
 
-  useEffect(() => {
-    console.log("these are the Checkboxes State --> ", statusRelatedCheckbox);
-  }, [statusRelatedCheckbox])
+  // useEffect(() => {
+  //   console.log("these are the diagnosis details (as an array) --> ", diagnosisDetails);
+  // }, [diagnosisDetails])
+
+  // useEffect(() => {
+  //   console.log("these are the Chriterias for the selected chapter --> ", criteriasForSelectedChapter);
+  // }, [criteriasForSelectedChapter])
+
+  // useEffect(() => {
+  //   console.log("these are the Checkboxes State --> ", statusRelatedCheckbox);
+  // }, [statusRelatedCheckbox])
 
   return (
     <>
@@ -262,8 +299,14 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
 
         </Modal.Body>
         <Modal.Footer>
-          <Button onClick={() => setOpenModal(false)}>Terminer</Button>
-          <Button color="gray" onClick={() => setOpenModal(false)}>Souvegarder et Continuer plus tard</Button>
+          <Button onClick={() => {
+            setOpenModal(false);
+            updateDiagnosisState("done");
+          }}>Terminer</Button>
+          <Button color="gray" onClick={() => {
+            setOpenModal(false);
+            updateDiagnosisState("alreadyStarted");
+          }}>Souvegarder et Continuer plus tard</Button>
           {alreadyStartedDiagnosis === false &&
             <button className="py-2 px-5 rounded-lg bg-red-500 hover:bg-red-400 text-white" onClick={() => setOpenModal(false)}>Annuler</button>
           }
@@ -272,4 +315,3 @@ export function Diagnosises({ diagnosisId, DiagnosisCode, chosenEntreprise, chos
     </>
   );
 }
-``
