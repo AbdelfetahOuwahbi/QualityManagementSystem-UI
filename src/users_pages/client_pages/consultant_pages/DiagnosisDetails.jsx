@@ -31,12 +31,18 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
   //Variable that controls the visibility and appearance of some UI items related to diagnosis
   const [alreadyStartedDiagnosis, setAlreadyStartedDiagnosis] = useState(false);
 
+  //Checking wether the diagnosis has started or not to controll the availability of Termination Button
+  useEffect(() => {
+    const diagnosis = statusRelatedCheckbox?.some(d =>  d.compliant || d.nonCompliant || d.NA);
+    diagnosis ? setAlreadyStartedDiagnosis(true) : setAlreadyStartedDiagnosis(false);
+  },[statusRelatedCheckbox])
+
   //getting diagnosis details whenever the user switches chapters
   useEffect(() => {
     getDiagnosisDetails();
   }, [criteriasForSelectedChapter])
 
-  // Setting the checkboxes
+  // Setting the checkboxes when diagnosisDetails is available
   useEffect(() => {
     const initialCheckboxState = criteriasForSelectedChapter.map((item) => {
       const diagnosis = diagnosisDetails?.find(d => d.critereId === item.id);
@@ -317,7 +323,6 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
             updateDiagnosisState("done");
           }}>Terminer</Button>
           <Button color="gray" onClick={() => {
-            setOpenModal(false);
             updateDiagnosisState("alreadyStarted");
           }}>Souvegarder et Continuer plus tard</Button>
           {alreadyStartedDiagnosis === false &&
