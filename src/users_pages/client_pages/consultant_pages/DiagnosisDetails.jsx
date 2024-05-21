@@ -6,12 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { serverAddress } from "../../../ServerAddress";
+import CreateActionsPlan from "./CreateActionsPlan";
 
 export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenNormeId, onClose }) {
 
   const navigate = useNavigate();
 
   const [openModal, setOpenModal] = useState(true);
+  const [actionsPlanVisible, setActionPlanVisible] = useState(false);
+  //Variables that will be used in Actions Plan
+  const [criteriaId, setCriteriaId] = useState('');
+  const [criteriaDesc, setCriteriaDesc] = useState("");
   const [norms, setNorms] = useState({});
 
   //Filtering Variable (The consultant can filter, what criterias of which chapitre he want to see and process)
@@ -299,7 +304,13 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
                           {statusRelatedCheckbox[Criteriaindex]?.nonCompliant &&
                             <div className='flex items-center ml-4 mt-7 flex-row gap-2'>
                               <IoIosArrowForward className='text-sky-500 h-6 w-6' />
-                              <button className='flex items-center justify-between px-4 py-2 rounded-full bg-sky-500 text-white hover:bg-sky-400'>
+                              <button 
+                              onClick={() => {
+                                setActionPlanVisible(true);
+                                setCriteriaId(criteria.id);
+                                setCriteriaDesc(criteria.description);
+                              }}
+                              className='flex items-center justify-between px-4 py-2 rounded-full bg-sky-500 text-white hover:bg-sky-400'>
                                 Creér le plan d'actions
                                 <FaArrowsDownToPeople className="w-7 h-7" />
                               </button>
@@ -355,6 +366,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
           </Button>
         </Modal.Footer>
       </Modal>
+      {actionsPlanVisible && <CreateActionsPlan criteriaDesc={criteriaDesc} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
     </>
   );
 }
