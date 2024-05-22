@@ -32,6 +32,8 @@ export default function SysDashboard() {
   const [consultants, setConsultants] = useState([]);
   const [totalUsers, setTotalUsers] = useState(0);  // State for user count
   const [totalConsultants, setTotalConsultants] = useState(0);  // State for Consultant count
+  const [totalEntreprises, setTotalEntreprises] = useState(0);  // State for Enterprise count
+
 
   //Settings Popover variables (Tooglers)
   const [willChangePass, setWillChangePass] = useState(false);
@@ -118,6 +120,8 @@ export default function SysDashboard() {
         const consultantsCount = data.length;
         console.log("number of consultants is -->", consultantsCount)
         setTotalConsultants(consultantsCount);
+        const entreprisesCount = countUniqueOrganismes("Enterprise", data);
+        setTotalEntreprises(entreprisesCount);
       })
       .catch(error => console.error('Error fetching consultants data:', error));
 
@@ -148,11 +152,11 @@ export default function SysDashboard() {
           uniqueOrganisation.add(consultant.organismeDeCertification.id);
         }
       });
-    } else {
+    } else if (organisationType === "Enterprise") {
       data.forEach((consultant) => {
-        if (consultant.entreprises.id) {
-          uniqueOrganisation.add(consultant.entreprises.id);
-        }
+        consultant.entreprises.forEach((entreprise) => {
+          uniqueOrganisation.add(entreprise.id);
+        });
       });
     }
     console.log('Total unique organisations:', uniqueOrganisation.size);
@@ -223,7 +227,7 @@ export default function SysDashboard() {
     },
     {
       title: "Total Enterprises",
-      content: "",
+      content: countUniqueOrganismes("Enterprise", consultants),
       icon: <FaRegHandshake className="text-3xl text-white" />,
       color: "bg-gradient-to-r from-cyan-500 to-blue-500"
     }
