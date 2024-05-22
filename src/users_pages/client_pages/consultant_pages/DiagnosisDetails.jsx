@@ -6,12 +6,17 @@ import { useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { serverAddress } from "../../../ServerAddress";
+import CreateActionsPlan from "./CreateActionsPlan";
 
 export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenNormeId, onClose }) {
 
   const navigate = useNavigate();
 
   const [openModal, setOpenModal] = useState(true);
+  const [actionsPlanVisible, setActionPlanVisible] = useState(false);
+  //Variables that will be used in Actions Plan
+  const [criteriaId, setCriteriaId] = useState('');
+  const [criteriaDesc, setCriteriaDesc] = useState("");
   const [norms, setNorms] = useState({});
 
   //Filtering Variable (The consultant can filter, what criterias of which chapitre he want to see and process)
@@ -25,18 +30,26 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
     NA: false,
   }]);
 
-
+  //This will store the diagnosis details
   const [diagnosisDetails, setDiagnosisDetails] = useState([]);
 
   //Variable that controls the visibility and appearance of some UI items related to diagnosis
   const [alreadyStartedDiagnosis, setAlreadyStartedDiagnosis] = useState(false);
+  const [terminationOpen, setTerminationOpen] = useState(false);
+
+  //Checking wether the diagnosis has started or not to controll the availability of Termination Button
+  useEffect(() => {
+    const diagnosis = statusRelatedCheckbox?.some(d => d.compliant || d.nonCompliant || d.NA);
+    diagnosis ? setAlreadyStartedDiagnosis(true) : setAlreadyStartedDiagnosis(false);
+
+  }, [statusRelatedCheckbox])
 
   //getting diagnosis details whenever the user switches chapters
   useEffect(() => {
     getDiagnosisDetails();
   }, [criteriasForSelectedChapter])
 
-  // Setting the checkboxes
+  // Setting the checkboxes when diagnosisDetails is available
   useEffect(() => {
     const initialCheckboxState = criteriasForSelectedChapter.map((item) => {
       const diagnosis = diagnosisDetails?.find(d => d.critereId === item.id);
@@ -47,11 +60,6 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
       };
     });
     setStatusRelatedCheckbox(initialCheckboxState);
-    //Checks if the consultant has started the diagnosis or not
-    const diagnosisStarted = diagnosisDetails.find(d => d.status !== null);
-    if (diagnosisStarted) {
-      setAlreadyStartedDiagnosis(true);
-    }
   }, [criteriasForSelectedChapter, diagnosisDetails]);
 
 
@@ -111,7 +119,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
         }
       });
       const data = await response.json();
-      console.log("Got the Diagnosis Details -->", data);
+      // console.log("Got the Diagnosis Details -->", data);
       setDiagnosisDetails(data);
     } catch (error) {
       console.log("error getting diagnosis Details -->", error);
@@ -296,7 +304,13 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
                           {statusRelatedCheckbox[Criteriaindex]?.nonCompliant &&
                             <div className='flex items-center ml-4 mt-7 flex-row gap-2'>
                               <IoIosArrowForward className='text-sky-500 h-6 w-6' />
-                              <button className='flex items-center justify-between px-4 py-2 rounded-full bg-sky-500 text-white hover:bg-sky-400'>
+                              <button 
+                              onClick={() => {
+                                setActionPlanVisible(true);
+                                setCriteriaId(criteria.id);
+                                setCriteriaDesc(criteria.description);
+                              }}
+                              className='flex items-center justify-between px-4 py-2 rounded-full bg-sky-500 text-white hover:bg-sky-400'>
                                 Creér le plan d'actions
                                 <FaArrowsDownToPeople className="w-7 h-7" />
                               </button>
@@ -313,18 +327,46 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
         </Modal.Body>
         <Modal.Footer>
           <Button onClick={() => {
-            setOpenModal(false);
-            updateDiagnosisState("done");
-          }}>Terminer</Button>
+            setTerminationOpen(true);
+          }}
+            disabled={!alreadyStartedDiagnosis}
+          >Terminer</Button>
           <Button color="gray" onClick={() => {
-            setOpenModal(false);
             updateDiagnosisState("alreadyStarted");
-          }}>Souvegarder et Continuer plus tard</Button>
+          }}
+            disabled={!alreadyStartedDiagnosis}
+          >Souvegarder et Continuer plus tard</Button>
           {alreadyStartedDiagnosis === false &&
-            <button className="py-2 px-5 rounded-lg bg-red-500 hover:bg-red-400 text-white" onClick={() => setOpenModal(false)}>Annuler</button>
+            <button className="py-2 px-5 rounded-lg bg-red-500 hover:bg-red-400 text-white" onClick={() => setOpenModal(false)}>Pas maintenant</button>
           }
         </Modal.Footer>
       </Modal>
+
+      {/* Termination Confirmation Modal */}
+
+      <Modal
+        show={terminationOpen}
+        onClose={() => setTerminationOpen(false)}
+      >
+        <Modal.Header>Vèrifier tous les informations</Modal.Header>
+        <Modal.Body>
+          <div className="space-y-6 p-6">
+            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
+              Avant de soumettre le diagnostic, veuillez vérifier que toutes les cases à cocher sont correctement cochées
+              et que toutes les informations saisies sont exactes. Une fois le diagnostic soumis, il ne sera plus possible
+              de modifier les informations relatives à celui-ci. Assurez-vous donc que tout est correct et complet avant
+              de procéder à la soumission finale.
+            </p>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button onClick={() => updateDiagnosisState("done")}>Valider</Button>
+          <Button color="gray" onClick={() => setTerminationOpen(false)}>
+            Decline
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {actionsPlanVisible && <CreateActionsPlan criteriaDesc={criteriaDesc} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
     </>
   );
 }
