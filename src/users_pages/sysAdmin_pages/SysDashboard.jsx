@@ -10,12 +10,14 @@ import Cookies from 'js-cookie'
 import SysMainPage from './SysMainPage';
 import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { serverAddress } from '../../ServerAddress';
 import SysAddNorm from './SysAddNorm'; // Import the SysAddNorm component
 
 export default function SysDashboard() {
+  const location = useLocation();
+  const shouldChangePassword = location.state?.shouldChangePassword;
 
   const navigate = useNavigate();
 // Variable to toggle the visibility of the SysAddNorm component
@@ -90,6 +92,12 @@ export default function SysDashboard() {
       };
     }
   }, []);
+
+  useEffect(() => {
+    if (shouldChangePassword) {
+      alert("Veuillez changer votre mot de passe initial.");
+    }
+  }, [shouldChangePassword]);
 
 
   useEffect(() => {

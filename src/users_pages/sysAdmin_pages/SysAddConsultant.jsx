@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Label, Modal, TextInput } from "flowbite-react";
+import { Button, Label, Modal, TextInput, Radio } from "flowbite-react";
 import { toast } from "react-hot-toast";
 import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
@@ -30,6 +30,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             password: "",
             phone: "",
             organism: "",
+            level: "junior",
             userId: ""
         });
 
@@ -70,6 +71,13 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
         }
     }, [])
 
+    function generateInitialPassword(email) {
+        // Encode the result in base64
+        const base64Result = btoa(email);
+        console.log("Generated Password:", base64Result);
+        return base64Result;
+    }
+
     //Function that saves the cosultant 
     async function saveConsultant(consultantDetails) {
         console.log(consultantDetails);
@@ -87,6 +95,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                 toast.error('Vous devez entrer le prénom du consultant !!');
             } else {
                 try {
+                    console.log("consultant details are -->", consultantDetails);
                     const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signup`, {
                         method: 'POST',
                         headers: {
@@ -100,6 +109,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             "phone": consultantDetails.phone,
                             "password": consultantDetails.password,
                             "type": "consultant",
+                            "level": consultantDetails.level,
                             "roles": [
                                 {
                                     "name": "Consultant"
@@ -138,6 +148,15 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
         }
     }
 
+    useEffect(() => {
+        if (consultantDetails.email) {
+            const initialPassword = generateInitialPassword(consultantDetails.email);
+            setConsultantDetails(prevDetails => ({
+                ...prevDetails,
+                password: initialPassword
+            }));
+        }
+    }, [consultantDetails.email]);
 
     return (
         <>
@@ -231,18 +250,59 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             </select>
                         </div>
                         <div>
+                            <div className="mb-2 block">
+                                <Label htmlFor="consultantLevel" value="Niveau de consultant" />
+                            </div>
+                            <div className="flex items-center mb-4">
+                                <Radio
+                                    id="junior"
+                                    name="level"
+                                    value="junior"
+                                    checked={consultantDetails.level === "junior"}
+                                    onChange={(e) => setConsultantDetails({
+                                        ...consultantDetails,
+                                        level: e.target.value
+                                    })}
+                                />
+                                <Label htmlFor="junior" className="ml-2">Junior</Label>
+                            </div>
+                            <div className="flex items-center mb-4">
+                                <Radio
+                                    id="middle"
+                                    name="level"
+                                    value="middle"
+                                    checked={consultantDetails.level === "middle"}
+                                    onChange={(e) => setConsultantDetails({
+                                        ...consultantDetails,
+                                        level: e.target.value
+                                    })}
+                                />
+                                <Label htmlFor="middle" className="ml-2">Middle</Label>
+                            </div>
+                            <div className="flex items-center mb-4">
+                                <Radio
+                                    id="senior"
+                                    name="level"
+                                    value="senior"
+                                    checked={consultantDetails.level === "senior"}
+                                    onChange={(e) => setConsultantDetails({
+                                        ...consultantDetails,
+                                        level: e.target.value
+                                    })}
+                                />
+                                <Label htmlFor="senior" className="ml-2">Senior</Label>
+                            </div>
+                        </div>
+                        <div>
 
                             <div className="mb-2 block">
                                 <Label htmlFor="password" value="Mot de passe initial" />
                             </div>
                             <TextInput
                                 id="password"
-                                type="password"
+                                type="text"
                                 value={consultantDetails.password}
-                                onChange={(event) => setConsultantDetails({
-                                    ...consultantDetails,
-                                    password: event.target.value
-                                })}
+                                readOnly
                                 required
                             />
 

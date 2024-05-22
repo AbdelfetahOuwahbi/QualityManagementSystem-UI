@@ -6,7 +6,7 @@ import { IoIosNotificationsOutline } from 'react-icons/io';
 import { CiSettings } from 'react-icons/ci';
 import { MdOutlinePassword, MdManageAccounts, MdOutlineSettingsSuggest } from "react-icons/md";
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import {useLocation, useNavigate} from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
@@ -40,6 +40,9 @@ export default function ClientDashboard() {
 
     //Settings Popover State
     const [open, setOpen] = useState(false);
+
+    const location = useLocation();
+    const shouldChangePassword = location.state?.shouldChangePassword;
 
     //Change password properties
     const [changedPasswordProperties, setChangedPasswordProperties] = useState({
@@ -111,6 +114,14 @@ export default function ClientDashboard() {
             toast.error("Le nouveau mot de passe et sa confirmation ne sont pas identiques !!")
         }
     }
+
+    useEffect(() => {
+        if (shouldChangePassword) {
+            toast.error( "Veuillez changer votre mot de passe initial.");
+            setWillChangePass(true)
+            setOpen(true)
+        }
+    }, [shouldChangePassword]);
 
     //Function that gets the users profile
 
