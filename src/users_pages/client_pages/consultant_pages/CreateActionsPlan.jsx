@@ -3,6 +3,7 @@ import { Modal, Button, Datepicker, FileInput, Label, Textarea } from 'flowbite-
 import { IoIosArrowDown } from "react-icons/io";
 import { MdPersonSearch } from "react-icons/md";
 import Cookies from 'js-cookie';
+import { isTokenExpired, isTokenInCookies } from '../../CommonApiCalls';
 import { serverAddress } from '../../../ServerAddress';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -20,6 +21,14 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
   const [pilotesPictures, setPilotesPictures] = useState([]);
   const [deadLine, setDeadLine] = useState(new Date());
 
+  //the chosen agent that will handle the task
+  const [chosenAgentId, setChosenAgentId] = useState('');
+
+  //Function that filters the searched Agent from the whole pilot table
+  const filteredOptions = pilotesLastNames.filter(lastname =>
+    lastname.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   useEffect(() => {
     if (existingResponsible !== '') {
       console.log("Already got the Quality Responsible Agent !!");
@@ -34,57 +43,81 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
   }, [])
 
   const getQualityResponsibleAgent = async () => {
-    try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprise/responsableQualites/byEntreprise/${entrepriseId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${Cookies.get("JWT")}`
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    } else {
+      try {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprise/responsableQualites/byEntreprise/${entrepriseId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${Cookies.get("JWT")}`
+          }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log("QualityResponsibleAgent --> ", data);
+          setExistingResponsible(data);
+        } else {
+          console.log(data.message);
         }
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("QualityResponsibleAgent --> ", data);
-        setExistingResponsible(data);
-      } else {
-        console.log(data.message);
+      } catch (error) {
+        console.log("error getting quality responsible agent --> ", error);
       }
-    } catch (error) {
-      console.log("error getting quality responsible agent --> ", error);
     }
   }
 
   const getPilots = async () => {
-    try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprises/pilots/byEntreprise/${entrepriseId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${Cookies.get("JWT")}`
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    } else {
+      try {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprises/pilots/byEntreprise/${entrepriseId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${Cookies.get("JWT")}`
+          }
+        });
+        const data = await response.json();
+        if (response.ok) {
+          console.log("Pilots --> ", data);
+          data.map((item) => {
+            setPilotesIds(prev => [...prev, item.id]);
+            setPilotesFirstNames(prev => [...prev, item.firstname]);
+            setPilotesLastNames(prev => [...prev, item.lastname]);
+            setPilotesPictures(prev => [...prev, item.imagePath]);
+          })
+        } else {
+          console.log(data.message);
         }
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Pilots --> ", data);
-        data.map((item) => {
-          setPilotesIds(prev => [...prev, item.id]);
-          setPilotesFirstNames(prev => [...prev, item.firstname]);
-          setPilotesLastNames(prev => [...prev, item.lastname]);
-          setPilotesPictures(prev => [...prev, item.imagePath]);
-        })
-      } else {
-        console.log(data.message);
+      } catch (error) {
+        console.log("error getting quality responsible agent --> ", error);
       }
-    } catch (error) {
-      console.log("error getting quality responsible agent --> ", error);
     }
   }
 
-  async function submitAction() {
 
+  //Function that submits the action
+  async function submitAction() {
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    } else {
+      try {
+
+      } catch (error) {
+        console.log("error submitting this action due to --> ", error);
+      }
+    }
   }
 
-  const filteredOptions = pilotesLastNames.filter(lastname =>
-    lastname.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
 
   return (
@@ -149,7 +182,12 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
                           </div>
                           <div className='border-t border-gray-300 py-1'></div>
                           {existingResponsible !== '' ? (
-                            <div className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
+                            <div
+                              onClick={() => {
+                                setChosenAgentId(existingResponsible.id);
+                                setIsSelectionOpen(false);
+                              }}
+                              className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
                               <img src={`http://${serverAddress}:8080/api/v1/images/${existingResponsible.imagePath}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
                               <h2 className='font-p_black text-sm md:text-lg'>{existingResponsible.firstname} {existingResponsible.lastname}</h2>
                             </div>
@@ -177,13 +215,23 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
                           <div className='overflow-y-auto flex flex-col gap-2 h-36 md:h-52'>
                             {pilotesIds.length > 0 && searchTerm === '' ? (
                               pilotesIds.map((item, index) =>
-                                <div key={index} className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
+                                <div key={index}
+                                  onClick={() => {
+                                    setChosenAgentId(item);
+                                    setIsSelectionOpen(false);
+                                  }}
+                                  className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
                                   <img src={`http://${serverAddress}:8080/api/v1/images/${pilotesPictures[index]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
                                   <h2 className='font-p_black text-lg'>{pilotesFirstNames[index]} {pilotesLastNames[index]}</h2>
                                 </div>
                               )) : searchTerm !== '' ? (
                                 filteredOptions.map((lastname, index) => (
-                                  <div key={index} className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
+                                  <div key={index}
+                                    onClick={() => {
+                                      setChosenAgentId(pilotesIds[pilotesLastNames.indexOf(lastname)]);
+                                      setIsSelectionOpen(false);
+                                    }}
+                                    className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
                                     {/*i may need to take a deeper look at this because A danger might happen if two users have the same name*/}
                                     <img src={`http://${serverAddress}:8080/api/v1/images/${pilotesPictures[pilotesLastNames.indexOf(lastname)]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
                                     <h2 className='font-p_black text-lg'>{pilotesFirstNames[pilotesLastNames.indexOf(lastname)]} {lastname}</h2>

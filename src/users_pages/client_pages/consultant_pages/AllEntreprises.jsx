@@ -116,7 +116,7 @@ export default function AllEntreprises() {
     setPatente([])
     setCnss([])
     try {
-      const data = await getAllEntreprises("entreprise");
+      const data = await getAllEntreprises(userID, "ManagedEntreprises");
       if (data.length > 0) {
         toast((t) => (
           <span>

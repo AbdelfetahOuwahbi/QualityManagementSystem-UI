@@ -293,9 +293,9 @@ export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Em
 }
 
 //Function that gets all entreprises
-export async function getAllEntreprises(type) {
+export async function getAllEntreprises(consultantId, type) {
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/${type === "organism" ? "organismes" : "consulantSMQ/entreprises"}`, {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/${type === "organism" ? "organismes" : type === "entreprises" ? "consulantSMQ/entreprises" : `consulantSMQ/entreprises/all-entreprises?consultantId=${consultantId}`}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
