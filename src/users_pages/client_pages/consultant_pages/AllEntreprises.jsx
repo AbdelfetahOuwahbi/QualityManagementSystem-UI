@@ -380,7 +380,7 @@ export default function AllEntreprises() {
       <div className='border-t border-gray-300 py-4'></div>
       <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
         <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
-          {consultantLevel === "junior" &&
+          {consultantLevel === "responsable" &&
           <MdOutlineDomainAdd onClick={editingIndex === -1 ? () => setAddEntrepriseVisible(true) : null}
             className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`} />}
           <button onClick={exportToExcel}
@@ -453,7 +453,7 @@ export default function AllEntreprises() {
               <th scope="col" className="px-6 py-3">
                 Cnss
               </th>
-              {consultantLevel === "junior" &&
+              {consultantLevel === "responsable" &&
               <th scope="col" className="px-6 py-3">
                 Actions
               </th>
@@ -587,7 +587,7 @@ export default function AllEntreprises() {
                         <td className="px-6 py-4">{identifiantFiscale[index]}</td>
                         <td className="px-6 py-4">{patente[index]}</td>
                         <td className="px-6 py-4">{cnss[index]}</td>
-                        {consultantLevel === "junior" &&
+                        {consultantLevel === "responsable" &&
                         <td className="px-6 py-4">
                           <div className="flex gap-4">
                             <button href="#" onClick={() => handleEditClick(index)}
@@ -626,7 +626,7 @@ export default function AllEntreprises() {
             <HiOutlineExclamationCircle
               className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
             <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
-              Êtes-vous sûr que vous voulez supprimer cet organism ?
+              Êtes-vous sûr que vous voulez supprimer cet entreprise ?
             </h3>
             <div className="flex justify-center gap-4">
               <Button color="failure" onClick={() => {

@@ -30,7 +30,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             password: "",
             phone: "",
             organism: "",
-            level: "junior",
+            level: "responsable",
             userId: ""
         });
 
@@ -255,6 +255,19 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             </div>
                             <div className="flex items-center mb-4">
                                 <Radio
+                                    id="responsable"
+                                    name="level"
+                                    value="responsable"
+                                    checked={consultantDetails.level === "responsable"}
+                                    onChange={(e) => setConsultantDetails({
+                                        ...consultantDetails,
+                                        level: e.target.value
+                                    })}
+                                />
+                                <Label htmlFor="responsable" className="ml-2">Responsable</Label>
+                            </div>
+                            <div className="flex items-center mb-4">
+                                <Radio
                                     id="junior"
                                     name="level"
                                     value="junior"
@@ -265,19 +278,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                                     })}
                                 />
                                 <Label htmlFor="junior" className="ml-2">Junior</Label>
-                            </div>
-                            <div className="flex items-center mb-4">
-                                <Radio
-                                    id="middle"
-                                    name="level"
-                                    value="middle"
-                                    checked={consultantDetails.level === "middle"}
-                                    onChange={(e) => setConsultantDetails({
-                                        ...consultantDetails,
-                                        level: e.target.value
-                                    })}
-                                />
-                                <Label htmlFor="middle" className="ml-2">Middle</Label>
                             </div>
                             <div className="flex items-center mb-4">
                                 <Radio

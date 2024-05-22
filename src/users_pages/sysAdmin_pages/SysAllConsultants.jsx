@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { FaPlus, FaMinus } from "react-icons/fa"; // Import the icons
 import { Button, FloatingLabel, Modal, ToggleSwitch } from "flowbite-react";
 import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
@@ -15,13 +16,10 @@ export default function SysAllConsultants() {
 
     const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
 
-    //Toogler for the addConsultant Modal
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
-    const [selectedField, setSelectedField] = useState('firstName'); // Default selected field
-    //for the alert of confirming delete
+    const [selectedField, setSelectedField] = useState('firstName');
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
 
-    // Consultant Properties
     const [id, setId] = useState([]);
     const [firstName, setFirstName] = useState([]);
     const [lastName, setLastName] = useState([]);
@@ -29,26 +27,23 @@ export default function SysAllConsultants() {
     const [phone, setPhone] = useState([]);
     const [organismeName, setOrganismeName] = useState([]);
     const [organismeId, setOrganismeId] = useState([]);
-    // toogler of the switch that locks/unlocks consultant account
     const [isAccountLocked, setIsAccountLocked] = useState([]);
+    const [entreprises, setEntreprises] = useState([]); // Ajout de l'état pour les entreprises
 
-    // Ajouter un nouvel état pour suivre l'index de la ligne en cours de modification
-    const [editingIndex, setEditingIndex] = useState(-1); // -1 signifie qu'aucune ligne n'est en cours de modification
+    const [editingIndex, setEditingIndex] = useState(-1);
 
-    // Search states for each field
     const [searchFirstName, setSearchFirstName] = useState('');
     const [searchLastName, setSearchLastName] = useState('');
     const [searchEmail, setSearchEmail] = useState('');
     const [searchPhone, setSearchPhone] = useState('');
-    const [searchRole, setSearchRole] = useState('');
     const [searchOrganismeName, setSearchOrganismeName] = useState('');
 
-
-    // State to store all organismes
     const [organismes, setOrganismes] = useState([]);
     const [idToSendOrganism, setIdToSendOrganism] = useState(0);
 
     const [originalData, setOriginalData] = useState({});
+    const [expandedRows, setExpandedRows] = useState([]); // State to track expanded rows
+
     const handleEditClick = (index) => {
         setOriginalData({
             firstName: firstName[index],
@@ -73,19 +68,18 @@ export default function SysAllConsultants() {
         }
     };
 
-    // Function to handle field selection change
     const handleFieldChange = (field) => {
         setSelectedField(field);
     };
 
-    //Function that gets all consultants
     const getAllConsultant = async () => {
         setId([]);
         setFirstName([]);
         setLastName([]);
         setEmail([]);
         setPhone([]);
-        setOrganismeName([])
+        setOrganismeName([]);
+        setEntreprises([]); // Initialiser l'état des entreprises
         try {
             const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants`, {
                 method: 'GET',
@@ -112,6 +106,7 @@ export default function SysAllConsultants() {
                     setIsAccountLocked((prev) => [...prev, !data[i].accountNonLocked]);
                     setOrganismeId((prev) => [...prev, data[i].organismeDeCertification.id]);
                     setOrganismeName((prev) => [...prev, data[i].organismeDeCertification.raisonSocial]);
+                    setEntreprises((prev) => [...prev, data[i].entreprises]); // Ajouter les entreprises à l'état
                 }
             } else {
                 toast((t) => (
@@ -126,26 +121,23 @@ export default function SysAllConsultants() {
         }
     }
 
-    //Getting All Consultants
     useEffect(() => {
-        //Checking the validity of the token starts
         if (!isTokenInCookies()) {
             window.location.href = "/";
         } else if (isTokenExpired()) {
             Cookies.remove("JWT");
             window.location.href = "/"
-        } else {     //Checking the validity of the token ends
+        } else {
             if (firstName.length === 0) {
                 getAllConsultant();
             } else {
                 console.log("Already Got all consultants ..");
             }
 
-            fetchOrganismes();  // Votre fonction pour charger les données des organismes
+            fetchOrganismes();
         }
     }, []);
 
-    // Function to fetch all organismes
     const fetchOrganismes = async () => {
         try {
             const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
@@ -155,14 +147,13 @@ export default function SysAllConsultants() {
                 },
             });
             const data = await response.json();
-            setOrganismes(data);  // Supposons que data est un tableau d'objets organisme
+            setOrganismes(data);
         } catch (error) {
             console.error('Error fetching organismes:', error);
             toast.error("Erreur lors du chargement des organismes");
         }
     };
 
-    // Function to export table data as Excel
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
         const tableClone = document.getElementById("consultantsTable").cloneNode(true);
@@ -176,7 +167,6 @@ export default function SysAllConsultants() {
         XLSX.writeFile(wb, "Consultants.xlsx");
     };
 
-    //Function that deletes the user
     async function deleteUser(userId) {
         console.log("userId to be deleted is -->", userId)
         console.log(isTokenExpired())
@@ -198,12 +188,9 @@ export default function SysAllConsultants() {
             }
         } catch (error) {
             console.error('Error deleting user:', error);
-            // Handle error
-            throw error; // Optionally re-throw the error for the caller to handle
+            throw error;
         }
     }
-
-    //Function that Locks/Unlocks Consultant
 
     async function handleLockUnlockUser(userId, first_name) {
         try {
@@ -232,39 +219,36 @@ export default function SysAllConsultants() {
         }
     }
 
-
     const renderSearchInput = () => {
         switch (selectedField) {
             case 'firstName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'lastName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'email':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'phone':
                 return <input type="number"
-                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                              placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'organisme':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher organisme"
-                    onChange={(e) => setSearchOrganismeName(e.target.value)} disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher organisme"
+                              onChange={(e) => setSearchOrganismeName(e.target.value)} disabled={editingIndex !== -1} />;
             default:
                 return null;
         }
     };
 
     const updateConsultant = async (indexId, index) => {
-
         setEditingIndex(-1)
-        // Vérification de la validité du jeton
         if (!isTokenInCookies()) {
             window.location.href = "/";
         } else if (isTokenExpired()) {
@@ -288,24 +272,22 @@ export default function SysAllConsultants() {
                 });
                 const responseBody = await response.json();
                 console.log("Response body -->", responseBody);
-                // Comparer les données modifiées avec les données originales
                 const isDataChanged =
                     firstName[index] !== originalData.firstName ||
                     lastName[index] !== originalData.lastName ||
                     email[index] !== originalData.email ||
                     phone[index] !== originalData.phone ||
-                    organismeName[index] !== originalData.organismeName ;
+                    organismeName[index] !== originalData.organismeName;
                 if (response.status === 200 || response.status === 201) {
                     if (isDataChanged) {
                         toast.success("Ce Consultant est modifié avec succès.");
                     } else {
-                        toast.error("Aucune modifiaction n'a été effectuée.");
+                        toast.error("Aucune modification n'a été effectuée.");
                     }
                 } else if (responseBody.errorCode == "VALIDATION_ERROR") {
-                    // Diviser les messages d'erreur s'ils sont séparés par des virgules
                     const errorMessages = responseBody.message.split(',');
                     errorMessages.forEach(message => {
-                        toast.error(message.trim()); // Afficher chaque message d'erreur dans un toast séparé
+                        toast.error(message.trim());
                     });
                 } else if (responseBody.errorCode == "User_email_already_exists") {
                     toast.error("L'email que vous avez entrez est déjà utilisé!!");
@@ -313,9 +295,17 @@ export default function SysAllConsultants() {
                     toast.error("Une erreur s'est produite lors de la modification de ce consultant.");
                 }
             } catch (error) {
-                console.error(error); // Gérer les erreurs
+                console.error(error);
                 toast.error("Une erreur s'est produite lors de la modification de ce consultant.");
             }
+        }
+    };
+
+    const toggleRowExpansion = (index) => {
+        if (expandedRows.includes(index)) {
+            setExpandedRows(expandedRows.filter(i => i !== index));
+        } else {
+            setExpandedRows([...expandedRows, index]);
         }
     };
 
@@ -323,21 +313,19 @@ export default function SysAllConsultants() {
         <>
             <Toaster position="top-center" reverseOrder={false} />
             <div className="flex p-4 w-full justify-between">
-                {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
-                    className='w-6 h-6 cursor-pointer text-neutral-600' />
+                        className='w-6 h-6 cursor-pointer text-neutral-600' />
             </div>
             <div className='border-t border-gray-300 py-4'></div>
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
                     <TiUserAdd
-                        onClick={editingIndex === -1 ? () => setAddConsultantVisible(true) : null} //editingIndex === -1 pour ne pas cliquer sur le bouton si on est en train de modifier une ligne
+                        onClick={editingIndex === -1 ? () => setAddConsultantVisible(true) : null}
                         className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                     />
-                    {/* Button to export table as Excel */}
                     <button
                         onClick={exportToExcel}
-                        disabled={editingIndex !== -1} // Désactiver le bouton lorsque une ligne est en cours de modification
+                        disabled={editingIndex !== -1}
                         className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 ${editingIndex !== -1 ? 'hover:bg-neutral-500 cursor-not-allowed' : 'hover:bg-neutral-500'}`}>
                         Exporter (Format Excel)
                     </button>
@@ -363,43 +351,49 @@ export default function SysAllConsultants() {
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg px-4">
                 <table id="consultantsTable"
-                    className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                       className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">
-                                Prénom
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Nom
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                email
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Téléphone
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Organisme
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Bloquer le Compte
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Actions
-                            </th>
-                        </tr>
+                    <tr>
+                        <th scope="col" className="px-6 py-3">
+                            Prénom
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Nom
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            email
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Téléphone
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Organisme
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Bloquer le Compte
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Actions
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Détails
+                        </th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {firstName.map((name, index) => {
-                            if ((!searchFirstName || name.toLowerCase().includes(searchFirstName.toLowerCase())) &&
-                                (!searchLastName || lastName[index].toLowerCase().includes(searchLastName.toLowerCase())) &&
-                                (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
-                                (!searchPhone || phone[index].includes(searchPhone)) &&
-                                (!searchOrganismeName || organismeName[index].toLowerCase().includes(searchOrganismeName.toLowerCase()))) {
-                                const isEditing = editingIndex === index;
-                                const disableEdit = editingIndex !== -1 && !isEditing; // Désactiver si une autre ligne est en cours de modification
-                                return (
-                                    <tr key={index} className="border-b">
+                    {firstName.map((name, index) => {
+                        if ((!searchFirstName || name.toLowerCase().includes(searchFirstName.toLowerCase())) &&
+                            (!searchLastName || lastName[index].toLowerCase().includes(searchLastName.toLowerCase())) &&
+                            (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
+                            (!searchPhone || phone[index].includes(searchPhone)) &&
+                            (!searchOrganismeName || organismeName[index].toLowerCase().includes(searchOrganismeName.toLowerCase()))) {
+                            const isEditing = editingIndex === index;
+                            const disableEdit = editingIndex !== -1 && !isEditing;
+                            const isRowExpanded = expandedRows.includes(index);
+
+                            return (
+                                <React.Fragment key={index}>
+                                    <tr className="border-b">
                                         {editingIndex === index ? (
                                             <>
                                                 <td className="px-6 py-4">
@@ -430,16 +424,14 @@ export default function SysAllConsultants() {
                                                         onChange={(e) => {
                                                             const selectedOrganisme = organismes.find((organisme) => organisme.raisonSocial === e.target.value);
                                                             if (selectedOrganisme) {
-                                                                setOrganismeId(selectedOrganisme.id); // Assuming setOrganismeId is a state setter for the selected organisme's ID
+                                                                setOrganismeId(selectedOrganisme.id);
                                                             }
                                                             setOrganismeName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)]);
                                                         }}
                                                         onBlur={(e) => {
                                                             const selectedOrganisme = organismes.find((organisme) => organisme.raisonSocial === e.target.value);
                                                             if (selectedOrganisme) {
-                                                                // console.log('Selected Organisme ID:', selectedOrganisme.id);
                                                                 setIdToSendOrganism(selectedOrganisme.id)
-
                                                             }
                                                         }}
                                                         className="rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500 block w-full sm:text-sm"
@@ -450,13 +442,11 @@ export default function SysAllConsultants() {
                                                             </option>
                                                         ))}
                                                     </select>
-
-
                                                 </td>
                                                 <td>
                                                     <ToggleSwitch
                                                         checked={isAccountLocked[index]}
-                                                        label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Debloquer ce Compte"}
+                                                        label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Débloquer ce Compte"}
                                                         onChange={(newValue) => {
                                                             setIsAccountLocked(prevState => {
                                                                 const newState = [...prevState];
@@ -471,12 +461,17 @@ export default function SysAllConsultants() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex gap-4">
                                                         <button onClick={() => updateConsultant(idToSendOrganism || organismeId[index], index)}
-                                                            className=" font-medium text-green-600 hover:underline ml-2">Enregistrer
+                                                                className=" font-medium text-green-600 hover:underline ml-2">Enregistrer
                                                         </button>
                                                         <button onClick={() => handleCancelClick(index)}
-                                                            className="font-medium text-red-600 hover:underline">Annuler
+                                                                className="font-medium text-red-600 hover:underline">Annuler
                                                         </button>
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <button onClick={() => toggleRowExpansion(index)}>
+                                                        {isRowExpanded ? <FaMinus /> : <FaPlus />}
+                                                    </button>
                                                 </td>
                                             </>
                                         ) : (
@@ -504,35 +499,56 @@ export default function SysAllConsultants() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex gap-4">
                                                         <button onClick={() => handleEditClick(index)}
-                                                            disabled={disableEdit}
-                                                            className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                                disabled={disableEdit}
+                                                                className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
                                                             Modifier
                                                         </button>
                                                         <a href="#"
-                                                            onClick={(e) => {
-                                                                e.preventDefault(); // Prévenir le comportement par défaut du lien
-                                                                if (!disableEdit) {
-                                                                    setConfirmDelete({ userId: id[index], value: true });
-                                                                }
-                                                            }}
-                                                            className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
+                                                           onClick={(e) => {
+                                                               e.preventDefault();
+                                                               if (!disableEdit) {
+                                                                   setConfirmDelete({ userId: id[index], value: true });
+                                                               }
+                                                           }}
+                                                           className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
                                                     </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <button onClick={() => toggleRowExpansion(index)}>
+                                                        {isRowExpanded ? <FaMinus /> : <FaPlus />}
+                                                    </button>
                                                 </td>
                                             </>
                                         )}
-
                                     </tr>
-                                );
-                            }
-                            return null;
-                        })}
+                                    {isRowExpanded && (
+                                        <tr>
+                                            <td colSpan="8">
+                                                <div className="p-4 bg-gray-100 dark:bg-gray-800">
+                                                    <p>Entreprises:</p>
+                                                    <ul>
+                                                        {entreprises[index].map((entreprise, idx) => (
+                                                            <li key={idx}>
+                                                                <strong>{entreprise.raisonSocial}</strong> - {entreprise.ville}, {entreprise.pays} ({entreprise.email})
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    )}
+                                </React.Fragment>
+                            );
+                        }
+                        return null;
+                    })}
                     </tbody>
                 </table>
             </div>
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
             <Modal show={confirmDelete.value} size="md" onClose={() => setConfirmDelete({ userId: null, value: false })}
-                popup>
+                   popup>
                 <Modal.Header />
                 <Modal.Body>
                     <div className="text-center">
