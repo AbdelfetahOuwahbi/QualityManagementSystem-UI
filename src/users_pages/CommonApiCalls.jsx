@@ -92,7 +92,6 @@ export async function changePassword(currentPassword, newPassword, confirmationP
         return response;
     } catch (error) {
         console.error("Error changing password:", error);
-        // Handle network errors or other exceptions
     }
 }
 

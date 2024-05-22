@@ -161,21 +161,26 @@ export default function SysDashboard() {
 
   //Function that Changes the Password for SysAdmin
   async function changePasswordForSysAdmin(currentPassword, newPassword, confirmationPassword) {
-    if (newPassword === confirmationPassword) {
       try {
         const response = await changePassword(currentPassword, newPassword, confirmationPassword);
+        const data = await response.json();
+        console.log("Response from changePasswordForSysAdmin:", data);
         if (response.ok) {
           console.log("Password changed successfully for SysAdmin");
           toast.success("Votre mot de passe a été changé avec succès ..");
+        }else if(data.errorCode === "VALIDATION_ERROR") {
+            const errorMessages = data.message.split(',');
+            errorMessages.forEach(message => {
+              toast.error(message.trim());
+            });
+        }else if(data.errorCode === "Password Error") {
+          toast.error(data.message);
         } else {
           toast.error("Une erreur s'est produite, ressayer plus tard !!")
         }
       } catch (error) {
         console.error("Error changing password for SysAdmin:", error);
       }
-    } else {
-      toast.error("Le nouveau mot de passe et sa confirmation ne sont pas identiques !!")
-    }
   }
 
   //Function that gets the users profile
