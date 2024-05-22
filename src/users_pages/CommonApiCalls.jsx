@@ -5,7 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 //Server Address (to be changed in production)
 import { serverAddress } from "../ServerAddress";
-import {toast} from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 /////////////////////////////////////////// SECURITY ///////////////////////////////////////////////////////////////////////////////
 
@@ -42,13 +42,13 @@ export function extractMainRole() {
         const mainRole = userRoleArray
             .filter(role => ['Sysadmin', 'Consultant', 'Admin', 'Responsable', 'Pilot'].includes(role.name))
             .map(role => role.name);
-        console.log("Main role of the user:", mainRole[0]);
+        // console.log("Main role of the user:", mainRole[0]);
         return mainRole[0];
     }
 }
 
-//Function that checks wether the user have access or not
-export function doesHeHaveAccess(resource) { //I will pass this ressource as a string (Eg : "RHDocuments:READ")
+// Function that checks whether the user has a specific permission
+export function doesHeHaveAccess(permission) { 
 
     const userRolesEncoded = Cookies.get("userRoles");
 
@@ -59,7 +59,7 @@ export function doesHeHaveAccess(resource) { //I will pass this ressource as a s
             const userRoles = JSON.parse(userRolesJSON);
 
             for (const role of userRoles) {
-                if (role.name.includes(resource)) {
+                if (role.name.includes(permission)) {
                     return true;
                 }
             }
@@ -71,6 +71,7 @@ export function doesHeHaveAccess(resource) { //I will pass this ressource as a s
 
     return false;
 }
+
 
 //Function to change the password
 
@@ -237,7 +238,7 @@ export async function saveEntreprise(consultantIfExists, type, Category, Pays, S
             console.log("error message is --> ", data.message);
             if (data.errorCode === "User_email_already_exists") {
                 toast.error("L'email que vous avez entrez est déjà utilisé, entrer un autre!!");
-            }else if (data.errorCode === "VALIDATION_ERROR"){
+            } else if (data.errorCode === "VALIDATION_ERROR") {
                 const errorMessages = data.message.split(',');
                 errorMessages.forEach(message => {
                     toast.error(message.trim());
