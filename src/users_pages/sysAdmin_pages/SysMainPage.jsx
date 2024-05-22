@@ -122,7 +122,7 @@ export default function SysMainPage({ onClose }) {
                 </Sidebar.Item>
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiSettings} href="/SysAllNorms">Normses
+                  }} icon={CiSettings} href="/SysAllNorms">Normes
                   </Sidebar.Item>
 
                 <Sidebar.Collapse icon={FaUsersLine} label="Consultants SMQ">
