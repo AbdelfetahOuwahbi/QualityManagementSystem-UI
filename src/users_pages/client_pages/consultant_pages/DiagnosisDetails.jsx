@@ -8,7 +8,7 @@ import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { serverAddress } from "../../../ServerAddress";
 import CreateActionsPlan from "./CreateActionsPlan";
 
-export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenNormeId, onClose }) {
+export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenEntrepriseId, chosenNormeId, onClose }) {
 
   const navigate = useNavigate();
 
@@ -366,7 +366,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
           </Button>
         </Modal.Footer>
       </Modal>
-      {actionsPlanVisible && <CreateActionsPlan criteriaDesc={criteriaDesc} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
+      {actionsPlanVisible && <CreateActionsPlan criteriaDesc={criteriaDesc} entrepriseId={chosenEntrepriseId} entreprise={chosenEntreprise} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
     </>
   );
 }

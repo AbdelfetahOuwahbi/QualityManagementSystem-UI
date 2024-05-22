@@ -19,6 +19,7 @@ export default function AllDiagnosises() {
     const [chosenDiagnosisId, setChosenDiagnosisId] = useState('');
     const [chosenDiagnosisCode, setChosenDiagnosisCode] = useState('');
     const [chosenNormeId, setChosenNormeId] = useState('');
+    const [chosenEntrepriseName, setChosenEntrepriseName] = useState('');
     const [chosenEntrepriseId, setChosenEntrepriseId] = useState('');
 
     const [diagnosisId, setDiagnosisId] = useState([]);
@@ -235,7 +236,8 @@ export default function AllDiagnosises() {
                                                         <button onClick={() => {
                                                             setChosenDiagnosisId(diagnosisId[index]);
                                                             setChosenDiagnosisCode(diagnosisCode[index]);
-                                                            setChosenEntrepriseId(diagnosisEntrepriseName[index]);
+                                                            setChosenEntrepriseName(diagnosisEntrepriseName[index]);
+                                                            setChosenEntrepriseId(diagnosisEntrepriseId[index])
                                                             setChosenNormeId(diagnosisNormId[index]);
                                                             setAreDiagnosisDetailsShowen(true);
                                                         }}
@@ -269,7 +271,7 @@ export default function AllDiagnosises() {
 
             {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)} />}
             {isDiagnosisModalOpen && <DiagnosisModal onClose={() => setIsDiagnosisModalOpen(false)} />}
-            {areDiagnosisDetailsShown && <DiagnosisDetails diagnosisId={chosenDiagnosisId} DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntreprise={chosenEntrepriseId} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
+            {areDiagnosisDetailsShown && <DiagnosisDetails diagnosisId={chosenDiagnosisId} DiagnosisCode={chosenDiagnosisCode} chosenNormeId={chosenNormeId} chosenEntrepriseId={chosenEntrepriseId} chosenEntreprise={chosenEntrepriseName} onClose={() => setAreDiagnosisDetailsShowen(false)} />}
             <Modal show={isDeletingDiagnosis} size="md" onClose={() => setIsDeletingDiagnosis(false)}
                 popup>
                 <Modal.Header />

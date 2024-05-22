@@ -1,22 +1,91 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Modal, Button, Datepicker, FileInput, Label, Textarea } from 'flowbite-react';
+import { IoIosArrowDown } from "react-icons/io";
+import { MdPersonSearch } from "react-icons/md";
+import Cookies from 'js-cookie';
+import { serverAddress } from '../../../ServerAddress';
+import { motion, AnimatePresence } from 'framer-motion';
 
-export default function CreateActionsPlan({ criteriaId, criteriaDesc, diagnosisId, onClose }) {
+export default function CreateActionsPlan({ criteriaId, criteriaDesc, entrepriseId, entreprise, onClose }) {
 
   const [openModal, setOpenModal] = useState(true);
 
-  const [chosenRespPilId, setChosenRespPilId] = useState('');
+  const [isSelectionOpen, setIsSelectionOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const [existingResponsible, setExistingResponsible] = useState('');
+  const [pilotesIds, setPilotesIds] = useState([]);
+  const [pilotesFirstNames, setPilotesFirstNames] = useState([]);
+  const [pilotesLastNames, setPilotesLastNames] = useState([]);
+  const [pilotesPictures, setPilotesPictures] = useState([]);
   const [deadLine, setDeadLine] = useState(new Date());
 
-  const responsibles = [
-    {
-
+  useEffect(() => {
+    if (existingResponsible !== '') {
+      console.log("Already got the Quality Responsible Agent !!");
+    } else {
+      getQualityResponsibleAgent();
     }
-  ]
+    if (pilotesIds.length > 0) {
+      console.log("Already got the Pilots !!");
+    } else {
+      getPilots();
+    }
+  }, [])
+
+  const getQualityResponsibleAgent = async () => {
+    try {
+      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprise/responsableQualites/byEntreprise/${entrepriseId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${Cookies.get("JWT")}`
+        }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("QualityResponsibleAgent --> ", data);
+        setExistingResponsible(data);
+      } else {
+        console.log(data.message);
+      }
+    } catch (error) {
+      console.log("error getting quality responsible agent --> ", error);
+    }
+  }
+
+  const getPilots = async () => {
+    try {
+      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprises/pilots/byEntreprise/${entrepriseId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${Cookies.get("JWT")}`
+        }
+      });
+      const data = await response.json();
+      if (response.ok) {
+        console.log("Pilots --> ", data);
+        data.map((item) => {
+          setPilotesIds(prev => [...prev, item.id]);
+          setPilotesFirstNames(prev => [...prev, item.firstname]);
+          setPilotesLastNames(prev => [...prev, item.lastname]);
+          setPilotesPictures(prev => [...prev, item.imagePath]);
+        })
+      } else {
+        console.log(data.message);
+      }
+    } catch (error) {
+      console.log("error getting quality responsible agent --> ", error);
+    }
+  }
 
   async function submitAction() {
 
   }
+
+  const filteredOptions = pilotesLastNames.filter(lastname =>
+    lastname.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
 
   return (
     <>
@@ -53,34 +122,84 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, diagnosisI
                   <Textarea id="comment" placeholder="L'action ..." required rows={4} />
                 </div>
 
-                <div className='flex flex-col gap-2 mb-10'>
-                <div>
-                  <Label htmlFor="file-upload-helper-text" value="Ajouter piéce jointe .." />
-                </div>
-                <FileInput id="file-upload-helper-text" helperText="DOCX, PNG, JPG ou PDF (MAX. 5Mb)." />
-                </div>
-
                 {/* Section du selection de l'entreprise */}
                 <div className='mb-4'>
-                  <h1 className='font-p_semi_bold'>Veuillez séléctionner un reponsable sur cette action : </h1>
+                  <h1 className='font-p_semi_bold'>Veuillez séléctionner un agent reponsable sur cette action : </h1>
                 </div>
 
-                <select
-                  className="rounded-lg mb-12 p-4 border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500 block w-full sm:text-sm"
-                  value={chosenRespPilId}
-                  onChange={(e) => {
-                    setChosenRespPilId(e.target.value);
-                  }}
-                >
-                  <option value="">Séléctionner le responsable sur l'action</option>
-                  {/* {entrepriseID.map((id, index) => */}
-                  {/* <option key={id} value={id}> */}
-                  <option>
-                    {/* {entrepriseName[index]} */}
-                    Responsable ou pilote
-                  </option>
-                  {/* )} */}
-                </select>
+                <div className='flex flex-col w-full md:px-4 h-auto'>
+                  <div
+                    onClick={() => setIsSelectionOpen(!isSelectionOpen)}
+                    className='flex w-full h-10 items-center px-2 md:px-4 justify-between gap-4 bg-white border-[1px] border-gray-300 rounded-lg cursor-pointer'>
+                    <h2 className='font-p_regular'> séléctionner un agent </h2>
+                    <IoIosArrowDown className='w-6 h-6 text-sky-500' />
+                  </div>
+                  {isSelectionOpen &&
+                    <AnimatePresence>
+                      <motion.div
+                        initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className='flex flex-row gap-2 border-[1px] p-2 border-gray-200 rounded-lg h-80'>
+                        {/* Quality responsible */}
+                        <div className='flex flex-col gap-2 w-1/2'>
+                          <div className='flex gap-2'>
+                            <h2 className='flex font-p_light text-sky-600'> le résponsable qualité :</h2>
+                          </div>
+                          <div className='border-t border-gray-300 py-1'></div>
+                          {existingResponsible !== '' ? (
+                            <div className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
+                              <img src={`http://${serverAddress}:8080/api/v1/images/${existingResponsible.imagePath}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
+                              <h2 className='font-p_black text-sm md:text-lg'>{existingResponsible.firstname} {existingResponsible.lastname}</h2>
+                            </div>
+                          ) : (
+                            <h1 className='font-p_extra_light'>Pas de Responsable Qualité pour le moment ..</h1>
+                          )}
+                        </div>
+                        <div className='border-r border-gray-300 py-1'></div>
+                        {/* Pilot */}
+                        <div className='flex-1 flex-col gap-2'>
+                          <div className=''>
+                            <h2 className='flex font-p_light text-sky-600'> liste des pilotes :</h2>
+                            <h2 className='flex text-sm font-p_black text-sky-600'> (vous pouvez chercher par nom)</h2>
+                          </div>
+                          {/* Search input */}
+                          <div className="flex items-center gap-1 border-[2px] border-gray-200 w-full h-10 rounded-lg mt-2">
+                            <input
+                              onChange={(event) => setSearchTerm(event.target.value)}
+                              type="text" placeholder="Ex : Elbahraoui ..."
+                              className="w-full h-full pl-3 text-sm border-none rounded-lg focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500" />
+                            <MdPersonSearch className='w-6 h-6 mr-1 text-sky-500' />
+                          </div>
+                          <div className='border-t border-gray-300 mt-2 py-1'></div>
+                          {/* Scrollable container for the pilot list */}
+                          <div className='overflow-y-auto flex flex-col gap-2 h-36 md:h-52'>
+                            {pilotesIds.length > 0 && searchTerm === '' ? (
+                              pilotesIds.map((item, index) =>
+                                <div key={index} className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
+                                  <img src={`http://${serverAddress}:8080/api/v1/images/${pilotesPictures[index]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
+                                  <h2 className='font-p_black text-lg'>{pilotesFirstNames[index]} {pilotesLastNames[index]}</h2>
+                                </div>
+                              )) : searchTerm !== '' ? (
+                                filteredOptions.map((lastname, index) => (
+                                  <div key={index} className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
+                                    {/*i may need to take a deeper look at this because A danger might happen if two users have the same name*/}
+                                    <img src={`http://${serverAddress}:8080/api/v1/images/${pilotesPictures[pilotesLastNames.indexOf(lastname)]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
+                                    <h2 className='font-p_black text-lg'>{pilotesFirstNames[pilotesLastNames.indexOf(lastname)]} {lastname}</h2>
+                                  </div>
+                                ))
+                              ) : (
+                              <h1 className='font-p_extra_light'>Pas de pilotes pour le moment ..</h1>
+                            )}
+                          </div>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                  }
+
+                </div>
+
               </div>
             </div>
           </div>
@@ -94,7 +213,7 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, diagnosisI
             <Button onClick={() => setOpenModal(false)} color="gray" className='w-full font-p_medium transition-all duration-300 hover:translate-y-1'>Terminer et fermer</Button>
           </div>
         </Modal.Footer>
-      </Modal>
+      </Modal >
     </>
   )
 }
