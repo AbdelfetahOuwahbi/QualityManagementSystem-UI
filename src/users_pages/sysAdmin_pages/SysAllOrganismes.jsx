@@ -1,13 +1,13 @@
-import React, {useEffect, useState} from "react";
-import {MdOutlineDomainAdd} from "react-icons/md";
-import {HiOutlineExclamationCircle} from "react-icons/hi";
-import {Button, FloatingLabel, Modal} from "flowbite-react";
-import {FaBars} from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import { MdOutlineDomainAdd } from "react-icons/md";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { Button, FloatingLabel, Modal } from "flowbite-react";
+import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import SysAddOrganism from "./SysAddOrganism";
-import {getAllEntreprises, isTokenExpired, isTokenInCookies} from "../CommonApiCalls";
+import { getAllEntreprises, isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
-import toast, {Toaster} from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 import SysMainPage from "./SysMainPage";
 import { serverAddress } from "../../ServerAddress";
 
@@ -17,7 +17,7 @@ export default function SysAllOrganismes() {
     const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
 
     const [addOrganismVisible, setAddOrganismVisible] = useState(false);
-    const [confirmDelete, setConfirmDelete] = useState({organismId: null, value: false});
+    const [confirmDelete, setConfirmDelete] = useState({ organismId: null, value: false });
 
 
     const [id, setId] = useState([]);
@@ -110,7 +110,7 @@ export default function SysAllOrganismes() {
         setPatente([])
         setCnss([])
         try {
-            const data = await getAllEntreprises("organism");
+            const data = await getAllEntreprises(null, "organism");
             if (data.length > 0) {
                 toast((t) => (
                     <span>
@@ -173,55 +173,55 @@ export default function SysAllOrganismes() {
         switch (selectedField) {
             case 'category':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher categorie"
-                              onChange={(e) => setSearchCategory(e.target.value)} disabled={editingIndex !== -1}/>;
+                    placeholder="Rechercher categorie"
+                    onChange={(e) => setSearchCategory(e.target.value)} disabled={editingIndex !== -1} />;
             case 'raisonSociale':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher raison sociale"
-                              onChange={(e) => setSearchRaisonSociale(e.target.value)} disabled={editingIndex !== -1}/>;
+                    placeholder="Rechercher raison sociale"
+                    onChange={(e) => setSearchRaisonSociale(e.target.value)} disabled={editingIndex !== -1} />;
             case 'secteur':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher secteur"
-                              onChange={(e) => setSearchSecteur(e.target.value)} disabled={editingIndex !== -1}/>;
+                    placeholder="Rechercher secteur"
+                    onChange={(e) => setSearchSecteur(e.target.value)} disabled={editingIndex !== -1} />;
             case 'pays':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher pays"
-                              onChange={(e) => setSearchPays(e.target.value)} disabled={editingIndex !== -1}/>;
+                    placeholder="Rechercher pays"
+                    onChange={(e) => setSearchPays(e.target.value)} disabled={editingIndex !== -1} />;
             case 'ville':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher ville"
-                              onChange={(e) => setSearchVille(e.target.value)} disabled={editingIndex !== -1}/>;
+                    placeholder="Rechercher ville"
+                    onChange={(e) => setSearchVille(e.target.value)} disabled={editingIndex !== -1} />;
             case 'email':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher email"
-                              onChange={(e) => setSearchEmail(e.target.value)} disabled={editingIndex !== -1}/>;
+                    placeholder="Rechercher email"
+                    onChange={(e) => setSearchEmail(e.target.value)} disabled={editingIndex !== -1} />;
             case 'phone':
                 return <input type="number"
-                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher téléphone"
-                              onChange={(e) => setSearchPhone(e.target.value)} disabled={editingIndex !== -1}/>;
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher téléphone"
+                    onChange={(e) => setSearchPhone(e.target.value)} disabled={editingIndex !== -1} />;
             case 'registreDeCommerce':
                 return <input type="number"
-                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher registre de commerce"
-                              onChange={(e) => setSearchRegistreDeCommerce(e.target.value)}
-                              disabled={editingIndex !== -1}/>;
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher registre de commerce"
+                    onChange={(e) => setSearchRegistreDeCommerce(e.target.value)}
+                    disabled={editingIndex !== -1} />;
             case 'identifiantFiscale':
                 return <input type="number"
-                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher identifiant fiscal"
-                              onChange={(e) => setSearchIdentifiantFiscale(e.target.value)}
-                              disabled={editingIndex !== -1}/>;
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher identifiant fiscal"
+                    onChange={(e) => setSearchIdentifiantFiscale(e.target.value)}
+                    disabled={editingIndex !== -1} />;
             case 'patente':
                 return <input type="number"
-                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher patente"
-                              onChange={(e) => setSearchPatente(e.target.value)} disabled={editingIndex !== -1}/>;
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher patente"
+                    onChange={(e) => setSearchPatente(e.target.value)} disabled={editingIndex !== -1} />;
             case 'cnss':
                 return <input type="number"
-                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher cnss"
-                              onChange={(e) => setSearchCnss(e.target.value)} disabled={editingIndex !== -1}/>;
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher cnss"
+                    onChange={(e) => setSearchCnss(e.target.value)} disabled={editingIndex !== -1} />;
             default:
                 return null;
         }
@@ -335,17 +335,17 @@ export default function SysAllOrganismes() {
             <div className="flex p-4 w-full justify-between">
                 {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
-                        className='w-6 h-6 cursor-pointer text-neutral-600'/>
+                    className='w-6 h-6 cursor-pointer text-neutral-600' />
             </div>
 
             <div className='border-t border-gray-300 py-4'></div>
             <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
                 <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
                     <MdOutlineDomainAdd onClick={editingIndex === -1 ? () => setAddOrganismVisible(true) : null}
-                                        className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`}/>
+                        className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
                     <button onClick={exportToExcel}
-                            disabled={editingIndex !== -1}
-                            className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 ${editingIndex !== -1 ? 'hover:bg-neutral-500 cursor-not-allowed' : 'hover:bg-neutral-500'}`}>
+                        disabled={editingIndex !== -1}
+                        className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 ${editingIndex !== -1 ? 'hover:bg-neutral-500 cursor-not-allowed' : 'hover:bg-neutral-500'}`}>
                         Exporter (Format Excel)
                     </button>
                 </div>
@@ -374,213 +374,213 @@ export default function SysAllOrganismes() {
 
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
                 <table id="organismTable"
-                       className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                    className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead
                         className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
 
 
-                    <tr>
-                        <th scope="col" className="px-6 py-3">
-                            Catégorie
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Raison Sociale
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Sécteur
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Pays
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Ville
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Email
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Téléphone
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Registre de commerce
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Identifiant fiscale
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Patente
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Cnss
-                        </th>
-                        <th scope="col" className="px-6 py-3">
-                            Actions
-                        </th>
-                    </tr>
+                        <tr>
+                            <th scope="col" className="px-6 py-3">
+                                Catégorie
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Raison Sociale
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Sécteur
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Pays
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Ville
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Email
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Téléphone
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Registre de commerce
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Identifiant fiscale
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Patente
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Cnss
+                            </th>
+                            <th scope="col" className="px-6 py-3">
+                                Actions
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
-                    {category.map((cat, index) => {
-                        if ((!searchCategory || category[index].toLowerCase().includes(searchCategory.toLowerCase())) &&
-                            (!searchRaisonSociale || raisonSociale[index].toLowerCase().includes(searchRaisonSociale.toLowerCase())) &&
-                            (!searchSecteur || secteur[index].toLowerCase().includes(searchSecteur.toLowerCase())) &&
-                            (!searchPays || pays[index].toLowerCase().includes(searchPays.toLowerCase())) &&
-                            (!searchVille || ville[index].toLowerCase().includes(searchVille.toLowerCase())) &&
-                            (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
-                            (!searchPhone || phone[index].includes(searchPhone)) &&
-                            (!searchRegistreDeCommerce || registreDeCommerce[index].toString().includes(searchRegistreDeCommerce)) &&
-                            (!searchIdentifiantFiscale || identifiantFiscale[index].toString().includes(searchIdentifiantFiscale)) &&
-                            (!searchPatente || patente[index].toString().includes(searchPatente)) &&
-                            (!searchCnss || cnss[index].toString().includes(searchCnss))) {
-                            const isEditing = editingIndex === index;
-                            const disableEdit = editingIndex !== -1 && !isEditing; // Désactiver si une autre ligne est en cours de modification
-                            return (
-                                <tr key={index} className="border-b">
-                                    {isEditing ? (
-                                        // Champs de saisie pour la modification
-                                        <>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    className="w-auto"
-                                                    onChange={(e) => setCategory(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.category}
-                                                    value={category[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    className="w-auto"
-                                                    onChange={(e) => setRaisonSociale(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.raisonSociale}
-                                                    value={raisonSociale[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    className="w-auto"
-                                                    onChange={(e) => setSecteur(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.secteur}
-                                                    value={secteur[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    className="w-auto"
-                                                    onChange={(e) => setPays(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.pays}
-                                                    value={pays[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    className="w-auto"
-                                                    onChange={(e) => setVille(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.ville}
-                                                    value={ville[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    className="w-auto"
-                                                    onChange={(e) => setEmail(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.email}
-                                                    value={email[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    type="number"
-                                                    className="w-auto"
-                                                    onChange={(e) => setPhone(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.phone}
-                                                    value={phone[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    type="number"
-                                                    className="w-auto"
-                                                    onChange={(e) => setRegistreDeCommerce(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.registreDeCommerce}
-                                                    value={registreDeCommerce[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    type="number"
-                                                    className="w-auto"
-                                                    onChange={(e) => setIdentifiantFiscale(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.identifiantFiscale}
-                                                    value={identifiantFiscale[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    type="number"
-                                                    className="w-auto"
-                                                    onChange={(e) => setPatente(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.patente}
-                                                    value={patente[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <FloatingLabel
-                                                    type="number"
-                                                    className="w-auto"
-                                                    onChange={(e) => setCnss(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
-                                                    variant="outlined" label={originalData.cnss}
-                                                    value={cnss[index]}/>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex gap-4">
-                                                    <button onClick={() => updateOrganism(index)}
+                        {category.map((cat, index) => {
+                            if ((!searchCategory || category[index].toLowerCase().includes(searchCategory.toLowerCase())) &&
+                                (!searchRaisonSociale || raisonSociale[index].toLowerCase().includes(searchRaisonSociale.toLowerCase())) &&
+                                (!searchSecteur || secteur[index].toLowerCase().includes(searchSecteur.toLowerCase())) &&
+                                (!searchPays || pays[index].toLowerCase().includes(searchPays.toLowerCase())) &&
+                                (!searchVille || ville[index].toLowerCase().includes(searchVille.toLowerCase())) &&
+                                (!searchEmail || email[index].toLowerCase().includes(searchEmail.toLowerCase())) &&
+                                (!searchPhone || phone[index].includes(searchPhone)) &&
+                                (!searchRegistreDeCommerce || registreDeCommerce[index].toString().includes(searchRegistreDeCommerce)) &&
+                                (!searchIdentifiantFiscale || identifiantFiscale[index].toString().includes(searchIdentifiantFiscale)) &&
+                                (!searchPatente || patente[index].toString().includes(searchPatente)) &&
+                                (!searchCnss || cnss[index].toString().includes(searchCnss))) {
+                                const isEditing = editingIndex === index;
+                                const disableEdit = editingIndex !== -1 && !isEditing; // Désactiver si une autre ligne est en cours de modification
+                                return (
+                                    <tr key={index} className="border-b">
+                                        {isEditing ? (
+                                            // Champs de saisie pour la modification
+                                            <>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        className="w-auto"
+                                                        onChange={(e) => setCategory(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.category}
+                                                        value={category[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        className="w-auto"
+                                                        onChange={(e) => setRaisonSociale(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.raisonSociale}
+                                                        value={raisonSociale[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        className="w-auto"
+                                                        onChange={(e) => setSecteur(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.secteur}
+                                                        value={secteur[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        className="w-auto"
+                                                        onChange={(e) => setPays(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.pays}
+                                                        value={pays[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        className="w-auto"
+                                                        onChange={(e) => setVille(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.ville}
+                                                        value={ville[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        className="w-auto"
+                                                        onChange={(e) => setEmail(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.email}
+                                                        value={email[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        type="number"
+                                                        className="w-auto"
+                                                        onChange={(e) => setPhone(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.phone}
+                                                        value={phone[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        type="number"
+                                                        className="w-auto"
+                                                        onChange={(e) => setRegistreDeCommerce(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.registreDeCommerce}
+                                                        value={registreDeCommerce[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        type="number"
+                                                        className="w-auto"
+                                                        onChange={(e) => setIdentifiantFiscale(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.identifiantFiscale}
+                                                        value={identifiantFiscale[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        type="number"
+                                                        className="w-auto"
+                                                        onChange={(e) => setPatente(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.patente}
+                                                        value={patente[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <FloatingLabel
+                                                        type="number"
+                                                        className="w-auto"
+                                                        onChange={(e) => setCnss(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
+                                                        variant="outlined" label={originalData.cnss}
+                                                        value={cnss[index]} />
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex gap-4">
+                                                        <button onClick={() => updateOrganism(index)}
                                                             className="font-medium text-green-600 hover:underline">Enregistrer
-                                                    </button>
-                                                    <button onClick={handleCancelClick}
+                                                        </button>
+                                                        <button onClick={handleCancelClick}
                                                             className="font-medium text-red-600 hover:underline">Annuler
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </>
-                                    ) : (
-                                        // Affichage des données
-                                        <>
-                                            <td className="px-6 py-4">{cat}</td>
-                                            <td className="px-6 py-4">{raisonSociale[index]}</td>
-                                            <td className="px-6 py-4">{secteur[index]}</td>
-                                            <td className="px-6 py-4">{pays[index]}</td>
-                                            <td className="px-6 py-4">{ville[index]}</td>
-                                            <td className="px-6 py-4">{email[index]}</td>
-                                            <td className="px-6 py-4">{phone[index]}</td>
-                                            <td className="px-6 py-4">{registreDeCommerce[index]}</td>
-                                            <td className="px-6 py-4">{identifiantFiscale[index]}</td>
-                                            <td className="px-6 py-4">{patente[index]}</td>
-                                            <td className="px-6 py-4">{cnss[index]}</td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex gap-4">
-                                                    <button href="#" onClick={() => handleEditClick(index)}
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            // Affichage des données
+                                            <>
+                                                <td className="px-6 py-4">{cat}</td>
+                                                <td className="px-6 py-4">{raisonSociale[index]}</td>
+                                                <td className="px-6 py-4">{secteur[index]}</td>
+                                                <td className="px-6 py-4">{pays[index]}</td>
+                                                <td className="px-6 py-4">{ville[index]}</td>
+                                                <td className="px-6 py-4">{email[index]}</td>
+                                                <td className="px-6 py-4">{phone[index]}</td>
+                                                <td className="px-6 py-4">{registreDeCommerce[index]}</td>
+                                                <td className="px-6 py-4">{identifiantFiscale[index]}</td>
+                                                <td className="px-6 py-4">{patente[index]}</td>
+                                                <td className="px-6 py-4">{cnss[index]}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex gap-4">
+                                                        <button href="#" onClick={() => handleEditClick(index)}
                                                             disabled={disableEdit}
                                                             className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        Modifier
-                                                    </button>
-                                                    <a href="#"
-                                                       onClick={(e) => {
-                                                           e.preventDefault(); // Prévenir le comportement par défaut du lien
-                                                           if (!disableEdit) {
-                                                               setConfirmDelete({organismId: id[index], value: true});
-                                                           }
-                                                       }}
-                                                       className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
-                                                </div>
-                                            </td>
-                                        </>
-                                    )}
-                                </tr>
-                            );
-                        }
-                        return null;
-                    })}
+                                                            Modifier
+                                                        </button>
+                                                        <a href="#"
+                                                            onClick={(e) => {
+                                                                e.preventDefault(); // Prévenir le comportement par défaut du lien
+                                                                if (!disableEdit) {
+                                                                    setConfirmDelete({ organismId: id[index], value: true });
+                                                                }
+                                                            }}
+                                                            className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
+                                                    </div>
+                                                </td>
+                                            </>
+                                        )}
+                                    </tr>
+                                );
+                            }
+                            return null;
+                        })}
                     </tbody>
                 </table>
             </div>
-            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)}/>}
-            {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)}/>}
+            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
+            {addOrganismVisible && <SysAddOrganism onClose={() => setAddOrganismVisible(false)} />}
             <Modal show={confirmDelete.value} size="md"
-                   onClose={() => setConfirmDelete({organismId: null, value: false})} popup>
-                <Modal.Header/>
+                onClose={() => setConfirmDelete({ organismId: null, value: false })} popup>
+                <Modal.Header />
                 <Modal.Body>
                     <div className="text-center">
                         <HiOutlineExclamationCircle
-                            className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200"/>
+                            className="mx-auto mb-4 h-14 w-14 text-gray-400 dark:text-gray-200" />
                         <h3 className="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
                             Êtes-vous sûr que vous voulez supprimer cet organism ?
                         </h3>
@@ -591,7 +591,7 @@ export default function SysAllOrganismes() {
                             }}>
                                 {"Oui, je suis sur"}
                             </Button>
-                            <Button color="gray" onClick={() => setConfirmDelete({organismId: null, value: null})}>
+                            <Button color="gray" onClick={() => setConfirmDelete({ organismId: null, value: null })}>
                                 Non, Annuler
                             </Button>
                         </div>

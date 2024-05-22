@@ -89,9 +89,9 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
         } else {
             if (consultantDetails.organism === '') {
                 toast.error('Vous devez affecter un organisme a ce consultant !!');
-            }else if (consultantDetails.first_name === ''){
+            } else if (consultantDetails.first_name === '') {
                 toast.error('Vous devez entrer le nom du consultant !!');
-            }else if (consultantDetails.last_name === ''){
+            } else if (consultantDetails.last_name === '') {
                 toast.error('Vous devez entrer le prénom du consultant !!');
             } else {
                 try {
@@ -109,7 +109,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             "phone": consultantDetails.phone,
                             "password": consultantDetails.password,
                             "type": "consultant",
-                            "level": consultantDetails.level,
+                            "level": consultantDetails.level || "responsable",
                             "roles": [
                                 {
                                     "name": "Consultant"
@@ -125,13 +125,13 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                         console.log("error message is --> ", data.message);
                         if (data.errorCode === "User_email_already_exists") {
                             toast.error("L'email que vous avez entrez est déjà utilisé, entrer un autre!!");
-                        }else if (data.errorCode === "VALIDATION_ERROR"){
+                        } else if (data.errorCode === "VALIDATION_ERROR") {
                             const errorMessages = data.message.split(',');
                             errorMessages.forEach(message => {
                                 toast.error(message.trim());
                             });
                         }
-                            else {
+                        else {
                             toast.error('Une erreur s\'est produite lors du creation de ce consultant.');
                         }
                         throw new Error(`Failed to save consultant: ${response.status} ${response.statusText}`);
@@ -249,50 +249,53 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                                 ))}
                             </select>
                         </div>
-                        <div>
-                            <div className="mb-2 block">
-                                <Label htmlFor="consultantLevel" value="Niveau de consultant" />
+                        {!consultantDtls &&
+                            <div>
+
+                                <div className="mb-2 block">
+                                    <Label htmlFor="consultantLevel" value="Niveau de consultant" />
+                                </div>
+                                <div className="flex items-center mb-4">
+                                    <Radio
+                                        id="responsable"
+                                        name="level"
+                                        value="responsable"
+                                        checked={consultantDetails.level === "responsable"}
+                                        onChange={(e) => setConsultantDetails({
+                                            ...consultantDetails,
+                                            level: e.target.value
+                                        })}
+                                    />
+                                    <Label htmlFor="responsable" className="ml-2">Responsable</Label>
+                                </div>
+                                <div className="flex items-center mb-4">
+                                    <Radio
+                                        id="junior"
+                                        name="level"
+                                        value="junior"
+                                        checked={consultantDetails.level === "junior"}
+                                        onChange={(e) => setConsultantDetails({
+                                            ...consultantDetails,
+                                            level: e.target.value
+                                        })}
+                                    />
+                                    <Label htmlFor="junior" className="ml-2">Junior</Label>
+                                </div>
+                                <div className="flex items-center mb-4">
+                                    <Radio
+                                        id="senior"
+                                        name="level"
+                                        value="senior"
+                                        checked={consultantDetails.level === "senior"}
+                                        onChange={(e) => setConsultantDetails({
+                                            ...consultantDetails,
+                                            level: e.target.value
+                                        })}
+                                    />
+                                    <Label htmlFor="senior" className="ml-2">Senior</Label>
+                                </div>
                             </div>
-                            <div className="flex items-center mb-4">
-                                <Radio
-                                    id="responsable"
-                                    name="level"
-                                    value="responsable"
-                                    checked={consultantDetails.level === "responsable"}
-                                    onChange={(e) => setConsultantDetails({
-                                        ...consultantDetails,
-                                        level: e.target.value
-                                    })}
-                                />
-                                <Label htmlFor="responsable" className="ml-2">Responsable</Label>
-                            </div>
-                            <div className="flex items-center mb-4">
-                                <Radio
-                                    id="junior"
-                                    name="level"
-                                    value="junior"
-                                    checked={consultantDetails.level === "junior"}
-                                    onChange={(e) => setConsultantDetails({
-                                        ...consultantDetails,
-                                        level: e.target.value
-                                    })}
-                                />
-                                <Label htmlFor="junior" className="ml-2">Junior</Label>
-                            </div>
-                            <div className="flex items-center mb-4">
-                                <Radio
-                                    id="senior"
-                                    name="level"
-                                    value="senior"
-                                    checked={consultantDetails.level === "senior"}
-                                    onChange={(e) => setConsultantDetails({
-                                        ...consultantDetails,
-                                        level: e.target.value
-                                    })}
-                                />
-                                <Label htmlFor="senior" className="ml-2">Senior</Label>
-                            </div>
-                        </div>
+                        }
                         <div>
 
                             <div className="mb-2 block">

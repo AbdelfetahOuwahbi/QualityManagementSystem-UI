@@ -115,33 +115,40 @@ export default function AllEntreprises() {
     setIdentifiantFiscale([])
     setPatente([])
     setCnss([])
-    try {
-      const data = await getAllEntreprises(userID, "ManagedEntreprises");
-      if (data.length > 0) {
-        toast((t) => (
-          <span>
-            la liste est a jours ...
-          </span>
-        ));
-        console.log("Entreprises -->", data);
-        for (let i = 0; i < data.length; i++) {
-          setId((prev) => [...prev, data[i].id]);
-          setCategory((prev) => [...prev, data[i].categorie]);
-          setVille((prev) => [...prev, data[i].ville]);
-          setPhone((prev) => [...prev, data[i].telephone]);
-          setSecteur((prev) => [...prev, data[i].secteur]);
-          setRaisonSociale((prev) => [...prev, data[i].raisonSocial]);
-          setRegistreDeCommerce((prev) => [...prev, data[i].registreDeCommerce]);
-          setPays((prev) => [...prev, data[i].pays]);
-          setPatente((prev) => [...prev, data[i].patente]);
-          setIdentifiantFiscale((prev) => [...prev, data[i].identifiantFiscal]);
-          setEmail((prev) => [...prev, data[i].email]);
-          setCnss((prev) => [...prev, data[i].cnss]);
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    } else {
+      try {
+        const data = await getAllEntreprises(userID, "ManagedEntreprises");
+        if (data.length > 0) {
+          toast((t) => (
+            <span>
+              la liste est a jours ...
+            </span>
+          ));
+          console.log("Entreprises -->", data);
+          for (let i = 0; i < data.length; i++) {
+            setId((prev) => [...prev, data[i].id]);
+            setCategory((prev) => [...prev, data[i].categorie]);
+            setVille((prev) => [...prev, data[i].ville]);
+            setPhone((prev) => [...prev, data[i].telephone]);
+            setSecteur((prev) => [...prev, data[i].secteur]);
+            setRaisonSociale((prev) => [...prev, data[i].raisonSocial]);
+            setRegistreDeCommerce((prev) => [...prev, data[i].registreDeCommerce]);
+            setPays((prev) => [...prev, data[i].pays]);
+            setPatente((prev) => [...prev, data[i].patente]);
+            setIdentifiantFiscale((prev) => [...prev, data[i].identifiantFiscal]);
+            setEmail((prev) => [...prev, data[i].email]);
+            setCnss((prev) => [...prev, data[i].cnss]);
+          }
         }
+      } catch (error) {
+        console.error(error); // Handle errors
+        toast.error('Une erreur s\'est produite lors du creation de cet organism.');
       }
-    } catch (error) {
-      console.error(error); // Handle errors
-      toast.error('Une erreur s\'est produite lors du creation de cet organism.');
     }
   }
 
@@ -164,13 +171,13 @@ export default function AllEntreprises() {
   }, [])
 
 
-    const fetchConsultantLevel = async () => {
-      if (!isTokenInCookies()) {
-        window.location.href = "/";
-      } else if (isTokenExpired()) {
-        Cookies.remove("JWT");
-        window.location.href = "/";
-      } else {
+  const fetchConsultantLevel = async () => {
+    if (!isTokenInCookies()) {
+      window.location.href = "/";
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/";
+    } else {
       try {
         const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/level?id=${userID}`, {
           method: 'GET',
@@ -190,7 +197,8 @@ export default function AllEntreprises() {
       } catch (error) {
         console.error('Error fetching consultant level:', error);
       }
-    }};
+    }
+  };
 
 
 
@@ -267,29 +275,36 @@ export default function AllEntreprises() {
 
   //Function that deletes the user
   async function deleteEntreprise(entrepriseId) {
-    console.log("organism to be deleted is -->", entrepriseId)
-    try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/consulantSMQ/entreprises/${entrepriseId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${Cookies.get("JWT")}`,
-          'Content-Type': 'application/json',
-        }
-      });
+    // console.log("organism to be deleted is -->", entrepriseId)
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    } else {
+      try {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/consulantSMQ/entreprises/${entrepriseId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${Cookies.get("JWT")}`,
+            'Content-Type': 'application/json',
+          }
+        });
 
-      if (response.ok) {
-        // getAllOrganimes();
-        console.log("entreprise deleted successfully ..");
-        toast.success("Cet entreprise est éliminé de l'application")
-        window.location.reload();
-      } else {
-        toast.error(response.statusText)
-        throw new Error(`Failed to delete entreprise: ${response.status} ${response.statusText}`);
+        if (response.ok) {
+          // getAllOrganimes();
+          console.log("entreprise deleted successfully ..");
+          toast.success("Cet entreprise est éliminé de l'application")
+          window.location.reload();
+        } else {
+          toast.error(response.statusText)
+          throw new Error(`Failed to delete entreprise: ${response.status} ${response.statusText}`);
+        }
+      } catch (error) {
+        console.error('Error deleting entreprise:', error);
+        // Handle error
+        throw error; // Optionally re-throw the error for the caller to handle
       }
-    } catch (error) {
-      console.error('Error deleting entreprise:', error);
-      // Handle error
-      throw error; // Optionally re-throw the error for the caller to handle
     }
   }
 
@@ -381,8 +396,8 @@ export default function AllEntreprises() {
       <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
         <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
           {consultantLevel === "responsable" &&
-          <MdOutlineDomainAdd onClick={editingIndex === -1 ? () => setAddEntrepriseVisible(true) : null}
-            className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`} />}
+            <MdOutlineDomainAdd onClick={editingIndex === -1 ? () => setAddEntrepriseVisible(true) : null}
+              className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`} />}
           <button onClick={exportToExcel}
             disabled={editingIndex !== -1}
             className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 ${editingIndex !== -1 ? 'hover:bg-neutral-500 cursor-not-allowed' : 'hover:bg-neutral-500'}`}>
@@ -454,9 +469,9 @@ export default function AllEntreprises() {
                 Cnss
               </th>
               {consultantLevel === "responsable" &&
-              <th scope="col" className="px-6 py-3">
-                Actions
-              </th>
+                <th scope="col" className="px-6 py-3">
+                  Actions
+                </th>
               }
             </tr>
           </thead>
@@ -588,23 +603,23 @@ export default function AllEntreprises() {
                         <td className="px-6 py-4">{patente[index]}</td>
                         <td className="px-6 py-4">{cnss[index]}</td>
                         {consultantLevel === "responsable" &&
-                        <td className="px-6 py-4">
-                          <div className="flex gap-4">
-                            <button href="#" onClick={() => handleEditClick(index)}
-                              disabled={disableEdit}
-                              className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                              Modifier
-                            </button>
-                            <a href="#"
-                              onClick={(e) => {
-                                e.preventDefault(); // Prévenir le comportement par défaut du lien
-                                if (!disableEdit) {
-                                  setConfirmDelete({ entrepriseId: id[index], value: true });
-                                }
-                              }}
-                              className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
-                          </div>
-                        </td>
+                          <td className="px-6 py-4">
+                            <div className="flex gap-4">
+                              <button href="#" onClick={() => handleEditClick(index)}
+                                disabled={disableEdit}
+                                className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                Modifier
+                              </button>
+                              <a href="#"
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prévenir le comportement par défaut du lien
+                                  if (!disableEdit) {
+                                    setConfirmDelete({ entrepriseId: id[index], value: true });
+                                  }
+                                }}
+                                className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
+                            </div>
+                          </td>
                         }
                       </>
                     )}
