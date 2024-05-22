@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
 import Contact from "./Contact";
 import { useNavigate } from "react-router-dom";
 import { serverAddress } from "../ServerAddress";
+import {isTokenExpired, isTokenInCookies} from "../users_pages/CommonApiCalls.jsx";
 
 export default function SignIn({ onClose }) {
 
@@ -15,6 +16,29 @@ export default function SignIn({ onClose }) {
 
     //Contact Modal visibility Controller
     const [contactVisible, setContactVisible] = useState(false);
+
+    const handlePasswordIsChanged = async () => {
+        if (!isTokenInCookies()) {
+            window.location.href = "/"
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/"
+        } else {
+            try {
+                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/matches`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    }
+                });
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
 
     const handleSignIn = async (email, password) => {
         if (email === '' || password === '') {
@@ -43,12 +67,16 @@ export default function SignIn({ onClose }) {
                         // Setting the JWT token, and User Roles in a cookie with an expiration time of 7 days
                         Cookies.set('JWT', data.token, { expires: 7 });
                         Cookies.set('userRoles', JSON.stringify(data.user.roles), { expires: 7 });
-                        //Checking the type of user and redirecting accordingly 
+                        //Checking the type of user and redirecting accordingly
                         console.log("user in SignIn -->", data.user)
+
+
+                        const shouldChangePassword = await handlePasswordIsChanged();
+
                         if (data.user.roles.some(role => role.name === "Sysadmin")) {
-                            navigate("/SysDashboard"); // Ensure 'state' is used to pass the user object
+                            navigate("/SysDashboard", { state: { shouldChangePassword } }); // Ensure 'state' is used to pass the user object
                         } else {
-                            navigate("/ClientDashboard");
+                            navigate("/ClientDashboard", { state: { shouldChangePassword } });
                         }
                         break;
                     case "Password must be at least 8 characters long":

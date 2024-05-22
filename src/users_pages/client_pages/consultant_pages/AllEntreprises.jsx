@@ -18,6 +18,7 @@ export default function AllEntreprises() {
 
   const decoded = jwtDecode(Cookies.get("JWT"));
   const userID = decoded.id;
+  const [consultantLevel, setConsultantLevel] = useState("");
 
   const [isClientMenuOpen, setIsClientMenuOpen] = useState(false);
 
@@ -157,8 +158,40 @@ export default function AllEntreprises() {
       } else {
         console.log("Already got all entreprises ...");
       }
+
+      fetchConsultantLevel();
     }
   }, [])
+
+
+    const fetchConsultantLevel = async () => {
+      if (!isTokenInCookies()) {
+        window.location.href = "/";
+      } else if (isTokenExpired()) {
+        Cookies.remove("JWT");
+        window.location.href = "/";
+      } else {
+      try {
+        const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/level?id=${userID}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${Cookies.get("JWT")}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch consultant level');
+        }
+
+        const data = await response.json();
+        setConsultantLevel(data);
+        console.log('Level:', data);
+      } catch (error) {
+        console.error('Error fetching consultant level:', error);
+      }
+    }};
+
 
 
   // Function to export table data as Excel
@@ -347,8 +380,9 @@ export default function AllEntreprises() {
       <div className='border-t border-gray-300 py-4'></div>
       <div className='flex flex-row justify-between gap-12 items-center w-full h-16 p-4'>
         <div className='flex flex-col md:flex-row gap-2 mb-10 md:mb-0 md:gap-12 md:items-center'>
+          {consultantLevel === "junior" &&
           <MdOutlineDomainAdd onClick={editingIndex === -1 ? () => setAddEntrepriseVisible(true) : null}
-            className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`} />
+            className={`ml-4 w-7 h-7 text-gray-700  ${editingIndex !== -1 ? 'cursor-not-allowed' : 'cursor-pointer'}`} />}
           <button onClick={exportToExcel}
             disabled={editingIndex !== -1}
             className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-full hover:translate-x-2 ${editingIndex !== -1 ? 'hover:bg-neutral-500 cursor-not-allowed' : 'hover:bg-neutral-500'}`}>
@@ -419,9 +453,11 @@ export default function AllEntreprises() {
               <th scope="col" className="px-6 py-3">
                 Cnss
               </th>
+              {consultantLevel === "junior" &&
               <th scope="col" className="px-6 py-3">
                 Actions
               </th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -551,6 +587,7 @@ export default function AllEntreprises() {
                         <td className="px-6 py-4">{identifiantFiscale[index]}</td>
                         <td className="px-6 py-4">{patente[index]}</td>
                         <td className="px-6 py-4">{cnss[index]}</td>
+                        {consultantLevel === "junior" &&
                         <td className="px-6 py-4">
                           <div className="flex gap-4">
                             <button href="#" onClick={() => handleEditClick(index)}
@@ -568,6 +605,7 @@ export default function AllEntreprises() {
                               className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
                           </div>
                         </td>
+                        }
                       </>
                     )}
                   </tr>
