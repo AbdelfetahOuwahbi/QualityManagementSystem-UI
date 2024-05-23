@@ -129,7 +129,7 @@ export default function AllEntreprises() {
               la liste est a jours ...
             </span>
           ));
-          console.log("Entreprises -->", data);
+          console.log("Consultant Managed Entreprises -->", data);
           for (let i = 0; i < data.length; i++) {
             setId((prev) => [...prev, data[i].id]);
             setCategory((prev) => [...prev, data[i].categorie]);
@@ -163,7 +163,7 @@ export default function AllEntreprises() {
       if (id.length === 0) {
         getAllConsultantManagedEntreprises();
       } else {
-        console.log("Already got all entreprises ...");
+        console.log("Already got all consultant managed entreprises ...");
       }
 
       fetchConsultantLevel();
@@ -428,7 +428,7 @@ export default function AllEntreprises() {
 
 
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-        <table id="organismTable"
+        <table id="entrepriseTable"
           className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
           <thead
             className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

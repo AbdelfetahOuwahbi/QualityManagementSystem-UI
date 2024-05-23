@@ -8,7 +8,6 @@ import { HiChartPie } from "react-icons/hi";
 import { FaUsersLine } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
-import profile from '../../assets/profile.jpg';
 import { jwtDecode } from "jwt-decode";
 // Method that counts all notifications
 import { countNotifications } from "../CommonApiCalls";
@@ -133,10 +132,14 @@ export default function SysMainPage({ onClose }) {
 
                 </Sidebar.Collapse>
 
-                <Sidebar.Collapse icon={GoOrganization} label="Orga. de Cerification">
+                <Sidebar.Collapse icon={GoOrganization} label="Organisations">
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/SysAllOrganismes">Liste des Organismes
+                  }} icon={CiBoxList} href="/SysAllOrganismes">Liste des Org de Certification
+                  </Sidebar.Item>
+
+                  <Sidebar.Item onClick={() => {
+                  }} icon={CiBoxList} href="/SysAllEntreprises">Liste des Entreprises Clientes
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
