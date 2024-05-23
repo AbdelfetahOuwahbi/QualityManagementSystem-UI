@@ -226,7 +226,7 @@ export default function SysAddNorm({ onClose, show }) {
 
                 toast.success("Norme, chapitres et critères ajoutés avec succès.");
                 resetForm();
-                onClose();
+                window.location.reload();
             } catch (error) {
                 console.error(error);
                 toast.error(error.message || "Une erreur s'est produite.");

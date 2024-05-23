@@ -109,7 +109,12 @@ export default function SysAllNorms() {
                     'Content-Type': 'application/json',
                 },
             });
-            const errorData = await response.json();
+            console.log("Response:", response);
+            //car pour le cas dont response est vide on peut pas extraire le body
+            let responseBody = null;
+            if (response.headers.get('content-length') !== '0') {
+                responseBody = await response.json();
+            }
             if (response.ok) {
                 toast.success(`${deleteType.charAt(0).toUpperCase() + deleteType.slice(1)} supprimé avec succès.`);
                 fetchAllNorms();
@@ -121,7 +126,7 @@ export default function SysAllNorms() {
                     setIsNormModalOpen(false);
                     setSelectedNorm(null);
                 }
-            }else if(errorData.errorCode == "Frame_already_exists"){
+            }else if(responseBody &&errorData.errorCode == "Frame_already_exists"){
                 toast.error(errorData.message);
             } else {
                 toast.error(`Erreur lors de la suppression du ${deleteType}.`);

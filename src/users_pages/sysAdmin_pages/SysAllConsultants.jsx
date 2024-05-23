@@ -28,6 +28,7 @@ export default function SysAllConsultants() {
     const [organismeName, setOrganismeName] = useState([]);
     const [organismeId, setOrganismeId] = useState([]);
     const [isAccountLocked, setIsAccountLocked] = useState([]);
+    const [level, setLevel] = useState([]);
     const [entreprises, setEntreprises] = useState([]); // Ajout de l'état pour les entreprises
 
     const [editingIndex, setEditingIndex] = useState(-1);
@@ -79,6 +80,7 @@ export default function SysAllConsultants() {
         setEmail([]);
         setPhone([]);
         setOrganismeName([]);
+        setLevel([]);
         setEntreprises([]); // Initialiser l'état des entreprises
         try {
             const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants`, {
@@ -104,6 +106,7 @@ export default function SysAllConsultants() {
                     setEmail((prev) => [...prev, data[i].email]);
                     setPhone((prev) => [...prev, data[i].phone]);
                     setIsAccountLocked((prev) => [...prev, !data[i].accountNonLocked]);
+                    setLevel((prev) => [...prev, data[i].level]);
                     setOrganismeId((prev) => [...prev, data[i].organismeDeCertification.id]);
                     setOrganismeName((prev) => [...prev, data[i].organismeDeCertification.raisonSocial]);
                     setEntreprises((prev) => [...prev, data[i].entreprises]); // Ajouter les entreprises à l'état
@@ -159,6 +162,7 @@ export default function SysAllConsultants() {
         const tableClone = document.getElementById("consultantsTable").cloneNode(true);
         const rows = tableClone.getElementsByTagName("tr");
         for (let i = 0; i < rows.length; i++) {
+            rows[i].lastChild.remove();
             rows[i].lastChild.remove();
             rows[i].lastChild.remove();
         }
@@ -523,8 +527,8 @@ export default function SysAllConsultants() {
                                     </tr>
                                     {isRowExpanded && (
                                         <tr>
-                                            <td colSpan="8">
-                                                <div className="p-4 bg-gray-100 dark:bg-gray-800">
+                                            <td colSpan="5">
+                                                <div className="p-2 bg-gray-100 dark:bg-gray-800">
                                                     <p>Entreprises:</p>
                                                     <ul>
                                                         {entreprises[index].map((entreprise, idx) => (
@@ -532,6 +536,14 @@ export default function SysAllConsultants() {
                                                                 <strong>{entreprise.raisonSocial}</strong> - {entreprise.ville}, {entreprise.pays} ({entreprise.email})
                                                             </li>
                                                         ))}
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                            <td colSpan="3">
+                                                <div className="p-2 bg-gray-100 dark:bg-gray-800">
+                                                    <p>Niveau:</p>
+                                                    <ul>
+                                                        {level[index]}
                                                     </ul>
                                                 </div>
                                             </td>
