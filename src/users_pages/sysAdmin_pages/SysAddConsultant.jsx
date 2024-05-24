@@ -27,7 +27,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             first_name: "",
             last_name: "",
             email: "",
-            password: "",
             phone: "",
             organism: "",
             level: "responsable",
@@ -71,12 +70,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
         }
     }, [])
 
-    function generateInitialPassword(email) {
-        // Encode the result in base64
-        const base64Result = btoa(email);
-        console.log("Generated Password:", base64Result);
-        return base64Result;
-    }
 
     //Function that saves the cosultant 
     async function saveConsultant(consultantDetails) {
@@ -107,7 +100,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             "lastname": consultantDetails.last_name,
                             "email": consultantDetails.email,
                             "phone": consultantDetails.phone,
-                            "password": consultantDetails.password,
                             "type": "consultant",
                             "level": consultantDetails.level || "responsable",
                             "roles": [
@@ -148,15 +140,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
         }
     }
 
-    useEffect(() => {
-        if (consultantDetails.email) {
-            const initialPassword = generateInitialPassword(consultantDetails.email);
-            setConsultantDetails(prevDetails => ({
-                ...prevDetails,
-                password: initialPassword
-            }));
-        }
-    }, [consultantDetails.email]);
 
     return (
         <>
@@ -296,20 +279,6 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                                 </div>
                             </div>
                         }
-                        <div>
-
-                            <div className="mb-2 block">
-                                <Label htmlFor="password" value="Mot de passe initial" />
-                            </div>
-                            <TextInput
-                                id="password"
-                                type="text"
-                                value={consultantDetails.password}
-                                readOnly
-                                required
-                            />
-
-                        </div>
                         <div className="w-full">
 
                             <Button onClick={() => saveConsultant(consultantDetails)}>Ajouter</Button>
