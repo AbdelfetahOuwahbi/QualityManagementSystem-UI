@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import toast, { Toaster } from "react-hot-toast";
@@ -16,6 +16,8 @@ export default function SignIn({ onClose }) {
 
     //Contact Modal visibility Controller
     const [contactVisible, setContactVisible] = useState(false);
+    // Récupérer l'image de profil de l'utilisateur depuis le localStorage
+    let organismImage = localStorage.getItem('organismImage');
 
     const handlePasswordIsChanged = async () => {
         if (!isTokenInCookies()) {
@@ -76,6 +78,9 @@ export default function SignIn({ onClose }) {
                         if (data.user.roles.some(role => role.name === "Sysadmin")) {
                             navigate("/SysDashboard", { state: { shouldChangePassword } }); // Ensure 'state' is used to pass the user object
                         } else {
+                            if (data.user.roles.some(role => role.name === "Consultant")) {
+                                localStorage.setItem('organismImage', data.user.organismeDeCertification.imagePath);
+                            }
                             navigate("/ClientDashboard", { state: { shouldChangePassword } });
                         }
                         break;
@@ -108,6 +113,17 @@ export default function SignIn({ onClose }) {
             <Modal className='mt-20 md:mt-0' show={contactVisible ? false : true} size="md" onClose={onClose} popup>
                 <Modal.Header />
                 <Modal.Body>
+                    {organismImage &&
+                    <div className='flex items-center justify-center mb-4 relative'>
+                        {/* Profile Image */}
+                        <label>
+                            <img
+                                src={(`http://${serverAddress}:8080/api/v1/images/organism/${organismImage}`)}
+                                alt="Image de l'organisation"
+                                className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
+                        </label>
+                    </div>}
+
                     <div className="space-y-6">
                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">S'authentifier</h3>
                         <div>
