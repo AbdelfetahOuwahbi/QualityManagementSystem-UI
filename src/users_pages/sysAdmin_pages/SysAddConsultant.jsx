@@ -5,7 +5,7 @@ import { Spinner } from "flowbite-react";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
-import { serverAddress } from "../../ServerAddress";
+import { appUrl } from "../../Url.jsx";
 
 export default function SysAddConsultant({ consultantDtls, onClose }) {
 
@@ -45,7 +45,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             if (organismId.length === 0) {
                 async function getAllOrganismes() {
                     try {
-                        const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
+                        const response = await fetch(`${appUrl}/organismes`, {
                             method: 'GET',
                             headers: {
                                 'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -89,7 +89,7 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
             } else {
                 try {
                     console.log("consultant details are -->", consultantDetails);
-                    const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signup`, {
+                    const response = await fetch(`${appUrl}/auth/signup`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

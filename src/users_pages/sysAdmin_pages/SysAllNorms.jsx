@@ -4,7 +4,7 @@ import { FaBars } from 'react-icons/fa';
 import SysMainPage from './SysMainPage';
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls.jsx";
 import Cookies from "js-cookie";
-import { serverAddress } from "../../ServerAddress.jsx";
+import { appUrl } from "../../Url.jsx";
 import { Button, FloatingLabel, Modal, Label, TextInput, Textarea } from "flowbite-react";
 import SysAddNorm from './SysAddNorm';
 
@@ -70,7 +70,7 @@ export default function SysAllNorms() {
             window.location.href = "/";
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/normes`, {
+                const response = await fetch(`${appUrl}/normes`, {
                     headers: {
                         'Authorization': `Bearer ${Cookies.get("JWT")}`,
                         'Content-Type': 'application/json',
@@ -94,11 +94,11 @@ export default function SysAllNorms() {
     const confirmDelete = async () => {
         let url;
         if (deleteType === 'critere') {
-            url = `http://${serverAddress}:8080/api/v1/criteres/${itemToDelete}`;
+            url = `${appUrl}/criteres/${itemToDelete}`;
         } else if (deleteType === 'chapitre') {
-            url = `http://${serverAddress}:8080/api/v1/chapitres/${itemToDelete}`;
+            url = `${appUrl}/chapitres/${itemToDelete}`;
         } else if (deleteType === 'norme') {
-            url = `http://${serverAddress}:8080/api/v1/normes/${itemToDelete}`;
+            url = `${appUrl}/normes/${itemToDelete}`;
         }
 
         try {
@@ -160,7 +160,7 @@ export default function SysAllNorms() {
     // Mettre à jour un critère existant
     const handleUpdate = async (chapitreId) => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${editingCritere.id}?chapitreId=${chapitreId}`, {
+            const response = await fetch(`${appUrl}/criteres/${editingCritere.id}?chapitreId=${chapitreId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -199,7 +199,7 @@ export default function SysAllNorms() {
         }
 
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${selectedChapter.id}`, {
+            const response = await fetch(`${appUrl}/criteres/${selectedChapter.id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -259,7 +259,7 @@ export default function SysAllNorms() {
     const handleUpdateChapter = async () => {
         // Ajoutez votre logique de mise à jour du chapitre ici
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${selectedChapter.id}?normeId=${selectedNormeId}`, {
+            const response = await fetch(`${appUrl}/chapitres/${selectedChapter.id}?normeId=${selectedNormeId}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -313,7 +313,7 @@ export default function SysAllNorms() {
         console.log("chapitreData", chapitreData);
 
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${selectedNorm.id}`, {
+            const response = await fetch(`${appUrl}/chapitres/${selectedNorm.id}`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -361,7 +361,7 @@ export default function SysAllNorms() {
     // Mettre à jour une norme existante
     const handleUpdateNorm = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/${selectedNorm.id}`, {
+            const response = await fetch(`${appUrl}/normes/${selectedNorm.id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,

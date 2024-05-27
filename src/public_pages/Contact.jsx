@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button, Checkbox, Label, Modal, TextInput, Textarea } from "flowbite-react";
 import { Toaster, toast } from "react-hot-toast";
-import { serverAddress } from "../ServerAddress";
+import { appUrl } from "../Url.jsx";
 
 export default function Contact({ onClose }) {
 
@@ -38,7 +38,7 @@ export default function Contact({ onClose }) {
     } else if (first_name !== "" && last_name !== "" && email !== "" && phone !== "" && organisation !== "") {
       try {
 
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/contact`, {
+        const response = await fetch(`${appUrl}/notification/contact`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

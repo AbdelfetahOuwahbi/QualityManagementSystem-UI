@@ -10,7 +10,7 @@ import {useLocation, useNavigate} from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
-import { serverAddress } from '../../ServerAddress';
+import { appUrl } from '../../Url.jsx';
 import { isTokenExpired, isTokenInCookies, countNotifications, changePassword, extractMainRole } from '../CommonApiCalls';
 import profile from '../../assets/consultant.jpg';
 import ClientMainPage from './ClientMainPage';
@@ -127,7 +127,7 @@ export default function ClientDashboard() {
 
     const getProfileImage = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/image-path?userId=${userID}`, {
+            const response = await fetch(`${appUrl}/users/image-path?userId=${userID}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -213,7 +213,7 @@ export default function ClientDashboard() {
                         transition={{ duration: 0.2, ease: "easeOut" }}
                         className='flex items-center pt-2 justify-between'>
                         <div onClick={() => navigate("/Profile")} className='flex items-center justify-around gap-4 cursor-pointer'>
-                            <img src={`http://${serverAddress}:8080/api/v1/images/${profileImage}`} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
+                            <img src={`${appUrl}/images/${profileImage}`} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
                             <h1 className='font-p_medium'> Votre profile </h1>
                         </div>
                         <div>

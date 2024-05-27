@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 //Server Address (to be changed in production)
-import { serverAddress } from "../ServerAddress";
+import { appUrl } from "../Url.jsx";
 import { toast } from "react-hot-toast";
 
 /////////////////////////////////////////// SECURITY ///////////////////////////////////////////////////////////////////////////////
@@ -77,7 +77,7 @@ export function doesHeHaveAccess(permission) {
 
 export async function changePassword(currentPassword, newPassword, confirmationPassword) {
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/changePassword`, {
+        const response = await fetch(`${appUrl}/auth/changePassword`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
@@ -99,7 +99,7 @@ export async function changePassword(currentPassword, newPassword, confirmationP
 
 export async function lockOrUnlockUser(userId) {
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/lock/${userId}`, {
+        const response = await fetch(`${appUrl}/auth/lock/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -137,7 +137,7 @@ export function handleLogout() {
 //counting all new notifications for a specific user
 export async function countNotifications(userId, token) {
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/countNewNotifications?receiverId=${userId}`, {
+        const response = await fetch(`${appUrl}/notification/countNewNotifications?receiverId=${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -161,7 +161,7 @@ export async function countNotifications(userId, token) {
 
 export async function getAllNotifications(userId, token) {
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/allNotifications?receiverId=${userId}`, {
+        const response = await fetch(`${appUrl}/notification/allNotifications?receiverId=${userId}`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -181,7 +181,7 @@ export async function getAllNotifications(userId, token) {
 export async function markNotificationAsRead(notificationId, token) {
     try {
 
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/notification/markAsRead/${notificationId}`, {
+        const response = await fetch(`${appUrl}/notification/markAsRead/${notificationId}`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -211,7 +211,7 @@ export async function saveEntreprise(consultantIfExists, type, Category, Pays, S
 
     console.log("Saving an ", type)
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/${type === "organism" ? "organismes" : `consulantSMQ/entreprises?consulantSMQId=${consultantIfExists}`}`, {
+        const response = await fetch(`${appUrl}/${type === "organism" ? "organismes" : `consulantSMQ/entreprises?consulantSMQId=${consultantIfExists}`}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -260,7 +260,7 @@ export async function saveEntreprise(consultantIfExists, type, Category, Pays, S
 export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Email, Patente, Cnss, Id_Fisc, RegCom, RaiSoc, id) {
 
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes/${id}`, {
+        const response = await fetch(`${appUrl}/organismes/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -294,7 +294,7 @@ export async function updateEntreprise(Category, Pays, Secteur, Ville, Phone, Em
 //Function that gets all entreprises
 export async function getAllEntreprises(consultantId, type) {
     try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/${type === "organism" ? "organismes" : type === "entreprises" ? "consulantSMQ/entreprises" : `consulantSMQ/entreprises/all-entreprises?consultantId=${consultantId}`}`, {
+        const response = await fetch(`${appUrl}/${type === "organism" ? "organismes" : type === "entreprises" ? "consulantSMQ/entreprises" : `consulantSMQ/entreprises/all-entreprises?consultantId=${consultantId}`}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

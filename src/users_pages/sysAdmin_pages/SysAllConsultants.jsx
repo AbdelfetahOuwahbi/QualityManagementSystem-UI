@@ -9,7 +9,7 @@ import Cookies from "js-cookie";
 import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../CommonApiCalls";
 import SysMainPage from "./SysMainPage";
 import SysAddConsultant from "./SysAddConsultant";
-import { serverAddress } from "../../ServerAddress";
+import { appUrl } from "../../Url.jsx";
 import { motion } from 'framer-motion';
 import AddToEntrepriseModal from "./AddToEntrepriseModal"
 
@@ -83,7 +83,7 @@ export default function SysAllConsultants() {
         setLevel([]);
         setEntreprises([]); // Initialiser l'état des entreprises
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants`, {
+            const response = await fetch(`${appUrl}/users/consultants`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ export default function SysAllConsultants() {
 
     const fetchOrganismes = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
+            const response = await fetch(`${appUrl}/organismes`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
                     'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export default function SysAllConsultants() {
         console.log("userId to be deleted is -->", userId)
         console.log(isTokenExpired())
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${userId}`, {
+            const response = await fetch(`${appUrl}/users/consultants/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -247,7 +247,7 @@ export default function SysAllConsultants() {
             window.location.href = "/";
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth?id=${id[index]}`, {
+                const response = await fetch(`${appUrl}/auth?id=${id[index]}`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -278,7 +278,7 @@ export default function SysAllConsultants() {
         } else {
             try {
                 console.log("Consultant details before performing the update -->", id[index]);
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${id[index]}?organismeId=${indexId}`, {
+                const response = await fetch(`${appUrl}/users/consultants/${id[index]}?organismeId=${indexId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',

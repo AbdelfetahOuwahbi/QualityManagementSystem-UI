@@ -5,7 +5,7 @@ import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import Contact from "./Contact";
 import { useNavigate } from "react-router-dom";
-import { serverAddress } from "../ServerAddress";
+import { appUrl } from "../Url.jsx";
 import {isTokenExpired, isTokenInCookies} from "../users_pages/CommonApiCalls.jsx";
 
 export default function SignIn({ onClose }) {
@@ -27,7 +27,7 @@ export default function SignIn({ onClose }) {
             window.location.href = "/"
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/matches`, {
+                const response = await fetch(`${appUrl}/auth/matches`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -47,7 +47,7 @@ export default function SignIn({ onClose }) {
             toast.error("Tous les champs sont obligatoires !!");
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signin`, {
+                const response = await fetch(`${appUrl}/auth/signin`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export default function SignIn({ onClose }) {
                         {/* Profile Image */}
                         <label>
                             <img
-                                src={(`http://${serverAddress}:8080/api/v1/images/organism/${organismImage}`)}
+                                src={(`${appUrl}/images/organism/${organismImage}`)}
                                 alt="Image de l'organisation"
                                 className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
                         </label>

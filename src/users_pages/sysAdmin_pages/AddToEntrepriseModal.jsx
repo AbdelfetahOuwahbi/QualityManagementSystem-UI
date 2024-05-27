@@ -3,7 +3,7 @@ import { Modal, Button } from "flowbite-react";
 import { FaPlus } from "react-icons/fa";
 import Cookies from "js-cookie";
 import toast, { Toaster } from "react-hot-toast";
-import { serverAddress } from "../../ServerAddress";
+import { appUrl } from "../../Url.jsx";
 import { jwtDecode } from "jwt-decode";
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls";
 
@@ -26,7 +26,7 @@ export default function AddToEntrepriseModal({ isVisible, onClose, consultantId 
                 window.location.href = "/";
             } else {
                 try {
-                    const response = await fetch(`http://${serverAddress}:8080/api/v1/consulantSMQ/entreprises/all-entreprises?consultantId=${userID}`, {
+                    const response = await fetch(`${appUrl}/consulantSMQ/entreprises/all-entreprises?consultantId=${userID}`, {
                         method: 'GET',
                         headers: {
                             'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -62,7 +62,7 @@ export default function AddToEntrepriseModal({ isVisible, onClose, consultantId 
             if (selectedEntreprise) {
                 try {
                     console.log(`Adding consultant ${consultantId} to entreprise ${selectedEntreprise}`);
-                    const response = await fetch(`http://${serverAddress}:8080/api/v1/consulantSMQ/entreprises/${selectedEntreprise}/add-consultant?consultantSMQId=${consultantId}`, {
+                    const response = await fetch(`${appUrl}/consulantSMQ/entreprises/${selectedEntreprise}/add-consultant?consultantSMQId=${consultantId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

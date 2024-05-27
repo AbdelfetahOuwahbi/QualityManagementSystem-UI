@@ -12,7 +12,7 @@ import Cookies from 'js-cookie';
 import { isTokenExpired, isTokenInCookies, extractMainRole } from './CommonApiCalls';
 import toast, { Toaster } from 'react-hot-toast';
 import profileImg from '../assets/profile.jpg';
-import { serverAddress } from '../ServerAddress';
+import { serverAddress } from '../Url.jsx';
 import SysMainPage from './sysAdmin_pages/SysMainPage';
 import ClientMainPage from './client_pages/ClientMainPage';
 
