@@ -1,11 +1,11 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Button, Checkbox, Label, Modal, TextInput } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import Contact from "./Contact";
 import { useNavigate } from "react-router-dom";
-import { serverAddress } from "../ServerAddress";
+import { appUrl } from "../Url.jsx";
 import {isTokenExpired, isTokenInCookies} from "../users_pages/CommonApiCalls.jsx";
 
 export default function SignIn({ onClose }) {
@@ -16,6 +16,8 @@ export default function SignIn({ onClose }) {
 
     //Contact Modal visibility Controller
     const [contactVisible, setContactVisible] = useState(false);
+    // Récupérer l'image de profil de l'utilisateur depuis le localStorage
+    let organismImage = localStorage.getItem('organismImage');
 
     const handlePasswordIsChanged = async () => {
         if (!isTokenInCookies()) {
@@ -25,7 +27,7 @@ export default function SignIn({ onClose }) {
             window.location.href = "/"
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/matches`, {
+                const response = await fetch(`${appUrl}/auth/matches`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -45,7 +47,7 @@ export default function SignIn({ onClose }) {
             toast.error("Tous les champs sont obligatoires !!");
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signin`, {
+                const response = await fetch(`${appUrl}/auth/signin`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -76,6 +78,9 @@ export default function SignIn({ onClose }) {
                         if (data.user.roles.some(role => role.name === "Sysadmin")) {
                             navigate("/SysDashboard", { state: { shouldChangePassword } }); // Ensure 'state' is used to pass the user object
                         } else {
+                            if (data.user.roles.some(role => role.name === "Consultant")) {
+                                localStorage.setItem('organismImage', data.user.organismeDeCertification.imagePath);
+                            }
                             navigate("/ClientDashboard", { state: { shouldChangePassword } });
                         }
                         break;
@@ -86,7 +91,10 @@ export default function SignIn({ onClose }) {
                         toast.error(`Le format d'email ${email} est invalid !!`);
                         break;
                     case "Authentication failed: Bad credentials":
-                        toast.error("L'utilisateur n'existe pas !!");
+                        toast.error("L'email/mot de passe que vous avez entré est incorrect");
+                        break;
+                    case "Authentication failed: User account is locked":
+                        toast.error("Votre compte est verrouillé");
                         break;
                     default:
                         toast.error("Vérifiez votre connexion Internet et réessayez !!");
@@ -108,6 +116,17 @@ export default function SignIn({ onClose }) {
             <Modal className='mt-20 md:mt-0' show={contactVisible ? false : true} size="md" onClose={onClose} popup>
                 <Modal.Header />
                 <Modal.Body>
+                    {organismImage &&
+                    <div className='flex items-center justify-center mb-4 relative'>
+                        {/* Profile Image */}
+                        <label>
+                            <img
+                                src={(`${appUrl}/images/organism/${organismImage}`)}
+                                alt="Image de l'organisation"
+                                className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
+                        </label>
+                    </div>}
+
                     <div className="space-y-6">
                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">S'authentifier</h3>
                         <div>

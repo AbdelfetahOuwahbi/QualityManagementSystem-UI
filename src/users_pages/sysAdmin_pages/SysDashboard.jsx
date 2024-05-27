@@ -12,7 +12,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import {useLocation, useNavigate} from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { serverAddress } from '../../ServerAddress';
+import { appUrl } from '../../Url.jsx';
 import SysAddNorm from './SysAddNorm'; // Import the SysAddNorm component
 
 export default function SysDashboard() {
@@ -103,8 +103,8 @@ export default function SysDashboard() {
 
 
   useEffect(() => {
-    const urlConsultants = `http://${serverAddress}:8080/api/v1/users/consultants`;
-    const urlUsersCount = `http://${serverAddress}:8080/api/v1/users/count`;
+    const urlConsultants = `${appUrl}/users/consultants`;
+    const urlUsersCount = `${appUrl}/users/count`;
 
     fetch(urlConsultants, {
       method: 'GET',
@@ -191,7 +191,7 @@ export default function SysDashboard() {
 
   const getProfileImage = async () => {
     try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/image-path?userId=${userID}`, {
+      const response = await fetch(`${appUrl}/users/image-path?userId=${userID}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -304,7 +304,7 @@ export default function SysDashboard() {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className='flex items-center pt-2 justify-between'>
             <div onClick={() => navigate("/Profile")} className='flex items-center justify-around gap-4 cursor-pointer'>
-              <img src={`http://${serverAddress}:8080/api/v1/images/${profileImage}`} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
+              <img src={`${appUrl}/images/${profileImage}`} className='h-10 w-10 rounded-full object-cover' alt="Votre profile" />
               <h1 className='font-p_medium'> Votre profile </h1>
             </div>
             <div>

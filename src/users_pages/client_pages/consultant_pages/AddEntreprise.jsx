@@ -6,7 +6,6 @@ import { jwtDecode } from "jwt-decode";
 import { saveEntreprise, updateEntreprise } from "../../CommonApiCalls";
 import { isTokenExpired, isTokenInCookies } from "../../CommonApiCalls";
 import Cookies from "js-cookie";
-import { serverAddress } from "../../../ServerAddress";
 
 export default function AddEntreprise({ onClose }) {
 

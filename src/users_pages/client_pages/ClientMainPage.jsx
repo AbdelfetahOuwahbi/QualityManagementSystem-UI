@@ -10,7 +10,7 @@ import { HiChartPie } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
 import { doesHeHaveAccess, extractMainRole } from "../CommonApiCalls";
-import { serverAddress } from "../../ServerAddress";
+import { appUrl } from "../../Url.jsx";
 // Method that counts all notifications
 //From common Api Calls
 import { isTokenExpired, isTokenInCookies, handleLogout, countNotifications } from "../CommonApiCalls";
@@ -104,7 +104,7 @@ export default function ClientMainPage({ onClose }) {
 
   const getProfileImage = async () => {
     try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/users/image-path?userId=${userID}`, {
+      const response = await fetch(`${appUrl}/users/image-path?userId=${userID}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -132,7 +132,7 @@ export default function ClientMainPage({ onClose }) {
             setModalOpen(false);
           }}
             className='h-auto items-center justify-around flex flex-col cursor-pointer'>
-            <img src={`http://${serverAddress}:8080/api/v1/images/${profileImage}`} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
+            <img src={`${appUrl}/images/${profileImage}`} className='w-14 h-14 rounded-full object-cover transition duration-300 hover:scale-110' alt="profile image" />
             {/* username */}
             <div className='py-2'>
               <h1 className='font-p_regular' >{mainUserRole}</h1>

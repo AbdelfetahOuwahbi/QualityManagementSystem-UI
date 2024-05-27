@@ -3,7 +3,7 @@ import { Button, Label, TextInput, Textarea, Modal } from 'flowbite-react';
 import 'flowbite/dist/flowbite.css';
 import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls.jsx";
 import Cookies from "js-cookie";
-import { serverAddress } from "../../ServerAddress.jsx";
+import { appUrl } from "../../Url.jsx";
 import toast from "react-hot-toast";
 
 export default function SysAddNorm({ onClose, show }) {
@@ -149,7 +149,7 @@ export default function SysAddNorm({ onClose, show }) {
 
     const checkIfCodeExists = async (code) => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/existByCode?normCode=${code}`, {
+            const response = await fetch(`${appUrl}/normes/existByCode?normCode=${code}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -173,7 +173,7 @@ export default function SysAddNorm({ onClose, show }) {
         } else {
             try {
                 // Save Norme
-                let response = await fetch(`http://${serverAddress}:8080/api/v1/normes`, {
+                let response = await fetch(`${appUrl}/normes`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ export default function SysAddNorm({ onClose, show }) {
 
                 // Save Chapitres and Criteres
                 for (const chapitre of chapitres) {
-                    response = await fetch(`http://${serverAddress}:8080/api/v1/chapitres/${responseNorme.id}`, {
+                    response = await fetch(`${appUrl}/chapitres/${responseNorme.id}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -209,7 +209,7 @@ export default function SysAddNorm({ onClose, show }) {
                     }
 
                     for (const critere of chapitre.criteres) {
-                        response = await fetch(`http://${serverAddress}:8080/api/v1/criteres/${responseChapitre.id}`, {
+                        response = await fetch(`${appUrl}/criteres/${responseChapitre.id}`, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',

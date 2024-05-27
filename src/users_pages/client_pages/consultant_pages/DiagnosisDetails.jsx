@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowsDownToPeople } from "react-icons/fa6";
-import { serverAddress } from "../../../ServerAddress";
+import { appUrl } from "../../../Url.jsx";
 import CreateActionsPlan from "./CreateActionsPlan";
 
 export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenEntrepriseId, chosenNormeId, onClose }) {
@@ -93,7 +93,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
   // Function to fetch norm and its children
   const getNormAndChildren = async () => {
     try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/${chosenNormeId}`, {
+      const response = await fetch(`${appUrl}/normes/${chosenNormeId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -112,7 +112,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
 
   const getDiagnosisDetails = async () => {
     try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/details/diagnosis/${diagnosisId}`, {
+      const response = await fetch(`${appUrl}/details/diagnosis/${diagnosisId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -132,7 +132,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
     // console.log("in criteria Id ->", criteriaId);
     // console.log("and diagnosis id ->", diagnosisId);
     try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/details/updateSpecific?critereId=${criteriaId}&diagnosisId=${diagnosisId}`, {
+      const response = await fetch(`${appUrl}/details/updateSpecific?critereId=${criteriaId}&diagnosisId=${diagnosisId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
     // console.log("code of the diagnosis --> ",DiagnosisCode);
     // console.log("state to load --> ",Diagstate);
     try {
-      const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis/${diagnosisId}`, {
+      const response = await fetch(`${appUrl}/diagnosis/${diagnosisId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

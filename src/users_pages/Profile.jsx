@@ -12,7 +12,7 @@ import Cookies from 'js-cookie';
 import { isTokenExpired, isTokenInCookies, extractMainRole } from './CommonApiCalls';
 import toast, { Toaster } from 'react-hot-toast';
 import profileImg from '../assets/profile.jpg';
-import { serverAddress } from '../ServerAddress';
+import { serverAddress } from '../Url.jsx';
 import SysMainPage from './sysAdmin_pages/SysMainPage';
 import ClientMainPage from './client_pages/ClientMainPage';
 
@@ -48,7 +48,10 @@ export default function Profile() {
         phone: "",
         profileImage: null,
         organism: "",
+        organismImage: null,
+        organismName: "",
         entreprise: "",
+        level: "",
       } || {
 
       }
@@ -57,6 +60,7 @@ export default function Profile() {
   //I used this state to toogle the visibility of the camera icon
   const [isHovered, setIsHovered] = useState(false);
   const [uploadedImage, setUploadedImage] = useState(null);
+  const [uploadedOrganismEntreprisedImage, setUploadedOrganismEntreprisedImage] = useState(null);
 
   useEffect(() => {
     const GetMyData = async () => {
@@ -89,7 +93,7 @@ export default function Profile() {
         });
         // console.log("response at profile-->", response)
         const data = await response.json();
-        console.log("got user from database -->", data.id)
+        console.log("got user from database -->", data)
         setUserDetails(prev => ({ ...prev, id: data.id }));
         setUserDetails(prev => ({ ...prev, accountNonLocked: data.accountNonLocked }));
         setUserDetails(prev => ({ ...prev, createdDate: data.createdDate }));
@@ -101,7 +105,10 @@ export default function Profile() {
         setUserDetails(prev => ({ ...prev, profileImage: data.imagePath }));
         {
           mainUserRole === "Consultant" ? (
-              setUserDetails(prev => ({ ...prev, organism: data.organismeDeCertification.id }))
+              setUserDetails(prev => ({ ...prev, organism: data.organismeDeCertification.id })),
+                  setUserDetails(prevState => ({ ...prevState, organismName: data.organismeDeCertification.raisonSocial })),
+                  setUserDetails(prevState => ({ ...prevState, organismImage: data.organismeDeCertification.imagePath })),
+                  setUserDetails(prevState => ({ ...prevState, level: data.level }))
           ) : mainUserRole === "Admin" ? (
               setUserDetails(prev => ({ ...prev, entreprise: data.entreprise.id }))
           ) : mainUserRole === "Responsable" ? (
@@ -184,11 +191,47 @@ export default function Profile() {
       if (response.ok) {
         // the reader that will be filled with the image's buffer (data)
         const reader = new FileReader();
-        reader.onload = () => {
-          setUploadedImage(reader.result); // Set profileImg to the data URL of the uploaded image
-        };
+          reader.onload = () => {
+            setUploadedImage(reader.result); // Set profileImg to the data URL of the uploaded image
+          };
         reader.readAsDataURL(event.target.files[0]);
         toast.success("Votre photo de profil a été changée avec succés ..");
+        console.log('Image uploaded successfully');
+      } else {
+        const data = await response.json();
+        if (data.message === "File size exceeds the maximum limit of 5MB") {
+          console.error('File size exceeds the maximum limit of 5MB');
+          toast.error("La taille du fichier dépasse la limite maximale de 5 Mo !!");
+        } else if (data.message === "Only PNG and JPG image uploads are allowed") {
+          console.error('Only PNG and JPG image uploads are allowed');
+          toast.error("Seuls les téléversements d'images PNG, JPG et JPEG sont autorisés !!");
+        }
+        console.error('Failed to upload image, response is not ok !!');
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
+  const changeOrganismEntrepriseImage = async (event) => {
+
+    //Appending the image to the Form data
+    const formDataToo = new FormData();
+    formDataToo.append('image', event.target.files[0]);
+    console.log("image to be uploaded -->", event.target.files[0]);
+    try {
+      const response = await fetch(`http://localhost:8080/api/v1/public/upload/organismEntreprise/${userID}?organismeId=${userDetails.organism}`, {
+        method: 'POST',
+        body: formDataToo
+      });
+      const data = await response.text();
+      if (response.ok) {
+        // the reader that will be filled with the image's buffer (data)
+        const reader1 = new FileReader();
+          reader1.onload = () => {
+            setUploadedOrganismEntreprisedImage(reader1.result); // Set profileImg to the data URL of the uploaded image
+          };
+        reader1.readAsDataURL(event.target.files[0]);
+        toast.success("Votre photoa été changée avec succés ..");
         console.log('Image uploaded successfully');
       } else {
         const data = await response.json();
@@ -231,7 +274,7 @@ export default function Profile() {
                 />
                 <label htmlFor="fileInput">
                   <img
-                      src={uploadedImage === null ? (userDetails.profileImage === null ? (`http://${serverAddress}:8080/api/v1/images/user.png`) : (`http://${serverAddress}:8080/api/v1/images/${userDetails.profileImage}`)) : (uploadedImage)}
+                      src={uploadedImage === null ? (`http://${serverAddress}:8080/api/v1/images/${userDetails.profileImage}`) : (uploadedImage)}
                       onMouseEnter={() => setIsHovered(true)}
                       onMouseLeave={() => setIsHovered(false)}
                       alt="Votre profile"
@@ -247,8 +290,28 @@ export default function Profile() {
                   {userDetails.firstname}
                 </h1>
               </div>
-
-
+              <div className='flex items-center justify-start gap-4 relative'>
+                {/* Profile Image */}
+                {/* Organism Image */}
+                {userDetails.level === "responsable" && <input
+                    type="file"
+                    id="fileInputOrg"
+                    accept="image/*"
+                    className='hidden'
+                    onChange={changeOrganismEntrepriseImage}
+                />
+                }
+                <label htmlFor="fileInputOrg">
+                  <img
+                      src={uploadedOrganismEntreprisedImage === null ? (`http://${serverAddress}:8080/api/v1/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
+                      alt="Image de l'organisation"
+                      className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
+                </label>
+                {/* OrganismName */}
+                <h1 className="text-gray-800 dark:text-white lg:text-4xl md:text-3xl sm:text-3xl xs:text-xl font-serif">
+                  {userDetails.organismName}
+                </h1>
+              </div>
               <div className='flex flex-row items-center gap-1'>
                 {!startedEditing ? (
                     <motion.div
@@ -271,9 +334,7 @@ export default function Profile() {
                     </motion.div>
                 )}
               </div>
-
             </div>
-
             <div
                 className="flex flex-col gap-4 px-2 md:px-10 py-4 md:py-14">
               {/* <!-- Description --> */}

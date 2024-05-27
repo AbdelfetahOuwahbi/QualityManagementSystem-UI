@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { FaPlus, FaMinus } from "react-icons/fa"; // Import the icons
+import { FaPlus, FaBars, FaClipboard, FaAngleDown, FaAngleUp  } from "react-icons/fa";
 import { Button, FloatingLabel, Modal, ToggleSwitch } from "flowbite-react";
-import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
 import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../CommonApiCalls";
 import SysMainPage from "./SysMainPage";
 import SysAddConsultant from "./SysAddConsultant";
-import { serverAddress } from "../../ServerAddress";
+import { appUrl } from "../../Url.jsx";
+import { motion } from 'framer-motion';
+import AddToEntrepriseModal from "./AddToEntrepriseModal"
 
 export default function SysAllConsultants() {
-
     const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
-
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
     const [selectedField, setSelectedField] = useState('firstName');
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
-
     const [id, setId] = useState([]);
     const [firstName, setFirstName] = useState([]);
     const [lastName, setLastName] = useState([]);
@@ -29,21 +27,23 @@ export default function SysAllConsultants() {
     const [organismeId, setOrganismeId] = useState([]);
     const [isAccountLocked, setIsAccountLocked] = useState([]);
     const [level, setLevel] = useState([]);
-    const [entreprises, setEntreprises] = useState([]); // Ajout de l'état pour les entreprises
-
+    const [entreprises, setEntreprises] = useState([]);
     const [editingIndex, setEditingIndex] = useState(-1);
-
     const [searchFirstName, setSearchFirstName] = useState('');
     const [searchLastName, setSearchLastName] = useState('');
     const [searchEmail, setSearchEmail] = useState('');
     const [searchPhone, setSearchPhone] = useState('');
     const [searchOrganismeName, setSearchOrganismeName] = useState('');
-
     const [organismes, setOrganismes] = useState([]);
     const [idToSendOrganism, setIdToSendOrganism] = useState(0);
-
     const [originalData, setOriginalData] = useState({});
-    const [expandedRows, setExpandedRows] = useState([]); // State to track expanded rows
+    const [expandedRows, setExpandedRows] = useState([]);
+    const [temporaryPassword, setTemporaryPassword] = useState('');
+    const [showTemporaryPassword, setShowTemporaryPassword] = useState(false);
+    const [addToEntrepriseVisible, setAddToEntrepriseVisible] = useState(false);
+    const [selectedConsultantId, setSelectedConsultantId] = useState(null);
+
+
 
     const handleEditClick = (index) => {
         setOriginalData({
@@ -83,7 +83,7 @@ export default function SysAllConsultants() {
         setLevel([]);
         setEntreprises([]); // Initialiser l'état des entreprises
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants`, {
+            const response = await fetch(`${appUrl}/users/consultants`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,11 +94,6 @@ export default function SysAllConsultants() {
             const data = await response.json();
             console.log("Consultants -->", data);
             if (data.length > 0) {
-                toast((t) => (
-                    <span>
-                        la liste est a jours ...
-                    </span>
-                ));
                 for (let i = 0; i < data.length; i++) {
                     setId((prev) => [...prev, data[i].id]);
                     setFirstName((prev) => [...prev, data[i].firstname]);
@@ -143,7 +138,7 @@ export default function SysAllConsultants() {
 
     const fetchOrganismes = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/organismes`, {
+            const response = await fetch(`${appUrl}/organismes`, {
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
                     'Content-Type': 'application/json',
@@ -175,7 +170,7 @@ export default function SysAllConsultants() {
         console.log("userId to be deleted is -->", userId)
         console.log(isTokenExpired())
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${userId}`, {
+            const response = await fetch(`${appUrl}/users/consultants/${userId}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -186,9 +181,7 @@ export default function SysAllConsultants() {
             if (response.ok) {
                 getAllConsultant();
                 console.log("User deleted successfully ..");
-                toast.success("Ce consultant est éliminé de l'application")
-            } else {
-                throw new Error(`Failed to delete user: ${response.status} ${response.statusText}`);
+                toast.success("Ce consultant est éliminé de l'application");
             }
         } catch (error) {
             console.error('Error deleting user:', error);
@@ -201,27 +194,22 @@ export default function SysAllConsultants() {
             const data = await lockOrUnlockUser(userId);
             if (data.includes("Account")) {
                 if (data.includes("unlocked")) {
-                    toast.success(`Le compte du consultant ${first_name} a été debloqué .. `,
-                        {
-                            duration: 3000,
-                        }
-                    )
+                    toast.success(`Le compte du consultant ${first_name} a été débloqué`)
                 } else if (data.includes("locked")) {
-                    toast.success(`Le compte du consultant ${first_name} a été bloqué .. `,
-                        {
-                            duration: 3000,
-                        }
-                    )
+                    toast.success(`Le compte du consultant ${first_name} a été bloqué`)
                 }
             } else {
-                toast.error("une erreur est souvenu, ressayer plus tard !!")
+                toast.error("Une erreur est survenue, veuillez réessayer plus tard")
             }
             console.log('User locked/unlocked successfully ?', data);
         } catch (error) {
             console.error('Error locking/unlocking user:', error);
-            toast.error("une erreur est souvenu, ressayer plus tard !!")
+            toast.error("Une erreur est survenue, veuillez réessayer plus tard")
         }
     }
+
+
+
 
     const renderSearchInput = () => {
         switch (selectedField) {
@@ -251,8 +239,7 @@ export default function SysAllConsultants() {
         }
     };
 
-    const updateConsultant = async (indexId, index) => {
-        setEditingIndex(-1)
+    const generateInitialPassword = async (index) => {
         if (!isTokenInCookies()) {
             window.location.href = "/";
         } else if (isTokenExpired()) {
@@ -260,8 +247,38 @@ export default function SysAllConsultants() {
             window.location.href = "/";
         } else {
             try {
-                console.log("consultant details before performing the update -->", id[index])
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${id[index]}?organismeId=${indexId}`, {
+                const response = await fetch(`${appUrl}/auth?id=${id[index]}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    }
+                });
+                const responseBody = await response.text();
+                console.log("Response body -->", responseBody);
+
+                // Afficher temporairement le mot de passe dans un input
+                setTemporaryPassword(responseBody);
+                setShowTemporaryPassword(true);
+
+            } catch (error) {
+                console.error(error);
+                toast.error("Une erreur s'est produite!!")
+            }
+        }
+    };
+
+    const updateConsultant = async (indexId, index) => {
+        setEditingIndex(-1);
+        if (!isTokenInCookies()) {
+            window.location.href = "/";
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/";
+        } else {
+            try {
+                console.log("Consultant details before performing the update -->", id[index]);
+                const response = await fetch(`${appUrl}/users/consultants/${id[index]}?organismeId=${indexId}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -284,9 +301,9 @@ export default function SysAllConsultants() {
                     organismeName[index] !== originalData.organismeName;
                 if (response.status === 200 || response.status === 201) {
                     if (isDataChanged) {
-                        toast.success("Ce Consultant est modifié avec succès.");
+                        toast.success("Ce Consultant est modifié avec succès.")
                     } else {
-                        toast.error("Aucune modification n'a été effectuée.");
+                        toast.error("Aucune modification n'a été effectuée.")
                     }
                 } else if (responseBody.errorCode == "VALIDATION_ERROR") {
                     const errorMessages = responseBody.message.split(',');
@@ -294,13 +311,13 @@ export default function SysAllConsultants() {
                         toast.error(message.trim());
                     });
                 } else if (responseBody.errorCode == "User_email_already_exists") {
-                    toast.error("L'email que vous avez entrez est déjà utilisé!!");
+                    toast.error("L'email que vous avez entrez est déjà utilisé!!")
                 } else {
-                    toast.error("Une erreur s'est produite lors de la modification de ce consultant.");
+                    toast.error("Une erreur s'est produite lors de la modification de ce consultant.")
                 }
             } catch (error) {
                 console.error(error);
-                toast.error("Une erreur s'est produite lors de la modification de ce consultant.");
+                toast.error("Une erreur s'est produite lors de la modification de ce consultant.")
             }
         }
     };
@@ -336,7 +353,6 @@ export default function SysAllConsultants() {
 
                 </div>
                 <div className="flex flex-row gap-4">
-
                     <select
                         className="rounded-lg border-gray-300 shadow-sm focus:border-cyan-500 focus:ring-cyan-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:border-cyan-500 dark:focus:ring-cyan-500 block w-full sm:text-sm"
                         value={selectedField} onChange={(e) => handleFieldChange(e.target.value)}>
@@ -347,12 +363,9 @@ export default function SysAllConsultants() {
                         <option value="organisme">Organisme</option>
                     </select>
                     {renderSearchInput()}
-
                 </div>
             </div>
-
             <div className='border-t border-gray-300 py-4'></div>
-
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg px-4">
                 <table id="consultantsTable"
                        className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
@@ -450,7 +463,7 @@ export default function SysAllConsultants() {
                                                 <td>
                                                     <ToggleSwitch
                                                         checked={isAccountLocked[index]}
-                                                        label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Débloquer ce Compte"}
+                                                        label={isAccountLocked[index] === false ? "Bloquer ce Compte" : "Débloquer ce Compte"}
                                                         onChange={(newValue) => {
                                                             setIsAccountLocked(prevState => {
                                                                 const newState = [...prevState];
@@ -472,9 +485,10 @@ export default function SysAllConsultants() {
                                                         </button>
                                                     </div>
                                                 </td>
+
                                                 <td className="px-6 py-4">
                                                     <button onClick={() => toggleRowExpansion(index)}>
-                                                        {isRowExpanded ? <FaMinus /> : <FaPlus />}
+                                                        {isRowExpanded ? <FaAngleUp  /> : <FaAngleDown  />}
                                                     </button>
                                                 </td>
                                             </>
@@ -488,7 +502,7 @@ export default function SysAllConsultants() {
                                                 <td>
                                                     <ToggleSwitch
                                                         checked={isAccountLocked[index]}
-                                                        label={isAccountLocked[index] === false ? "bloquer ce Compte" : "Débloquer ce Compte"}
+                                                        label={isAccountLocked[index] === false ? "Bloquer ce Compte" : "Débloquer ce Compte"}
                                                         onChange={(newValue) => {
                                                             setIsAccountLocked(prevState => {
                                                                 const newState = [...prevState];
@@ -515,11 +529,27 @@ export default function SysAllConsultants() {
                                                                }
                                                            }}
                                                            className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
+                                                        <button onClick={() => generateInitialPassword(index)}
+                                                                disabled={disableEdit}
+                                                                className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                            Generer
+                                                        </button>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <button onClick={() => toggleRowExpansion(index)}>
-                                                        {isRowExpanded ? <FaMinus /> : <FaPlus />}
+                                                    <button onClick={() => {
+                                                        setAddToEntrepriseVisible(true);
+                                                        setSelectedConsultantId(id[index]);
+                                                    }}
+                                                            disabled={disableEdit}
+                                                            className={`${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        <FaPlus className="inline" />
+                                                    </button>
+
+                                                    <button onClick={() => toggleRowExpansion(index)}
+                                                            disabled={disableEdit}
+                                                            className={`${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                        {isRowExpanded ? <FaAngleUp  /> : <FaAngleDown  />}
                                                     </button>
                                                 </td>
                                             </>
@@ -527,24 +557,24 @@ export default function SysAllConsultants() {
                                     </tr>
                                     {isRowExpanded && (
                                         <tr>
-                                            <td colSpan="5">
-                                                <div className="p-2 bg-gray-100 dark:bg-gray-800">
-                                                    <p>Entreprises:</p>
-                                                    <ul>
-                                                        {entreprises[index].map((entreprise, idx) => (
-                                                            <li key={idx}>
-                                                                <strong>{entreprise.raisonSocial}</strong> - {entreprise.ville}, {entreprise.pays} ({entreprise.email})
-                                                            </li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                            <td colSpan="3">
-                                                <div className="p-2 bg-gray-100 dark:bg-gray-800">
-                                                    <p>Niveau:</p>
-                                                    <ul>
-                                                        {level[index]}
-                                                    </ul>
+                                            <td colSpan="8">
+                                                <div className="p-2 bg-gray-100 dark:bg-gray-800 flex justify-between">
+                                                    <div className="w-1/2">
+                                                        <p>Entreprises:</p>
+                                                        <ul>
+                                                            {entreprises[index].map((entreprise, idx) => (
+                                                                <li key={idx}>
+                                                                    <strong>{entreprise.raisonSocial}</strong> - {entreprise.ville}, {entreprise.pays} ({entreprise.email})
+                                                                </li>
+                                                            ))}
+                                                        </ul>
+                                                    </div>
+                                                    <div className="w-1/2">
+                                                        <p>Niveau:</p>
+                                                        <ul>
+                                                            {level[index]}
+                                                        </ul>
+                                                    </div>
                                                 </div>
                                             </td>
                                         </tr>
@@ -556,6 +586,40 @@ export default function SysAllConsultants() {
                     })}
                     </tbody>
                 </table>
+                {showTemporaryPassword && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        transition={{ duration: 0.5 }}
+                        className="fixed bottom-0 right-0 p-4 m-4 bg-white border border-gray-300 shadow-lg rounded flex items-center"
+                    >
+                        <input
+                            type="text"
+                            readOnly
+                            value={temporaryPassword}
+                            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none bg-gray-300"
+                        />
+                        <button
+                            className="ml-2"
+                            onClick={() => {
+                                navigator.clipboard.writeText(temporaryPassword);
+                                toast.success("Mot de passe copié dans le presse-papiers !")
+                                setShowTemporaryPassword(false);
+                                setTemporaryPassword("");
+                            }}
+                        >
+                            <motion.div
+                                whileHover={{ scale: 1.2, rotate: 10 }}
+                                whileTap={{ scale: 0.8, rotate: -10 }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                            >
+                                <FaClipboard className="w-5 h-5 text-gray-700 hover:text-gray-900" />
+                            </motion.div>
+                        </button>
+                    </motion.div>
+                )}
+
             </div>
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
             {addConsultantVisible && <SysAddConsultant onClose={() => setAddConsultantVisible(false)} />}
@@ -574,7 +638,7 @@ export default function SysAllConsultants() {
                                 deleteUser(confirmDelete.userId)
                                 setConfirmDelete({ userId: null, value: false })
                             }}>
-                                {"Oui, je suis sur"}
+                                {"Oui, je suis sûr"}
                             </Button>
                             <Button color="gray" onClick={() => setConfirmDelete({ userId: null, value: false })}>
                                 Non, Annuler
@@ -583,6 +647,11 @@ export default function SysAllConsultants() {
                     </div>
                 </Modal.Body>
             </Modal>
+            <AddToEntrepriseModal
+                isVisible={addToEntrepriseVisible}
+                onClose={() => setAddToEntrepriseVisible(false)}
+                consultantId={selectedConsultantId}
+            />
         </>
     );
 }

@@ -4,7 +4,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { MdPersonSearch } from "react-icons/md";
 import Cookies from 'js-cookie';
 import { isTokenExpired, isTokenInCookies } from '../../CommonApiCalls';
-import { serverAddress } from '../../../ServerAddress';
+import { appUrl } from '../../../Url.jsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDesc, entrepriseId, entreprise, onClose }) {
@@ -59,7 +59,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
       window.location.href = "/"
     } else {
       try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprise/responsableQualites/byEntreprise/${entrepriseId}`, {
+        const response = await fetch(`${appUrl}/users/entreprise/responsableQualites/byEntreprise/${entrepriseId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -86,7 +86,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
       window.location.href = "/"
     } else {
       try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/users/entreprises/pilots/byEntreprise/${entrepriseId}`, {
+        const response = await fetch(`${appUrl}/users/entreprises/pilots/byEntreprise/${entrepriseId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -197,7 +197,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
                                 setIsSelectionOpen(false);
                               }}
                               className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
-                              <img src={`http://${serverAddress}:8080/api/v1/images/${existingResponsible.imagePath}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
+                              <img src={`${appUrl}/images/${existingResponsible.imagePath}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
                               <h2 className='font-p_black text-sm md:text-lg'>{existingResponsible.firstname} {existingResponsible.lastname}</h2>
                             </div>
                           ) : (
@@ -230,7 +230,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
                                     setIsSelectionOpen(false);
                                   }}
                                   className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
-                                  <img src={`http://${serverAddress}:8080/api/v1/images/${pilotesPictures[index]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
+                                  <img src={`${appUrl}/images/${pilotesPictures[index]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
                                   <h2 className='font-p_black text-lg'>{pilotesFirstNames[index]} {pilotesLastNames[index]}</h2>
                                 </div>
                               )) : searchTerm !== '' ? (
@@ -242,7 +242,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
                                     }}
                                     className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
                                     {/*i may need to take a deeper look at this because A danger might happen if two users have the same name*/}
-                                    <img src={`http://${serverAddress}:8080/api/v1/images/${pilotesPictures[pilotesLastNames.indexOf(lastname)]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
+                                    <img src={`${appUrl}/images/${pilotesPictures[pilotesLastNames.indexOf(lastname)]}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
                                     <h2 className='font-p_black text-lg'>{pilotesFirstNames[pilotesLastNames.indexOf(lastname)]} {lastname}</h2>
                                   </div>
                                 ))

@@ -6,7 +6,7 @@ import { HiOutlineExclamationCircle } from 'react-icons/hi';
 import toast, { Toaster } from 'react-hot-toast';
 import ClientMainPage from '../ClientMainPage';
 import { DiagnosisModal } from './DiagnosisModal';
-import { serverAddress } from '../../../ServerAddress';
+import { appUrl } from '../../../Url.jsx';
 import { DiagnosisDetails } from './DiagnosisDetails';
 
 export default function AllDiagnosises() {
@@ -50,7 +50,7 @@ export default function AllDiagnosises() {
         setDiagnosisNormName([]);
         setIsDiagnosisDone([]);
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis`, {
+            const response = await fetch(`${appUrl}/diagnosis`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -89,7 +89,7 @@ export default function AllDiagnosises() {
             toast.error("vous devez choisir une date supérieur al la date d'aujourd'hui !!")
         } else {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis/${diagnosis}`, {
+                const response = await fetch(`${appUrl}/diagnosis/${diagnosis}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ export default function AllDiagnosises() {
     //Function that deletes a diagnosis
     const destroyDiagnosis = async (diagnosis) => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis/${diagnosis}`, {
+            const response = await fetch(`${appUrl}/diagnosis/${diagnosis}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`,

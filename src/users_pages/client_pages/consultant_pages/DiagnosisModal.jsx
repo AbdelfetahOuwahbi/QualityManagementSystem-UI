@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Datepicker, Modal } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
-import { serverAddress } from "../../../ServerAddress";
+import { appUrl } from "../../../Url.jsx";
 import toast from "react-hot-toast";
 
 export function DiagnosisModal({ onClose }) {
@@ -62,7 +62,7 @@ export function DiagnosisModal({ onClose }) {
     //Function that gets all the entreprises managed by the current Consultant 
     const getAllManagedEntreprises = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/consulantSMQ/entreprises/all-entreprises?consultantId=${userID}`, {
+            const response = await fetch(`${appUrl}/consulantSMQ/entreprises/all-entreprises?consultantId=${userID}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -82,7 +82,7 @@ export function DiagnosisModal({ onClose }) {
     //Function that gets all Existing Norms For this QMS_APP Organisation
     const getAllNorms = async () => {
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/normes`, {
+            const response = await fetch(`${appUrl}/normes`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${Cookies.get("JWT")}`
@@ -103,7 +103,7 @@ export function DiagnosisModal({ onClose }) {
     const saveDiagnosis = async () => {
         try {
             setIsLoading(true);
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/diagnosis?normeId=${chosenNormeId}&entrepriseId=${chosenEntrepriseId}&consultantSMQId=${userID}`, {
+            const response = await fetch(`${appUrl}/diagnosis?normeId=${chosenNormeId}&entrepriseId=${chosenEntrepriseId}&consultantSMQId=${userID}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -145,7 +145,7 @@ export function DiagnosisModal({ onClose }) {
         try {
             for (const chapitre of norm.chapitres) {
                 for (const critere of chapitre.criteres) {
-                    const response = await fetch(`http://${serverAddress}:8080/api/v1/details?diagnosisId=${diagnosis_id}&critereId=${critere.id}&consultantSMQId=${userID}`, {
+                    const response = await fetch(`${appUrl}/details?diagnosisId=${diagnosis_id}&critereId=${critere.id}&consultantSMQId=${userID}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -170,7 +170,7 @@ export function DiagnosisModal({ onClose }) {
         //Function that gets the specific Norm
         const getSpecificNorm = async () => {
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/normes/${chosenNormeId}`, {
+                const response = await fetch(`${appUrl}/normes/${chosenNormeId}`, {
                     method: 'GET',
                     headers: {
                         'Authorization': `Bearer ${Cookies.get("JWT")}`,
