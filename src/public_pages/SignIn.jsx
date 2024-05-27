@@ -91,7 +91,10 @@ export default function SignIn({ onClose }) {
                         toast.error(`Le format d'email ${email} est invalid !!`);
                         break;
                     case "Authentication failed: Bad credentials":
-                        toast.error("L'utilisateur n'existe pas !!");
+                        toast.error("L'email/mot de passe que vous avez entré est incorrect");
+                        break;
+                    case "Authentication failed: User account is locked":
+                        toast.error("Votre compte est verrouillé");
                         break;
                     default:
                         toast.error("Vérifiez votre connexion Internet et réessayez !!");

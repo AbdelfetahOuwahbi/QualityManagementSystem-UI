@@ -126,8 +126,8 @@ export default function SysAllNorms() {
                     setIsNormModalOpen(false);
                     setSelectedNorm(null);
                 }
-            }else if(responseBody &&errorData.errorCode == "Frame_already_exists"){
-                toast.error(errorData.message);
+            }else if(responseBody && responseBody.errorCode == "Frame_already_exists"){
+                toast.error(responseBody.message);
             } else {
                 toast.error(`Erreur lors de la suppression du ${deleteType}.`);
             }
