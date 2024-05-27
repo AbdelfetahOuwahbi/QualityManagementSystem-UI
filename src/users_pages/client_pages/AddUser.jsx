@@ -4,7 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import toast, {Toaster} from 'react-hot-toast';
 import { isTokenExpired, isTokenInCookies, getAllEntreprises } from '../CommonApiCalls';
-import { serverAddress } from '../../ServerAddress';
+import { appUrl } from '../../Url';
 
 export default function AddUser({ organismId, userType, onClose }) {
 
@@ -132,7 +132,7 @@ export default function AddUser({ organismId, userType, onClose }) {
       window.location.href = "/";
     } else {
       try {
-        const response = await fetch(`http://${serverAddress}:8080/api/v1/auth/signup`, {
+        const response = await fetch(`${appUrl}/auth/signup`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

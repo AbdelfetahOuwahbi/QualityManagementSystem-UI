@@ -11,7 +11,7 @@ import { jwtDecode } from "jwt-decode";
 import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../../CommonApiCalls";
 import ClientMainPage from "../ClientMainPage";
 import AddUser from "../AddUser";
-import { serverAddress } from "../../../ServerAddress";
+import { appUrl } from "../../../Url";
 
 export default function AllUsers() {
 
@@ -135,7 +135,7 @@ export default function AllUsers() {
                 break;
         }
         try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/${restOfThePath}`, {
+            const response = await fetch(`${appUrl}/${restOfThePath}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -224,7 +224,7 @@ export default function AllUsers() {
             }
 
             try {
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/${userId}`, {
+                const response = await fetch(`${appUrl}/users/consultants/${userId}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -298,7 +298,7 @@ export default function AllUsers() {
                         restOfThePath = `users/consultants/${id[index]}?organismeId=${indexId}`
                         break;
                 }
-                const response = await fetch(`http://${serverAddress}:8080/api/v1/${restOfThePath}`, {
+                const response = await fetch(`${appUrl}/${restOfThePath}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
@@ -583,7 +583,7 @@ export default function AllUsers() {
                                             ) : (
                                                 <>
                                                     <td className="px-6 py-4">
-                                                        <img src={`http://${serverAddress}:8080/api/v1/images/${image[index]}`}
+                                                        <img src={`${appUrl}/images/${image[index]}`}
                                                             className="h-8 w-8 rounded-full object-cover"
                                                             alt={name} />
                                                     </td>

@@ -46,7 +46,7 @@ export default function ClientMainPage({ onClose }) {
       if (mainUserRole === "Consultant") {
         async function getConsultantLevel() {
           try {
-            const response = await fetch(`http://${serverAddress}:8080/api/v1/users/consultants/level?id=${userID}`, {
+            const response = await fetch(`${appUrl}/users/consultants/level?id=${userID}`, {
               method: 'GET',
               headers: {
                 'Authorization': `Bearer ${Cookies.get("JWT")}`
