@@ -10,12 +10,13 @@ import SysNotifications from './users_pages/sysAdmin_pages/SysNotifications';
 import SysAllConsultants from './users_pages/sysAdmin_pages/SysAllConsultants';
 import SysAllOrganismes from './users_pages/sysAdmin_pages/SysAllOrganismes';
 import SysAllEntreprises from './users_pages/sysAdmin_pages/SysAllEntreprises.jsx';
+import SysAllNorms from "./users_pages/sysAdmin_pages/SysAllNorms.jsx";
 // Clients routes
 import ClientDashboard from './users_pages/client_pages/ClientDashboard';
 import ClientNotifications from './users_pages/client_pages/ClientNotifications';
 // Consultants routes
 import AllEntreprises from './users_pages/client_pages/consultant_pages/AllEntreprises';
-import SysAllNorms from "./users_pages/sysAdmin_pages/SysAllNorms.jsx";
+import AllUsers from './users_pages/client_pages/consultant_pages/AllUsers.jsx';
 import AllDiagnosises from './users_pages/client_pages/consultant_pages/AllDiagnosises';
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/ClientNotifications" element={<ClientNotifications />} />
         {/* Consultants Routes */}
         <Route path="/AllEntreprises" element={<AllEntreprises />} />
+        <Route path="/AllUsers" element={<AllUsers />} />
         <Route path="/AllDiagnosises" element={<AllDiagnosises />} />
       </Routes>
     </Router>

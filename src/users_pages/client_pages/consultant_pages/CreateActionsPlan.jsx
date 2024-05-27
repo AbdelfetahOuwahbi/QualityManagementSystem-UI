@@ -7,22 +7,31 @@ import { isTokenExpired, isTokenInCookies } from '../../CommonApiCalls';
 import { serverAddress } from '../../../ServerAddress';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function CreateActionsPlan({ criteriaId, criteriaDesc, entrepriseId, entreprise, onClose }) {
+export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDesc, entrepriseId, entreprise, onClose }) {
 
   const [openModal, setOpenModal] = useState(true);
 
   const [isSelectionOpen, setIsSelectionOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
+  //Stores the QualityResponsibleAgent's
   const [existingResponsible, setExistingResponsible] = useState('');
   const [pilotesIds, setPilotesIds] = useState([]);
   const [pilotesFirstNames, setPilotesFirstNames] = useState([]);
   const [pilotesLastNames, setPilotesLastNames] = useState([]);
   const [pilotesPictures, setPilotesPictures] = useState([]);
-  const [deadLine, setDeadLine] = useState(new Date());
 
-  //the chosen agent that will handle the task
-  const [chosenAgentId, setChosenAgentId] = useState('');
+  //the Action Details to be stored
+  const [actionDetails, setActionDetails] = useState(
+    {
+      deadLine: new Date(),
+      chosenAgent: '',
+      action: "",
+      ActOrigin: actionOrigin,
+      criteria: criteriaId,
+      entreprise: entrepriseId
+    }
+  );
 
   //Function that filters the searched Agent from the whole pilot table
   const filteredOptions = pilotesLastNames.filter(lastname =>
@@ -122,7 +131,7 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
 
   return (
     <>
-      <Modal show={openModal} size="xl" popup onClose={onClose}>
+      <Modal show={openModal} popup onClose={onClose}>
         <Modal.Header>
           <div className='flex flex-col gap-4 p-4 justify-center'>
             <h3 className="text-xl font-medium text-gray-900 dark:text-white"> Plan d'actions </h3>
@@ -140,7 +149,7 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
               <div className='flex mb-6 flex-row items-center gap-4'>
                 <h1 className='font-p_semi_bold'>DeadLine : </h1>
                 <Datepicker
-                  value={deadLine}
+                  value={actionDetails.deadLine}
                   language="FR-fr"
                   onSelectedDateChanged={(date) => setDeadLine(date)}
                   className='w-1/2'
@@ -192,7 +201,7 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
                               <h2 className='font-p_black text-sm md:text-lg'>{existingResponsible.firstname} {existingResponsible.lastname}</h2>
                             </div>
                           ) : (
-                            <h1 className='font-p_extra_light'>Pas de Responsable Qualité pour le moment ..</h1>
+                            <h1 className='font-p_extra_light'>Pas de Responsable Qualité pour cette entreprise ..</h1>
                           )}
                         </div>
                         <div className='border-r border-gray-300 py-1'></div>
@@ -238,7 +247,7 @@ export default function CreateActionsPlan({ criteriaId, criteriaDesc, entreprise
                                   </div>
                                 ))
                               ) : (
-                              <h1 className='font-p_extra_light'>Pas de pilotes pour le moment ..</h1>
+                              <h1 className='font-p_extra_light'>Pas de pilotes pour cette entreprise ..</h1>
                             )}
                           </div>
                         </div>
