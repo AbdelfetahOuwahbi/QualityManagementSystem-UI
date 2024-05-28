@@ -119,13 +119,17 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
         }
       });
       const data = await response.json();
-      // console.log("Got the Diagnosis Details -->", data);
+      console.log("Got the Diagnosis Details -->", data);
       setDiagnosisDetails(data);
+
     } catch (error) {
       console.log("error getting diagnosis Details -->", error);
     }
   }
 
+  useEffect(() => {
+    console.log("Diagnosis Details -->", diagnosisDetails);
+  }, [diagnosisDetails]);
   //Function that updates the Compliancy of a criteria
   const updateCriteriaCompliancy = async (criteriaId, Compliancy) => {
     // console.log("Updating To --> ", Compliancy);
@@ -366,7 +370,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
           </Button>
         </Modal.Footer>
       </Modal>
-      {actionsPlanVisible && <CreateActionsPlan actionOrigin="Diagnostic" criteriaDesc={criteriaDesc} entrepriseId={chosenEntrepriseId} entreprise={chosenEntreprise} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
+      {actionsPlanVisible && <CreateActionsPlan diagnosisId={diagnosisId} actionOrigin="Diagnostic" criteriaDesc={criteriaDesc} entrepriseId={chosenEntrepriseId} entreprise={chosenEntreprise} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
     </>
   );
 }
