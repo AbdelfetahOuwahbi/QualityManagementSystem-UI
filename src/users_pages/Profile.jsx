@@ -12,7 +12,7 @@ import Cookies from 'js-cookie';
 import { isTokenExpired, isTokenInCookies, extractMainRole } from './CommonApiCalls';
 import toast, { Toaster } from 'react-hot-toast';
 import profileImg from '../assets/profile.jpg';
-import { serverAddress } from '../Url.jsx';
+import { appUrl } from '../Url.jsx';
 import SysMainPage from './sysAdmin_pages/SysMainPage';
 import ClientMainPage from './client_pages/ClientMainPage';
 
@@ -67,19 +67,19 @@ export default function Profile() {
       let PropreEndP = "";
       switch (mainUserRole) {
         case "Sysadmin":
-          PropreEndP = `http://${serverAddress}:8080/api/v1/sysadmins/${userID}`;
+          PropreEndP = `${appUrl}/sysadmins/${userID}`;
           break;
         case "Consultant":
-          PropreEndP = `http://${serverAddress}:8080/api/v1/users/consultants/${userID}`;
+          PropreEndP = `${appUrl}/users/consultants/${userID}`;
           break;
         case "Admin":
-          PropreEndP = `http://${serverAddress}:8080/api/v1/users/entreprise/admins/${userID}`;
+          PropreEndP = `${appUrl}/users/entreprise/admins/${userID}`;
           break;
         case "Responsable":
-          PropreEndP = `http://${serverAddress}:8080/api/v1/users/entreprise/responsableQualites/${userID}`;
+          PropreEndP = `${appUrl}/users/entreprise/responsableQualites/${userID}`;
           break;
         case "Pilot":
-          PropreEndP = `http://${serverAddress}:8080/api/v1/users/entreprises/pilots/${userID}`;
+          PropreEndP = `${appUrl}/users/entreprises/pilots/${userID}`;
           break;
       }
       console.log(PropreEndP)
@@ -137,19 +137,19 @@ export default function Profile() {
         let PropreEndP = "";
         switch (mainUserRole) {
           case "Sysadmin":
-            PropreEndP = `http://${serverAddress}:8080/api/v1/sysadmins/${userDetails.id}`;
+            PropreEndP = `${appUrl}/sysadmins/${userDetails.id}`;
             break;
           case "Consultant":
-            PropreEndP = `http://${serverAddress}:8080/api/v1/users/consultants/${userDetails.id}?organismeId=${userDetails.organism}`;
+            PropreEndP = `${appUrl}/users/consultants/${userDetails.id}?organismeId=${userDetails.organism}`;
             break;
           case "Admin":
-            PropreEndP = `http://${serverAddress}:8080/api/v1/users/entreprise/admins/${userDetails.id}?entrepriseId=${userDetails.entreprise}`;
+            PropreEndP = `${appUrl}/users/entreprise/admins/${userDetails.id}?entrepriseId=${userDetails.entreprise}`;
             break;
           case "Responsable":
-            PropreEndP = `http://${serverAddress}:8080/api/v1/users/entreprise/responsableQualites/${userDetails.id}?entrepriseId=${userDetails.entreprise}`;
+            PropreEndP = `${appUrl}/users/entreprise/responsableQualites/${userDetails.id}?entrepriseId=${userDetails.entreprise}`;
             break;
           case "Pilot":
-            PropreEndP = `http://${serverAddress}:8080/api/v1/users/entreprises/pilots/${userDetails.id}?entrepriseId=${userDetails.entreprise}`;
+            PropreEndP = `${appUrl}/users/entreprises/pilots/${userDetails.id}?entrepriseId=${userDetails.entreprise}`;
             break;
         }
         const response = await fetch(PropreEndP, {
@@ -274,7 +274,7 @@ export default function Profile() {
                 />
                 <label htmlFor="fileInput">
                   <img
-                      src={uploadedImage === null ? (`http://${serverAddress}:8080/api/v1/images/${userDetails.profileImage}`) : (uploadedImage)}
+                      src={uploadedImage === null ? (`${appUrl}/images/${userDetails.profileImage}`) : (uploadedImage)}
                       onMouseEnter={() => setIsHovered(true)}
                       onMouseLeave={() => setIsHovered(false)}
                       alt="Votre profile"
@@ -303,7 +303,7 @@ export default function Profile() {
                 }
                 <label htmlFor="fileInputOrg">
                   <img
-                      src={uploadedOrganismEntreprisedImage === null ? (`http://${serverAddress}:8080/api/v1/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
+                      src={uploadedOrganismEntreprisedImage === null ? (`${appUrl}/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
                       alt="Image de l'organisation"
                       className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
                 </label>

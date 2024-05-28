@@ -59,7 +59,7 @@ export function DiagnosisModal({ onClose }) {
     }
 
 
-    //Function that gets all the entreprises managed by the current Consultant 
+    //Function that gets all the entreprises managed by the current Consultant
     const getAllManagedEntreprises = async () => {
         try {
             const response = await fetch(`${appUrl}/consulantSMQ/entreprises/all-entreprises?consultantId=${userID}`, {
