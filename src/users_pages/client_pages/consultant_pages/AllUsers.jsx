@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { FaPlus, FaMinus } from "react-icons/fa"; // Import the icons
+import {FaPlus, FaMinus, FaClipboard, FaAngleDown, FaAngleUp} from "react-icons/fa"; // Import the icons
 import { Button, FloatingLabel, Modal, ToggleSwitch } from "flowbite-react";
 import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
@@ -12,6 +12,8 @@ import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../../Common
 import ClientMainPage from "../ClientMainPage";
 import AddUser from "../AddUser";
 import { appUrl } from "../../../Url";
+import {motion} from "framer-motion";
+import AddToEntrepriseModal from "../../sysAdmin_pages/AddToEntrepriseModal.jsx";
 
 export default function AllUsers() {
 
@@ -50,6 +52,12 @@ export default function AllUsers() {
 
     const [originalData, setOriginalData] = useState({});
     const [expandedRows, setExpandedRows] = useState([]); // State to track expanded rows
+
+    const [temporaryPassword, setTemporaryPassword] = useState('');
+    const [showTemporaryPassword, setShowTemporaryPassword] = useState(false);
+
+    const [addToEntrepriseVisible, setAddToEntrepriseVisible] = useState(false);
+    const [selectedConsultantId, setSelectedConsultantId] = useState(null);
 
 
 
@@ -341,6 +349,34 @@ export default function AllUsers() {
         }
     };
 
+    const generateInitialPassword = async (index) => {
+        if (!isTokenInCookies()) {
+            window.location.href = "/";
+        } else if (isTokenExpired()) {
+            Cookies.remove("JWT");
+            window.location.href = "/";
+        } else {
+            try {
+                const response = await fetch(`${appUrl}/auth?id=${id[index]}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    }
+                });
+                const responseBody = await response.text();
+                console.log("Response body -->", responseBody);
+
+                // Afficher temporairement le mot de passe dans un input
+                setTemporaryPassword(responseBody);
+                setShowTemporaryPassword(true);
+
+            } catch (error) {
+                console.error(error);
+                toast.error("Une erreur s'est produite!!")
+            }
+        }
+    };
 
     const renderSearchInput = () => {
         switch (selectedField) {
@@ -490,11 +526,9 @@ export default function AllUsers() {
                             <th scope="col" className="px-6 py-3">
                                 Bloquer le Compte
                             </th>
-                            {requiredUsersType === "consultant" &&
-                                <th scope="col" className="px-6 py-3">
+                            <th scope="col" className="px-6 py-3">
                                     Actions
-                                </th>
-                            }
+                            </th>
                             {requiredUsersType === "consultant" &&
                                 <th scope="col" className="px-6 py-3">
                                     Détails
@@ -520,6 +554,8 @@ export default function AllUsers() {
                                         <tr className="border-b">
                                             {editingIndex === index ? (
                                                 <>
+                                                    <td className="px-6 py-4">
+                                                    </td>
                                                     <td className="px-6 py-4">
                                                         <FloatingLabel
                                                             onChange={(e) => setFirstName(prev => [...prev.slice(0, index), e.target.value, ...prev.slice(index + 1)])}
@@ -622,29 +658,50 @@ export default function AllUsers() {
                                                             }}
                                                         />
                                                     </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex gap-4">
+                                                            {requiredUsersType === "consultant" && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={() => handleEditClick(index)}
+                                                                        disabled={disableEdit}
+                                                                        className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                                    >
+                                                                        Modifier
+                                                                    </button>
+                                                                    <a
+                                                                        href="#"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault();
+                                                                            if (!disableEdit) {
+                                                                                setConfirmDelete({ userId: id[index], value: true });
+                                                                            }
+                                                                        }}
+                                                                        className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                                    >
+                                                                        Supprimer
+                                                                    </a>
+                                                                </>
+                                                            )}
+                                                            <button
+                                                                onClick={() => generateInitialPassword(index)}
+                                                                className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                            >
+                                                                Generer
+                                                            </button>
+                                                        </div>
+                                                    </td>
+
                                                     {requiredUsersType === "consultant" &&
                                                         <td className="px-6 py-4">
-                                                            <div className="flex gap-4">
-                                                                <button onClick={() => handleEditClick(index)}
-                                                                    disabled={disableEdit}
-                                                                    className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                                    Modifier
-                                                                </button>
-                                                                <a href="#"
-                                                                    onClick={(e) => {
-                                                                        e.preventDefault();
-                                                                        if (!disableEdit) {
-                                                                            setConfirmDelete({ userId: id[index], value: true });
-                                                                        }
-                                                                    }}
-                                                                    className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>Supprimer</a>
-                                                            </div>
-                                                        </td>
-                                                    }
-                                                    {requiredUsersType === "consultant" &&
-                                                        <td className="px-6 py-4">
+                                                            <button onClick={() => {
+                                                                setAddToEntrepriseVisible(true);
+                                                                setSelectedConsultantId(id[index]);
+                                                            }}>
+                                                                <FaPlus className="inline" />
+                                                            </button>
                                                             <button onClick={() => toggleRowExpansion(index)}>
-                                                                {isRowExpanded ? <FaMinus /> : <FaPlus />}
+                                                                {isRowExpanded ? <FaAngleUp /> : <FaAngleDown />}
                                                             </button>
                                                         </td>
                                                     }
@@ -682,6 +739,39 @@ export default function AllUsers() {
                         })}
                     </tbody>
                 </table>
+                {showTemporaryPassword && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 50 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 50 }}
+                        transition={{ duration: 0.5 }}
+                        className="fixed bottom-0 right-0 p-4 m-4 bg-white border border-gray-300 shadow-lg rounded flex items-center"
+                    >
+                        <input
+                            type="text"
+                            readOnly
+                            value={temporaryPassword}
+                            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none bg-gray-300"
+                        />
+                        <button
+                            className="ml-2"
+                            onClick={() => {
+                                navigator.clipboard.writeText(temporaryPassword);
+                                toast.success("Mot de passe copié dans le presse-papiers !")
+                                setShowTemporaryPassword(false);
+                                setTemporaryPassword("");
+                            }}
+                        >
+                            <motion.div
+                                whileHover={{ scale: 1.2, rotate: 10 }}
+                                whileTap={{ scale: 0.8, rotate: -10 }}
+                                transition={{ type: "spring", stiffness: 300 }}
+                            >
+                                <FaClipboard className="w-5 h-5 text-gray-700 hover:text-gray-900" />
+                            </motion.div>
+                        </button>
+                    </motion.div>
+                )}
             </div>
             {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)} />}
             {addUserVisible && <AddUser organismId={organismeId[0]} userType={requiredUsersType} onClose={() => setAddUserVisible(false)} />}
@@ -709,6 +799,11 @@ export default function AllUsers() {
                     </div>
                 </Modal.Body>
             </Modal>
+            <AddToEntrepriseModal
+                isVisible={addToEntrepriseVisible}
+                onClose={() => setAddToEntrepriseVisible(false)}
+                consultantId={selectedConsultantId}
+            />
         </>
     );
 }
