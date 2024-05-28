@@ -17,6 +17,8 @@ import { isTokenExpired, isTokenInCookies, handleLogout, countNotifications } fr
 
 export default function ClientMainPage({ onClose }) {
 
+  const [isResponsible, setIsResponsible] = useState(false);
+
   const navigate = useNavigate();
 
   const decoded = jwtDecode(Cookies.get("JWT"));
@@ -41,6 +43,30 @@ export default function ClientMainPage({ onClose }) {
       window.location.href = "/"
     }
     else {      //Checking the validity of the token ends
+      if (mainUserRole === "Consultant") {
+        async function getConsultantLevel() {
+          try {
+            const response = await fetch(`${appUrl}/users/consultants/level?id=${userID}`, {
+              method: 'GET',
+              headers: {
+                'Authorization': `Bearer ${Cookies.get("JWT")}`
+              }
+            });
+            const data = await response.text();
+            const cleanedData = data.replace(/^["']|["']$/g, '');
+            if (cleanedData === "responsable") {
+              setIsResponsible(true);
+              console.log(data);
+            } else {
+              setIsResponsible(false);
+              console.log(data);
+            }
+          } catch (error) {
+            console.log("erreur happened while fetching consultant Level -->", error);
+          }
+        }
+        getConsultantLevel();
+      }
       const countNotifs = async () => {
         //userId to send to count notifications
         const userID = jwtDecode(Cookies.get("JWT")).id;
@@ -132,6 +158,12 @@ export default function ClientMainPage({ onClose }) {
                     <Sidebar.Item onClick={() => {
                     }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
                     </Sidebar.Item>
+                    {isResponsible &&
+                      <Sidebar.Item onClick={() => {
+                      }} icon={CiBoxList} href="/AllUsers">Liste des utilisateurs
+                      </Sidebar.Item>
+                    }
+
                   </Sidebar.Collapse>
                 }
                 {mainUserRole === "Consultant" &&

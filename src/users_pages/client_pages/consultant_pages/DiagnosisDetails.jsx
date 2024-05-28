@@ -366,7 +366,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
           </Button>
         </Modal.Footer>
       </Modal>
-      {actionsPlanVisible && <CreateActionsPlan criteriaDesc={criteriaDesc} entrepriseId={chosenEntrepriseId} entreprise={chosenEntreprise} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
+      {actionsPlanVisible && <CreateActionsPlan actionOrigin="Diagnostic" criteriaDesc={criteriaDesc} entrepriseId={chosenEntrepriseId} entreprise={chosenEntreprise} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
     </>
   );
 }
