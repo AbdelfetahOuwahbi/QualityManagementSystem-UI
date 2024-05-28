@@ -86,7 +86,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
       window.location.href = "/"
     } else {
       try {
-        const response = await fetch(`${appUrl}/users/entreprises/pilots/byEntreprise/${entrepriseId}`, {
+        const response = await fetch(`${appUrl}/users/entreprise/pilots/byEntreprise/${entrepriseId}`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${Cookies.get("JWT")}`

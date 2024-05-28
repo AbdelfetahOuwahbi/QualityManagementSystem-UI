@@ -128,7 +128,7 @@ export default function AllUsers() {
                 restOfThePath = `users/entreprise/responsableQualites/by-consultant/${userID}`
                 break;
             case "pilot":
-                restOfThePath = `users/entreprises/pilots/by-consultant/${userID}`;
+                restOfThePath = `users/entreprise/pilots/by-consultant/${userID}`;
                 break;
             case "consultant":
                 restOfThePath = `users/consultants/byConsultant/${userID}`
