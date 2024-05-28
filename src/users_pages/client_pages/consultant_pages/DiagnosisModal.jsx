@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
-import { Datepicker, Modal } from "flowbite-react";
+import { Modal } from "flowbite-react";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
 import { appUrl } from "../../../Url.jsx";
 import toast from "react-hot-toast";
+import { registerLocale } from 'react-datepicker';
+import ar from 'date-fns/locale/ar-MA';
+import DatePicker from 'react-datepicker';
+import { setMinutes, setHours } from 'date-fns';
+
+registerLocale('ar', ar);
 
 export function DiagnosisModal({ onClose }) {
 
@@ -12,7 +18,7 @@ export function DiagnosisModal({ onClose }) {
 
     //The unique auto generated code
     const [code, setCode] = useState("");
-    const [diagnosisDate, setDiagnosisDate] = useState(new Date());
+    const [diagnosisDate, setDiagnosisDate] = useState(setHours(setMinutes(new Date(), 0), 12)); // Default to noon to avoid timezone issues
     const [chosenNormeId, setChosenNormeId] = useState('');
     const [chosenEntrepriseId, setChosenEntrepriseId] = useState('');
     //We'll need it to fill the diagnosis details entity
@@ -41,7 +47,6 @@ export function DiagnosisModal({ onClose }) {
         } else {
             getAllNorms();
         }
-        //Setting up the unique Code
         setCode(generateRandomCode());
     }, []);
 
@@ -50,7 +55,7 @@ export function DiagnosisModal({ onClose }) {
     // Function to generate a random alphanumeric code
     const generateRandomCode = () => {
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        const length = 12; // Adjust the length of the generated code as needed
+        const length = 12;
         let code = '';
         for (let i = 0; i < length; i++) {
             code += characters.charAt(Math.floor(Math.random() * characters.length));
@@ -203,11 +208,16 @@ export function DiagnosisModal({ onClose }) {
                             </div>
                             <div className='flex mb-12 flex-row items-center gap-4'>
                                 <h1 className='font-p_medium'>Date du diagnostic: </h1>
-                                <Datepicker
-                                    value={diagnosisDate}
-                                    language="FR-fr"
-                                    onSelectedDateChanged={(date) => setDiagnosisDate(date)}
-                                    className='w-1/2'
+                                <DatePicker
+                                    selected={diagnosisDate}
+                                    onChange={(date) => setDiagnosisDate(date)}
+                                    showTimeSelect
+                                    timeFormat="HH:mm"
+                                    timeIntervals={15}
+                                    dateFormat="Pp"
+                                    locale="fr"
+                                    className='w-full border border-gray-300 rounded-lg'
+                                    minDate={new Date()}
                                 />
                             </div>
                             <div>
