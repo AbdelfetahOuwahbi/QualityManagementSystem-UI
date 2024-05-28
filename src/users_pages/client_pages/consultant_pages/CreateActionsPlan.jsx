@@ -193,7 +193,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
                           {existingResponsible !== '' ? (
                             <div
                               onClick={() => {
-                                setChosenAgentId(existingResponsible.id);
+                                setActionDetails({ ...actionDetails, chosenAgent: existingResponsible.id });
                                 setIsSelectionOpen(false);
                               }}
                               className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
@@ -226,7 +226,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
                               pilotesIds.map((item, index) =>
                                 <div key={index}
                                   onClick={() => {
-                                    setChosenAgentId(item);
+                                    setActionDetails({ ...actionDetails, chosenAgent: item });
                                     setIsSelectionOpen(false);
                                   }}
                                   className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>
@@ -237,7 +237,7 @@ export default function CreateActionsPlan({ actionOrigin, criteriaId, criteriaDe
                                 filteredOptions.map((lastname, index) => (
                                   <div key={index}
                                     onClick={() => {
-                                      setChosenAgentId(pilotesIds[pilotesLastNames.indexOf(lastname)]);
+                                      setActionDetails({ ...actionDetails, chosenAgent: pilotesIds[pilotesLastNames.indexOf(lastname)] });
                                       setIsSelectionOpen(false);
                                     }}
                                     className='flex gap-2 cursor-pointer hover:bg-gray-100 rounded-lg items-center p-1'>

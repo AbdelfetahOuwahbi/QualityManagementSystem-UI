@@ -11,8 +11,10 @@ export default function AddUser({ organismId, userType, onClose }) {
   const userID = jwtDecode(Cookies.get("JWT")).id;
 
   const [openModal, setOpenModal] = useState(true);
+  //Entreprise propreties
   const [id, setId] = useState([]);
   const [raisonSociale, setRaisonSociale] = useState([]);
+  //Common user details between all types
   const [userDetails, setUserDetails] = useState(
     {
       first_name: "",

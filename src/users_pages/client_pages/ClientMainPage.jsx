@@ -1,14 +1,15 @@
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-import { Drawer, Sidebar } from "flowbite-react";
+import { Drawer, Sidebar, SidebarItemGroup, SidebarItems } from "flowbite-react";
 import { CiBoxList, CiSettings } from "react-icons/ci";
-import { IoMdNotificationsOutline } from "react-icons/io";
+import { IoMdNotificationsOutline, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
 import { FaCheckToSlot } from "react-icons/fa6";
 import { HiChartPie } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { GoOrganization } from "react-icons/go";
+import { motion, AnimatePresence } from "framer-motion";
 import { doesHeHaveAccess, extractMainRole } from "../CommonApiCalls";
 import { appUrl } from "../../Url.jsx";
 // Method that counts all notifications
@@ -17,7 +18,9 @@ import { isTokenExpired, isTokenInCookies, handleLogout, countNotifications } fr
 
 export default function ClientMainPage({ onClose }) {
 
+  //Checking the type of the consultant
   const [isResponsible, setIsResponsible] = useState(false);
+  const [isUpperMenuOpen, setIsUpperMenuOpen] = useState(true);
 
   const navigate = useNavigate();
 
@@ -143,36 +146,59 @@ export default function ClientMainPage({ onClose }) {
             <Sidebar.Items>
               <Sidebar.ItemGroup>
 
-                <Sidebar.Item onClick={() => {
-                }} href="/ClientDashboard" icon={HiChartPie}>
-                  Dashboard
-                </Sidebar.Item>
-
-                <Sidebar.Item onClick={() => {
-                }} href="/ClientNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
-                  Boite
-                </Sidebar.Item>
-                {mainUserRole === "Consultant" &&
-                  <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clientes">
-
-                    <Sidebar.Item onClick={() => {
-                    }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
-                    </Sidebar.Item>
-                    {isResponsible &&
+                <div
+                  onClick={() => setIsUpperMenuOpen(!isUpperMenuOpen)}
+                  className='flex w-full bg-white h-10 items-center px-1 md:px-4 justify-between gap-4  border-t-[1px] border-b-[1px] border-gray-300 rounded-sm cursor-pointer'>
+                  <h2 className='font-p_regular'> Entitées Globale </h2>
+                  {isUpperMenuOpen ? (
+                    <IoIosArrowUp className='w-6 h-6 text-sky-500' />
+                  ) : (
+                    <IoIosArrowDown className='w-6 h-6 text-sky-500' />
+                  )}
+                </div>
+                {isUpperMenuOpen &&
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, overflow: "hidden" }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className='flex flex-col gap-2'>
                       <Sidebar.Item onClick={() => {
-                      }} icon={CiBoxList} href="/AllUsers">Liste des utilisateurs
+                      }} href="/ClientDashboard" icon={HiChartPie}
+                        className='mt-2'
+                      >
+                        Dashboard
                       </Sidebar.Item>
-                    }
 
-                  </Sidebar.Collapse>
-                }
-                {mainUserRole === "Consultant" &&
-                  <Sidebar.Collapse icon={FaCheckToSlot} label="Mes Diagnostics">
+                      <Sidebar.Item onClick={() => {
+                      }} href="/ClientNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
+                        Boite
+                      </Sidebar.Item>
+                      {mainUserRole === "Consultant" &&
+                        <Sidebar.Collapse icon={GoOrganization} label="Entreprises Clientes">
 
-                    <Sidebar.Item onClick={() => {
-                    }} icon={FaCheckToSlot} href="/AllDiagnosises">Liste des Diagnostics
-                    </Sidebar.Item>
-                  </Sidebar.Collapse>
+                          <Sidebar.Item onClick={() => {
+                          }} icon={CiBoxList} href="/AllEntreprises">Liste des Entreprises
+                          </Sidebar.Item>
+                          {isResponsible &&
+                            <Sidebar.Item onClick={() => {
+                            }} icon={CiBoxList} href="/AllUsers">Liste des utilisateurs
+                            </Sidebar.Item>
+                          }
+
+                        </Sidebar.Collapse>
+                      }
+                      {mainUserRole === "Consultant" &&
+                        <Sidebar.Collapse icon={FaCheckToSlot} label="Mes Diagnostics">
+
+                          <Sidebar.Item onClick={() => {
+                          }} icon={CiBoxList} href="/AllDiagnosises">Liste des Diagnostics
+                          </Sidebar.Item>
+                        </Sidebar.Collapse>
+                      }
+                    </motion.div>
+                  </AnimatePresence>
                 }
 
                 <Sidebar.Item className='cursor-pointer' onClick={() => handleLogout()} icon={FaSignOutAlt}>
@@ -181,6 +207,14 @@ export default function ClientMainPage({ onClose }) {
 
               </Sidebar.ItemGroup>
             </Sidebar.Items>
+          </Sidebar>
+
+          <Sidebar>
+            <SidebarItems>
+              <SidebarItemGroup>
+
+              </SidebarItemGroup>
+            </SidebarItems>
           </Sidebar>
 
         </Drawer.Items>
