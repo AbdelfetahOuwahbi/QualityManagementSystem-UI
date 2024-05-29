@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { Drawer, Sidebar, Popover, SidebarItemGroup, SidebarItems, SidebarItem } from "flowbite-react";
-import { CiBoxList, CiSettings } from "react-icons/ci";
+import { CiBoxList } from "react-icons/ci";
+import { SiGithubactions } from "react-icons/si";
 import { IoMdNotificationsOutline, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
 import { FcOrganization } from "react-icons/fc";
@@ -232,7 +233,7 @@ export default function ClientMainPage({ onClose }) {
   return (
     <>
       {/* The Navigation Menu */}
-      <Drawer open={modalOpen} onClose={onClose}>
+      <Drawer open={modalOpen} onClose={onClose} className="custom-scrollbar">
         <Drawer.Header />
         <Drawer.Items>
           {/* Profile Image */}
@@ -279,31 +280,49 @@ export default function ClientMainPage({ onClose }) {
                             Dashboard
                           </Sidebar.Item>
 
-                          <Sidebar.Item onClick={() => {
+                          <Sidebar.Item className={`${notifsNumber > 0 && "animate-pulse"}`} onClick={() => {
                           }} href="/ClientNotifications" icon={() => <IoMdNotificationsOutline className='text-sky-500 w-6 h-6' />} label={notifsNumber}>
                             Boite
                           </Sidebar.Item>
 
-                          <Sidebar.Collapse icon={() => <GoOrganization className='text-sky-500 w-6 h-6' />} label="Entreprises Clientes">
+                          {isResponsible &&
+                            <Sidebar.Collapse icon={() => <GoOrganization className='text-sky-500 w-6 h-6' />} label="Entreprises Clientes">
+                              <AnimatePresence mode='wait'>
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                                >
+                                  <Sidebar.Item onClick={() => {
+                                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllEntreprises">Liste des Entreprises
+                                  </Sidebar.Item>
+                                  <Sidebar.Item onClick={() => {
+                                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllUsers">Liste des utilisateurs
+                                  </Sidebar.Item>
+                                </motion.div>
+                              </AnimatePresence>
 
-                            <Sidebar.Item onClick={() => {
-                            }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllEntreprises">Liste des Entreprises
-                            </Sidebar.Item>
-                            {isResponsible &&
-                              <Sidebar.Item onClick={() => {
-                              }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllUsers">Liste des utilisateurs
-                              </Sidebar.Item>
-                            }
+                            </Sidebar.Collapse>
+                          }
 
-                          </Sidebar.Collapse>
+                          {user?.level === "responsable" || user?.level === "senior" &&
+                            <Sidebar.Collapse icon={() => <FaCheckToSlot className='text-sky-500 w-6 h-6' />} label="Mes Diagnostics">
+                              <AnimatePresence mode='wait'>
+                                <motion.div
+                                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  transition={{ duration: 0.5, ease: 'easeOut' }}
+                                >
+                                  <Sidebar.Item onClick={() => {
+                                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllDiagnosises">Liste des Diagnostics
+                                  </Sidebar.Item>
+                                </motion.div>
+                              </AnimatePresence>
 
-
-                          <Sidebar.Collapse icon={() => <FaCheckToSlot className='text-sky-500 w-6 h-6' />} label="Mes Diagnostics">
-
-                            <Sidebar.Item onClick={() => {
-                            }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllDiagnosises">Liste des Diagnostics
-                            </Sidebar.Item>
-                          </Sidebar.Collapse>
+                            </Sidebar.Collapse>
+                          }
 
                         </motion.div>
                       </AnimatePresence>
@@ -322,16 +341,16 @@ export default function ClientMainPage({ onClose }) {
           {mainUserRole === "Consultant" &&
             <>
               <Popover content={content} placement="bottom">
-                <div className='flex items-center justify-center gap-4 w-full h-10 shadow-lg bg-gray-100 rounded-lg mb-6 cursor-pointer'>
+                <div className='flex animate-pulse items-center justify-center gap-4 w-full h-10 shadow-lg bg-sky-400 rounded-lg mb-6 cursor-pointer'>
                   {chosenEntrepriseDetails.id === '' ? (
                     <>
-                      <h1 className="font-p_medium">Choisir une entreprise </h1>
+                      <h1 className="font-p_bold">Choisir une entreprise </h1>
                       <FcOrganization className='w-6 h-6 text-white' />
                     </>
                   ) : (
                     <>
                       <img src={`${chosenEntrepriseDetails.image}`} className='h-6 w-6 rounded-full object-cover' alt="Votre profile" />
-                      <h2 className='font-p_regular text-sm text-black'>{chosenEntrepriseDetails.name}</h2>
+                      <h2 className='font-p_bold text-sm text-white'>{chosenEntrepriseDetails.name}</h2>
                     </>
                   )}
                 </div>
@@ -349,16 +368,26 @@ export default function ClientMainPage({ onClose }) {
                       <IoIosArrowDown className='w-6 h-6 text-sky-500' />
                     )}
                   </div>
-
-                  <Sidebar>
-                    <SidebarItems>
-                      <SidebarItemGroup>
-                        <Sidebar.Item className='cursor-pointer' href='#' icon={FaSignOutAlt}>
-                          Plan D'actions
-                        </Sidebar.Item>
-                      </SidebarItemGroup>
-                    </SidebarItems>
-                  </Sidebar>
+                  {isEntrepriseMenuOpen &&
+                    <Sidebar>
+                      <SidebarItems>
+                        <SidebarItemGroup>
+                          <AnimatePresence mode='wait'>
+                            <motion.div
+                              initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                              animate={{ opacity: 1, height: 'auto' }}
+                              exit={{ opacity: 0, height: 0 }}
+                              transition={{ duration: 0.5, ease: 'easeOut' }}
+                            >
+                              <Sidebar.Item className='cursor-pointer' href='#' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
+                                Plan D'actions
+                              </Sidebar.Item>
+                            </motion.div>
+                          </AnimatePresence>
+                        </SidebarItemGroup>
+                      </SidebarItems>
+                    </Sidebar>
+                  }
                 </>
               }
             </>
@@ -370,9 +399,11 @@ export default function ClientMainPage({ onClose }) {
             <Sidebar>
               <SidebarItems>
                 <SidebarItemGroup>
-                  <Sidebar.Item className='cursor-pointer' href='#' icon={FaSignOutAlt}>
+
+                  <Sidebar.Item className='cursor-pointer' href='#' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
                     Plan D'actions
                   </Sidebar.Item>
+
                 </SidebarItemGroup>
               </SidebarItems>
             </Sidebar>
