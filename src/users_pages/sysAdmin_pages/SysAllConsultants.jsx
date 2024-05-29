@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { FaPlus, FaBars, FaClipboard, FaAngleDown, FaAngleUp  } from "react-icons/fa";
-import { Button, FloatingLabel, Modal, ToggleSwitch } from "flowbite-react";
+import { Button, FloatingLabel, Modal, ToggleSwitch, Popover } from "flowbite-react";
 import * as XLSX from "xlsx";
 import toast, { Toaster } from "react-hot-toast";
 import Cookies from "js-cookie";
@@ -11,7 +11,6 @@ import SysMainPage from "./SysMainPage";
 import SysAddConsultant from "./SysAddConsultant";
 import { appUrl } from "../../Url.jsx";
 import { motion } from 'framer-motion';
-import AddToEntrepriseModal from "./AddToEntrepriseModal"
 
 export default function SysAllConsultants() {
 
@@ -59,9 +58,6 @@ export default function SysAllConsultants() {
     const [temporaryPassword, setTemporaryPassword] = useState('');
     const [showTemporaryPassword, setShowTemporaryPassword] = useState(false);
 
-    //Tracks the add to entreprise visibility
-    const [addToEntrepriseVisible, setAddToEntrepriseVisible] = useState(false);
-    const [selectedConsultantId, setSelectedConsultantId] = useState(null);
 
 
 
@@ -424,7 +420,6 @@ export default function SysAllConsultants() {
                             Actions
                         </th>
                         <th scope="col" className="px-6 py-3">
-                            Détails
                         </th>
                     </tr>
                     </thead>
@@ -568,20 +563,15 @@ export default function SysAllConsultants() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <button onClick={() => {
-                                                        setAddToEntrepriseVisible(true);
-                                                        setSelectedConsultantId(id[index]);
-                                                    }}
-                                                            disabled={disableEdit}
-                                                            className={`${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        <FaPlus className="inline" />
-                                                    </button>
-
-                                                    <button onClick={() => toggleRowExpansion(index)}
-                                                            disabled={disableEdit}
-                                                            className={`${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        {isRowExpanded ? <FaAngleUp  /> : <FaAngleDown  />}
-                                                    </button>
+                                                    <Popover content={
+                                                        <strong className=" m-3 s">Détail</strong>
+                                                    } trigger="hover">
+                                                        <button onClick={() => toggleRowExpansion(index)}
+                                                                disabled={disableEdit}
+                                                                className={` justify-center ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                                                            {isRowExpanded ? <FaAngleUp  /> : <FaAngleDown  />}
+                                                        </button>
+                                                    </Popover>
                                                 </td>
                                             </>
                                         )}
@@ -678,11 +668,6 @@ export default function SysAllConsultants() {
                     </div>
                 </Modal.Body>
             </Modal>
-            <AddToEntrepriseModal
-                isVisible={addToEntrepriseVisible}
-                onClose={() => setAddToEntrepriseVisible(false)}
-                consultantId={selectedConsultantId}
-            />
         </>
     );
 }

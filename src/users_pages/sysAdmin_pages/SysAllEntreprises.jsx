@@ -402,9 +402,8 @@ export default function SysAllEntreprises() {
                         <td className="px-6 py-4">
                           <button
                               onClick={() => handleRowClick(index)}
-                              className="bg-blue-500 text-white px-4 py-2 rounded"
-                          >
-                            {expandedRows.includes(index) ? "-" : "view contacts"}
+                              className={`font-medium text-blue-600 hover:underline`}>
+                            {expandedRows.includes(index) ? "-" : "Contacts"}
                           </button>
                         </td>
                       </tr>
