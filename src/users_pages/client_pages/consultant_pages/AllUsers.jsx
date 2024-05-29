@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState, useMemo, useCallback} from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import {FaPlus, FaMinus, FaClipboard, FaAngleDown, FaAngleUp} from "react-icons/fa"; // Import the icons
@@ -214,25 +214,24 @@ export default function AllUsers() {
             Cookies.remove("JWT");
             window.location.href = "/";
         } else {
-
             let restOfThePath = "";
             switch (requiredUsersType) {
                 case "admin":
-                    restOfThePath = `users/entreprise/admins/${id[index]}`
+                    restOfThePath = `users/entreprise/admins/${userId}`
                     break;
                 case "qualityResponsible":
-                    restOfThePath = `users/entreprise/responsableQualites/${id[index]}`
+                    restOfThePath = `users/entreprise/responsableQualites/${userId}`
                     break;
                 case "pilot":
-                    restOfThePath = `users/entreprises/pilots/${id[index]}`;
+                    restOfThePath = `users/entreprises/pilots/${userId}`;
                     break;
                 case "consultant":
-                    restOfThePath = `users/consultants/${id[index]}`
+                    restOfThePath = `users/consultants/${userId}`
                     break;
             }
 
             try {
-                const response = await fetch(`${appUrl}/users/consultants/${userId}`, {
+                const response = await fetch(`${appUrl}/${restOfThePath}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -242,8 +241,8 @@ export default function AllUsers() {
 
                 if (response.ok) {
                     getAllConsultant();
-                    console.log("User deleted successfully ..");
                     toast.success("Ce consultant est éliminé de l'application")
+                    console.log("User deleted successfully ..");
                 } else {
                     throw new Error(`Failed to delete user: ${response.status} ${response.statusText}`);
                 }
@@ -382,33 +381,33 @@ export default function AllUsers() {
         switch (selectedField) {
             case 'firstName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'lastName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'email':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'phone':
                 return <input type="number"
-                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
-                    disabled={editingIndex !== -1} />;
+                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                              placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
+                              disabled={editingIndex !== -1} />;
             case 'organisme':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher organisme"
-                    onChange={(e) => setSearchOrganismeName(e.target.value)} disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher organisme"
+                              onChange={(e) => setSearchOrganismeName(e.target.value)} disabled={editingIndex !== -1} />;
             case 'entreprise':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher entreprise"
-                    onChange={(e) => setSearchEntrepriseName(e.target.value)} disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher entreprise"
+                              onChange={(e) => setSearchEntrepriseName(e.target.value)} disabled={editingIndex !== -1} />;
             case 'level':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                    placeholder="Rechercher niveau"
-                    onChange={(e) => setSearchLevel(e.target.value)} disabled={editingIndex !== -1} />;
+                              placeholder="Rechercher niveau"
+                              onChange={(e) => setSearchLevel(e.target.value)} disabled={editingIndex !== -1} />;
             default:
                 return null;
         }
@@ -669,6 +668,7 @@ export default function AllUsers() {
                                                                     >
                                                                         Modifier
                                                                     </button>
+                                                                    {id[index] !== userID &&
                                                                     <a
                                                                         href="#"
                                                                         onClick={(e) => {
@@ -681,14 +681,17 @@ export default function AllUsers() {
                                                                     >
                                                                         Supprimer
                                                                     </a>
+                                                                    }
                                                                 </>
                                                             )}
+                                                            {id[index] !== userID &&
                                                             <button
                                                                 onClick={() => generateInitialPassword(index)}
                                                                 className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                             >
                                                                 Generer
                                                             </button>
+                                                            }
                                                         </div>
                                                     </td>
 
