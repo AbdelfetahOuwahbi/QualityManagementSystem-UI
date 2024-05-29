@@ -349,16 +349,17 @@ export default function ClientMainPage({ onClose }) {
                       <IoIosArrowDown className='w-6 h-6 text-sky-500' />
                     )}
                   </div>
-
-                  <Sidebar>
-                    <SidebarItems>
-                      <SidebarItemGroup>
-                        <Sidebar.Item className='cursor-pointer' href='#' icon={FaSignOutAlt}>
-                          Plan D'actions
-                        </Sidebar.Item>
-                      </SidebarItemGroup>
-                    </SidebarItems>
-                  </Sidebar>
+                  {isEntrepriseMenuOpen &&
+                    <Sidebar>
+                      <SidebarItems>
+                        <SidebarItemGroup>
+                          <Sidebar.Item className='cursor-pointer' href='#' icon={() => <FaSignOutAlt className='w-6 h-6 text-sky-500' />}>
+                            Plan D'actions
+                          </Sidebar.Item>
+                        </SidebarItemGroup>
+                      </SidebarItems>
+                    </Sidebar>
+                  }
                 </>
               }
             </>
@@ -370,9 +371,13 @@ export default function ClientMainPage({ onClose }) {
             <Sidebar>
               <SidebarItems>
                 <SidebarItemGroup>
-                  <Sidebar.Item className='cursor-pointer' href='#' icon={FaSignOutAlt}>
-                    Plan D'actions
-                  </Sidebar.Item>
+                  <AnimatePresence mode='wait'>
+                    <motion.div>
+                      <Sidebar.Item className='cursor-pointer' href='#' icon={FaSignOutAlt}>
+                        Plan D'actions
+                      </Sidebar.Item>
+                    </motion.div>
+                  </AnimatePresence>
                 </SidebarItemGroup>
               </SidebarItems>
             </Sidebar>
