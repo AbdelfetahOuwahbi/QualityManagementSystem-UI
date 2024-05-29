@@ -286,43 +286,46 @@ export default function ClientMainPage({ onClose }) {
                           </Sidebar.Item>
 
                           {isResponsible &&
-                            <Sidebar.Collapse icon={() => <GoOrganization className='text-sky-500 w-6 h-6' />} label="Entreprises Clientes">
-                              <AnimatePresence mode='wait'>
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                  animate={{ opacity: 1, height: 'auto' }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                                >
-                                  <Sidebar.Item onClick={() => {
-                                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllEntreprises">Liste des Entreprises
-                                  </Sidebar.Item>
-                                  <Sidebar.Item onClick={() => {
-                                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllUsers">Liste des utilisateurs
-                                  </Sidebar.Item>
-                                </motion.div>
-                              </AnimatePresence>
+                            <>
+                              <Sidebar.Collapse icon={() => <GoOrganization className='text-sky-500 w-6 h-6' />} label="Entreprises Clientes">
+                                <AnimatePresence mode='wait'>
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                                  >
+                                    <Sidebar.Item onClick={() => {
+                                    }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllEntreprises">Liste des Entreprises
+                                    </Sidebar.Item>
+                                    <Sidebar.Item onClick={() => {
+                                    }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllUsers">Liste des utilisateurs
+                                    </Sidebar.Item>
+                                  </motion.div>
+                                </AnimatePresence>
 
-                            </Sidebar.Collapse>
+                              </Sidebar.Collapse>
+
+                              <Sidebar.Collapse icon={() => <FaCheckToSlot className='text-sky-500 w-6 h-6' />} label="Mes Diagnostics">
+                                <AnimatePresence mode='wait'>
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
+                                    animate={{ opacity: 1, height: 'auto' }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                                  >
+                                    <Sidebar.Item onClick={() => {
+                                    }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllDiagnosises">Liste des Diagnostics
+                                    </Sidebar.Item>
+                                  </motion.div>
+                                </AnimatePresence>
+
+                              </Sidebar.Collapse>
+                            </>
                           }
 
-                          {user?.level === "responsable" || user?.level === "senior" &&
-                            <Sidebar.Collapse icon={() => <FaCheckToSlot className='text-sky-500 w-6 h-6' />} label="Mes Diagnostics">
-                              <AnimatePresence mode='wait'>
-                                <motion.div
-                                  initial={{ opacity: 0, height: 0, overflow: 'hidden' }}
-                                  animate={{ opacity: 1, height: 'auto' }}
-                                  exit={{ opacity: 0, height: 0 }}
-                                  transition={{ duration: 0.5, ease: 'easeOut' }}
-                                >
-                                  <Sidebar.Item onClick={() => {
-                                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/AllDiagnosises">Liste des Diagnostics
-                                  </Sidebar.Item>
-                                </motion.div>
-                              </AnimatePresence>
 
-                            </Sidebar.Collapse>
-                          }
+
 
                         </motion.div>
                       </AnimatePresence>
