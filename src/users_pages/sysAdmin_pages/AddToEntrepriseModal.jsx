@@ -12,8 +12,8 @@ export default function AddToEntrepriseModal({ isVisible, onClose, consultantId 
     const [selectedEntreprise, setSelectedEntreprise] = useState("");
 
     const decoded = jwtDecode(Cookies.get("JWT"));
-    // const userID = decoded.id;
-    const userID = "dad950dadb0845ae9c3c1571043f8b0720240522142741";
+    //pour recuperer les entreprises du responsable
+    const userID = decoded.id;
 
     useEffect(() => {
         const fetchConsulantResponsableEntreprises = async () => {

@@ -252,12 +252,35 @@ export default function Profile() {
   return (
       <>
         <Toaster position="top-center" reverseOrder={false} />
-        <div className="flex p-4 w-full justify-between">
-          {/* Bars Icon That toogles the visibility of the menu */}
-          <FaBars onClick={() => setIsMenuOpen(!isMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
+        <div className="flex flex-col md:flex-row p-4 w-full justify-between items-center gap-4">
+          {/* Bars Icon That toggles the visibility of the menu */}
+          <FaBars onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-6 h-6 cursor-pointer text-neutral-600" />
+
+          {/* Organism Image and Name */}
+          <div className="flex items-center gap-4">
+            {userDetails.level === "responsable" && (
+                <input
+                    type="file"
+                    id="fileInputOrg"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={changeOrganismEntrepriseImage}
+                />
+            )}
+            <label htmlFor="fileInputOrg">
+              <img
+                  src={uploadedOrganismEntreprisedImage === null ? (`${appUrl}/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
+                  alt="Image de l'organisation"
+                  className="w-12 h-12 md:w-14 md:h-14 lg:w-18 lg:h-18 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover"
+              />
+            </label>
+            <h1 className="text-gray-800 dark:text-white text-l md:text-xl lg:text-xl font-serif">
+              {userDetails.organismName}
+            </h1>
+          </div>
         </div>
 
-        <div className='border-t border-gray-300 py-4'></div>
+        <div className='border-t border-gray-300 py-2'></div>
 
         <section className="w-full h-auto">
           <div className="flex flex-col">
@@ -288,28 +311,6 @@ export default function Profile() {
                 {/* FullName */}
                 <h1 className="text-gray-800 dark:text-white lg:text-4xl md:text-3xl sm:text-3xl xs:text-xl font-serif">
                   {userDetails.firstname}
-                </h1>
-              </div>
-              <div className='flex items-center justify-start gap-4 relative'>
-                {/* Profile Image */}
-                {/* Organism Image */}
-                {userDetails.level === "responsable" && <input
-                    type="file"
-                    id="fileInputOrg"
-                    accept="image/*"
-                    className='hidden'
-                    onChange={changeOrganismEntrepriseImage}
-                />
-                }
-                <label htmlFor="fileInputOrg">
-                  <img
-                      src={uploadedOrganismEntreprisedImage === null ? (`${appUrl}/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
-                      alt="Image de l'organisation"
-                      className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
-                </label>
-                {/* OrganismName */}
-                <h1 className="text-gray-800 dark:text-white lg:text-4xl md:text-3xl sm:text-3xl xs:text-xl font-serif">
-                  {userDetails.organismName}
                 </h1>
               </div>
               <div className='flex flex-row items-center gap-1'>
