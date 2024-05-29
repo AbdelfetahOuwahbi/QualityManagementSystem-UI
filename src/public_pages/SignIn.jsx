@@ -123,7 +123,7 @@ export default function SignIn({ onClose }) {
                             <img
                                 src={(`${appUrl}/images/organism/${organismImage}`)}
                                 alt="Image de l'organisation"
-                                className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
+                                className="w-16 h-16 md:w-20 md:h-20 cursor-pointer rounded-full object-cover" />
                         </label>
                     </div>}
 

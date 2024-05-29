@@ -214,25 +214,24 @@ export default function AllUsers() {
             Cookies.remove("JWT");
             window.location.href = "/";
         } else {
-
             let restOfThePath = "";
             switch (requiredUsersType) {
                 case "admin":
-                    restOfThePath = `users/entreprise/admins/${id[index]}`
+                    restOfThePath = `users/entreprise/admins/${userId}`
                     break;
                 case "qualityResponsible":
-                    restOfThePath = `users/entreprise/responsableQualites/${id[index]}`
+                    restOfThePath = `users/entreprise/responsableQualites/${userId}`
                     break;
                 case "pilot":
-                    restOfThePath = `users/entreprises/pilots/${id[index]}`;
+                    restOfThePath = `users/entreprises/pilots/${userId}`;
                     break;
                 case "consultant":
-                    restOfThePath = `users/consultants/${id[index]}`
+                    restOfThePath = `users/consultants/${userId}`
                     break;
             }
 
             try {
-                const response = await fetch(`${appUrl}/users/consultants/${userId}`, {
+                const response = await fetch(`${appUrl}/${restOfThePath}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${Cookies.get("JWT")}`,
@@ -242,8 +241,8 @@ export default function AllUsers() {
 
                 if (response.ok) {
                     getAllConsultant();
-                    console.log("User deleted successfully ..");
                     toast.success("Ce consultant est éliminé de l'application")
+                    console.log("User deleted successfully ..");
                 } else {
                     throw new Error(`Failed to delete user: ${response.status} ${response.statusText}`);
                 }

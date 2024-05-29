@@ -14,10 +14,16 @@ import { motion } from 'framer-motion';
 import AddToEntrepriseModal from "./AddToEntrepriseModal"
 
 export default function SysAllConsultants() {
+
+    //toogles the menu visibility
     const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
     const [addConsultantVisible, setAddConsultantVisible] = useState(false);
+
+    //tracks the selected filter field
     const [selectedField, setSelectedField] = useState('firstName');
     const [confirmDelete, setConfirmDelete] = useState({ userId: null, value: false });
+
+    //Conultant properties 
     const [id, setId] = useState([]);
     const [firstName, setFirstName] = useState([]);
     const [lastName, setLastName] = useState([]);
@@ -28,23 +34,38 @@ export default function SysAllConsultants() {
     const [isAccountLocked, setIsAccountLocked] = useState([]);
     const [level, setLevel] = useState([]);
     const [entreprises, setEntreprises] = useState([]);
+
+    //Tracks wether the user is editing or not
     const [editingIndex, setEditingIndex] = useState(-1);
+
+    //Tracks the user typing values of each selected field
     const [searchFirstName, setSearchFirstName] = useState('');
     const [searchLastName, setSearchLastName] = useState('');
     const [searchEmail, setSearchEmail] = useState('');
     const [searchPhone, setSearchPhone] = useState('');
     const [searchOrganismeName, setSearchOrganismeName] = useState('');
+
+    //Array of Objects holding all organismes
     const [organismes, setOrganismes] = useState([]);
+    
+    //Id to send for modifying
     const [idToSendOrganism, setIdToSendOrganism] = useState(0);
+
+    //Helps know if the user has changed something or not
     const [originalData, setOriginalData] = useState({});
     const [expandedRows, setExpandedRows] = useState([]);
+
+    //Password to generate
     const [temporaryPassword, setTemporaryPassword] = useState('');
     const [showTemporaryPassword, setShowTemporaryPassword] = useState(false);
+
+    //Tracks the add to entreprise visibility
     const [addToEntrepriseVisible, setAddToEntrepriseVisible] = useState(false);
     const [selectedConsultantId, setSelectedConsultantId] = useState(null);
 
 
 
+    //Keeps track of the consultant to modify
     const handleEditClick = (index) => {
         setOriginalData({
             firstName: firstName[index],
@@ -57,6 +78,7 @@ export default function SysAllConsultants() {
         setEditingIndex(index);
     };
 
+    //Handles the cancel on edit
     const handleCancelClick = () => {
         if (editingIndex !== -1) {
             setFirstName(prev => [...prev.slice(0, editingIndex), originalData.firstName, ...prev.slice(editingIndex + 1)]);
@@ -73,6 +95,7 @@ export default function SysAllConsultants() {
         setSelectedField(field);
     };
 
+    //Function that gets all consultants
     const getAllConsultant = async () => {
         setId([]);
         setFirstName([]);
@@ -119,6 +142,7 @@ export default function SysAllConsultants() {
         }
     }
 
+    //Gets executed on mounts (gets the consultants)
     useEffect(() => {
         if (!isTokenInCookies()) {
             window.location.href = "/";
@@ -136,6 +160,7 @@ export default function SysAllConsultants() {
         }
     }, []);
 
+    //Function that fetches all organisms
     const fetchOrganismes = async () => {
         try {
             const response = await fetch(`${appUrl}/organismes`, {
@@ -152,6 +177,7 @@ export default function SysAllConsultants() {
         }
     };
 
+    //Function that exports the table to an excel file
     const exportToExcel = () => {
         const wb = XLSX.utils.book_new();
         const tableClone = document.getElementById("consultantsTable").cloneNode(true);
@@ -166,6 +192,7 @@ export default function SysAllConsultants() {
         XLSX.writeFile(wb, "Consultants.xlsx");
     };
 
+    //Function that deletes a consultant
     async function deleteUser(userId) {
         console.log("userId to be deleted is -->", userId)
         console.log(isTokenExpired())
@@ -189,6 +216,7 @@ export default function SysAllConsultants() {
         }
     }
 
+    //Function that Locks a consultant's Account
     async function handleLockUnlockUser(userId, first_name) {
         try {
             const data = await lockOrUnlockUser(userId);
@@ -239,6 +267,7 @@ export default function SysAllConsultants() {
         }
     };
 
+    //Function that generates a password for the Consultant
     const generateInitialPassword = async (index) => {
         if (!isTokenInCookies()) {
             window.location.href = "/";
@@ -268,6 +297,7 @@ export default function SysAllConsultants() {
         }
     };
 
+    //Function that updates a consultant's properties
     const updateConsultant = async (indexId, index) => {
         setEditingIndex(-1);
         if (!isTokenInCookies()) {
@@ -322,6 +352,7 @@ export default function SysAllConsultants() {
         }
     };
 
+    //Keeps track of rows expanded
     const toggleRowExpansion = (index) => {
         if (expandedRows.includes(index)) {
             setExpandedRows(expandedRows.filter(i => i !== index));
