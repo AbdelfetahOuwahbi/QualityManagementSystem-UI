@@ -1,7 +1,7 @@
-import React, {useEffect, useState, useMemo, useCallback} from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { TiUserAdd } from "react-icons/ti";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import {FaPlus, FaMinus, FaClipboard, FaAngleDown, FaAngleUp} from "react-icons/fa"; // Import the icons
+import { FaPlus, FaMinus, FaClipboard, FaAngleDown, FaAngleUp } from "react-icons/fa"; // Import the icons
 import { Button, FloatingLabel, Modal, ToggleSwitch } from "flowbite-react";
 import { FaBars } from "react-icons/fa";
 import * as XLSX from "xlsx";
@@ -12,7 +12,7 @@ import { isTokenExpired, isTokenInCookies, lockOrUnlockUser } from "../../Common
 import ClientMainPage from "../ClientMainPage";
 import AddUser from "../AddUser";
 import { appUrl } from "../../../Url";
-import {motion} from "framer-motion";
+import { motion } from "framer-motion";
 import AddToEntrepriseModal from "../../sysAdmin_pages/AddToEntrepriseModal.jsx";
 
 export default function AllUsers() {
@@ -60,6 +60,9 @@ export default function AllUsers() {
     const [selectedConsultantId, setSelectedConsultantId] = useState(null);
 
 
+    useEffect(() => {
+        console.log("temp -->", temporaryPassword);
+    },[temporaryPassword])
 
     const handleEditClick = (index) => {
         setOriginalData({
@@ -364,7 +367,7 @@ export default function AllUsers() {
                     }
                 });
                 const responseBody = await response.text();
-                console.log("Response body -->", responseBody);
+                console.log("Response body -->", response);
 
                 // Afficher temporairement le mot de passe dans un input
                 setTemporaryPassword(responseBody);
@@ -381,33 +384,33 @@ export default function AllUsers() {
         switch (selectedField) {
             case 'firstName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
-                              disabled={editingIndex !== -1} />;
+                    placeholder="Rechercher prénom" onChange={(e) => setSearchFirstName(e.target.value)}
+                    disabled={editingIndex !== -1} />;
             case 'lastName':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
-                              disabled={editingIndex !== -1} />;
+                    placeholder="Rechercher nom" onChange={(e) => setSearchLastName(e.target.value)}
+                    disabled={editingIndex !== -1} />;
             case 'email':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
-                              disabled={editingIndex !== -1} />;
+                    placeholder="Rechercher email" onChange={(e) => setSearchEmail(e.target.value)}
+                    disabled={editingIndex !== -1} />;
             case 'phone':
                 return <input type="number"
-                              className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
-                              disabled={editingIndex !== -1} />;
+                    className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
+                    placeholder="Rechercher téléphone" onChange={(e) => setSearchPhone(e.target.value)}
+                    disabled={editingIndex !== -1} />;
             case 'organisme':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher organisme"
-                              onChange={(e) => setSearchOrganismeName(e.target.value)} disabled={editingIndex !== -1} />;
+                    placeholder="Rechercher organisme"
+                    onChange={(e) => setSearchOrganismeName(e.target.value)} disabled={editingIndex !== -1} />;
             case 'entreprise':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher entreprise"
-                              onChange={(e) => setSearchEntrepriseName(e.target.value)} disabled={editingIndex !== -1} />;
+                    placeholder="Rechercher entreprise"
+                    onChange={(e) => setSearchEntrepriseName(e.target.value)} disabled={editingIndex !== -1} />;
             case 'level':
                 return <input className="px-4 py-2 rounded border border-gray-300 w-64 text-lg focus:outline-none"
-                              placeholder="Rechercher niveau"
-                              onChange={(e) => setSearchLevel(e.target.value)} disabled={editingIndex !== -1} />;
+                    placeholder="Rechercher niveau"
+                    onChange={(e) => setSearchLevel(e.target.value)} disabled={editingIndex !== -1} />;
             default:
                 return null;
         }
@@ -526,7 +529,7 @@ export default function AllUsers() {
                                 Bloquer le Compte
                             </th>
                             <th scope="col" className="px-6 py-3">
-                                    Actions
+                                Actions
                             </th>
                             {requiredUsersType === "consultant" &&
                                 <th scope="col" className="px-6 py-3">
@@ -669,28 +672,28 @@ export default function AllUsers() {
                                                                         Modifier
                                                                     </button>
                                                                     {id[index] !== userID &&
-                                                                    <a
-                                                                        href="#"
-                                                                        onClick={(e) => {
-                                                                            e.preventDefault();
-                                                                            if (!disableEdit) {
-                                                                                setConfirmDelete({ userId: id[index], value: true });
-                                                                            }
-                                                                        }}
-                                                                        className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                                    >
-                                                                        Supprimer
-                                                                    </a>
+                                                                        <a
+                                                                            href="#"
+                                                                            onClick={(e) => {
+                                                                                e.preventDefault();
+                                                                                if (!disableEdit) {
+                                                                                    setConfirmDelete({ userId: id[index], value: true });
+                                                                                }
+                                                                            }}
+                                                                            className={`font-medium text-red-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                                        >
+                                                                            Supprimer
+                                                                        </a>
                                                                     }
                                                                 </>
                                                             )}
                                                             {id[index] !== userID &&
-                                                            <button
-                                                                onClick={() => generateInitialPassword(index)}
-                                                                className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                                            >
-                                                                Generer
-                                                            </button>
+                                                                <button
+                                                                    onClick={() => generateInitialPassword(index)}
+                                                                    className={`font-medium text-blue-600 hover:underline ${disableEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                                >
+                                                                    Generer
+                                                                </button>
                                                             }
                                                         </div>
                                                     </td>

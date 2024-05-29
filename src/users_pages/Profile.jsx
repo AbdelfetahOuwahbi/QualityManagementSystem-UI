@@ -1,17 +1,17 @@
-import React, {useEffect, useState} from 'react'
-import {useNavigate} from 'react-router-dom';
-import {MdEditNote} from "react-icons/md";
-import {TbPointFilled} from "react-icons/tb";
-import {FaCheck} from "react-icons/fa";
-import {FaBars} from 'react-icons/fa6';
-import {CiCamera} from "react-icons/ci";
-import {FloatingLabel} from 'flowbite-react';
-import {motion} from 'framer-motion';
-import {jwtDecode} from 'jwt-decode';
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
+import { MdEditNote } from "react-icons/md";
+import { TbPointFilled } from "react-icons/tb";
+import { FaCheck } from "react-icons/fa";
+import { FaBars } from 'react-icons/fa6';
+import { CiCamera } from "react-icons/ci";
+import { FloatingLabel } from 'flowbite-react';
+import { motion } from 'framer-motion';
+import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
-import {extractMainRole, isTokenExpired, isTokenInCookies} from './CommonApiCalls';
-import toast, {Toaster} from 'react-hot-toast';
-import {appUrl} from '../Url.jsx';
+import { extractMainRole, isTokenExpired, isTokenInCookies } from './CommonApiCalls';
+import toast, { Toaster } from 'react-hot-toast';
+import { appUrl } from '../Url.jsx';
 import SysMainPage from './sysAdmin_pages/SysMainPage';
 import ClientMainPage from './client_pages/ClientMainPage';
 
@@ -83,7 +83,7 @@ export default function Profile() {
                         PropreEndP = `${appUrl}/users/entreprise/responsableQualites/${userID}`;
                         break;
                     case "Pilot":
-                        PropreEndP = `${appUrl}/users/entreprises/pilots/${userID}`;
+                        PropreEndP = `${appUrl}/users/entreprise/pilots/${userID}`;
                         break;
                 }
                 console.log(PropreEndP)
@@ -98,33 +98,33 @@ export default function Profile() {
                     // console.log("response at profile-->", response)
                     const data = await response.json();
                     console.log("got user from database -->", data)
-                    setUserDetails(prev => ({...prev, id: data.id}));
-                    setUserDetails(prev => ({...prev, accountNonLocked: data.accountNonLocked}));
-                    setUserDetails(prev => ({...prev, createdDate: data.createdDate}));
-                    setUserDetails(prev => ({...prev, lastModifiedDate: data.lastModifiedDate}));
-                    setUserDetails(prev => ({...prev, firstname: data.firstname}));
-                    setUserDetails(prev => ({...prev, lastname: data.lastname}));
-                    setUserDetails(prev => ({...prev, email: data.email}));
-                    setUserDetails(prev => ({...prev, phone: data.phone}));
-                    setUserDetails(prev => ({...prev, profileImage: data.imagePath}));
+                    setUserDetails(prev => ({ ...prev, id: data.id }));
+                    setUserDetails(prev => ({ ...prev, accountNonLocked: data.accountNonLocked }));
+                    setUserDetails(prev => ({ ...prev, createdDate: data.createdDate }));
+                    setUserDetails(prev => ({ ...prev, lastModifiedDate: data.lastModifiedDate }));
+                    setUserDetails(prev => ({ ...prev, firstname: data.firstname }));
+                    setUserDetails(prev => ({ ...prev, lastname: data.lastname }));
+                    setUserDetails(prev => ({ ...prev, email: data.email }));
+                    setUserDetails(prev => ({ ...prev, phone: data.phone }));
+                    setUserDetails(prev => ({ ...prev, profileImage: data.imagePath }));
                     {
                         mainUserRole === "Consultant" ? (
-                            setUserDetails(prev => ({...prev, organism: data.organismeDeCertification.id})),
-                                setUserDetails(prevState => ({
-                                    ...prevState,
-                                    organismName: data.organismeDeCertification.raisonSocial
-                                })),
-                                setUserDetails(prevState => ({
-                                    ...prevState,
-                                    organismImage: data.organismeDeCertification.imagePath
-                                })),
-                                setUserDetails(prevState => ({...prevState, level: data.level}))
+                            setUserDetails(prev => ({ ...prev, organism: data.organismeDeCertification.id })),
+                            setUserDetails(prevState => ({
+                                ...prevState,
+                                organismName: data.organismeDeCertification.raisonSocial
+                            })),
+                            setUserDetails(prevState => ({
+                                ...prevState,
+                                organismImage: data.organismeDeCertification.imagePath
+                            })),
+                            setUserDetails(prevState => ({ ...prevState, level: data.level }))
                         ) : mainUserRole === "Admin" ? (
-                            setUserDetails(prev => ({...prev, entreprise: data.entreprise.id}))
+                            setUserDetails(prev => ({ ...prev, entreprise: data.entreprise.id }))
                         ) : mainUserRole === "Responsable" ? (
-                            setUserDetails(prev => ({...prev, entreprise: data.entreprise.id}))
+                            setUserDetails(prev => ({ ...prev, entreprise: data.entreprise.id }))
                         ) : mainUserRole === "Pilot" ? (
-                            setUserDetails(prev => ({...prev, entreprise: data.entreprise.id}))
+                            setUserDetails(prev => ({ ...prev, entreprise: data.entreprise.id }))
                         ) : null
                     }
                 } catch (error) {
@@ -276,196 +276,201 @@ export default function Profile() {
 
     return (
         <>
-        <Toaster position="top-center" reverseOrder={false}/>
-        <div className="flex flex-col md:flex-row p-4 w-full justify-between items-center gap-4">
-            {/* Bars Icon That toggles the visibility of the menu */}
-            <FaBars onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-6 h-6 cursor-pointer text-neutral-600"/>
+            <Toaster position="top-center" reverseOrder={false} />
+            <div className="flex flex-col md:flex-row p-4 w-full justify-between items-center gap-4">
+                {/* Bars Icon That toggles the visibility of the menu */}
+                <FaBars onClick={() => setIsMenuOpen(!isMenuOpen)} className="w-6 h-6 cursor-pointer text-neutral-600" />
 
-            {mainUserRole !== "Sysadmin" &&
-                <div className="flex items-center gap-4">
-                {userDetails.level === "responsable" && (
-                    <input
-                    type="file"
-                    id="fileInputOrg"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={changeOrganismEntrepriseImage}
-                    />
-                )}
+                {mainUserRole !== "Sysadmin" &&
+                    mainUserRole === "Consultant" ? (
+                    <div className="flex items-center gap-4">
+                        {userDetails.level === "responsable" && (
+                            <input
+                                type="file"
+                                id="fileInputOrg"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={changeOrganismEntrepriseImage}
+                            />
+                        )}
 
-                <label htmlFor="fileInputOrg">
-                    <img
-                        src={uploadedOrganismEntreprisedImage === null ? (`${appUrl}/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
-                        alt="Image de l'organisation"
-                        className="w-12 h-12 md:w-14 md:h-14 lg:w-18 lg:h-18 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover"
-                    />
-                </label>
-                <h1 className="text-gray-800 dark:text-white text-l md:text-xl lg:text-xl font-serif">
-                    {userDetails.organismName}
-                </h1>
-                </div>
-            }
+                        <label htmlFor="fileInputOrg">
+                            <img
+                                src={uploadedOrganismEntreprisedImage === null ? (`${appUrl}/images/organism/${userDetails.organismImage}`) : (uploadedOrganismEntreprisedImage)}
+                                alt="Image de l'organisation"
+                                className="w-12 h-12 md:w-14 md:h-14 lg:w-18 lg:h-18 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover"
+                            />
+                        </label>
+                        <h1 className="text-gray-800 dark:text-white text-l md:text-xl lg:text-xl font-serif">
+                            {userDetails.organismName}
+                        </h1>
+                    </div>
+                ) : (
+                    // We should the case where the user;s main role is Admin
+                    null
+                )
+                }
 
-        </div>
-
-    <div className='border-t border-gray-300 py-2'></div>
-
-    <section className="w-full h-auto">
-        <div className="flex flex-col">
-            {/* <!-- Profile Image --> */}
-            <div className="mx-4 md:mx-32 flex flex-row items-center justify-between">
-                <div className='flex items-center justify-start gap-4 relative'>
-                    {/* Profile Image */}
-                    <input
-                        type="file"
-                        id="fileInput"
-                        accept="image/*"
-                        className='hidden'
-                        onChange={changeProfileImage}
-                    />
-                    <label htmlFor="fileInput">
-                        <img
-                            src={uploadedImage === null ? (`${appUrl}/images/${userDetails.profileImage}`) : (uploadedImage)}
-                            onMouseEnter={() => setIsHovered(true)}
-                            onMouseLeave={() => setIsHovered(false)}
-                            alt="Votre profile"
-                            className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover"/>
-                    </label>
-                    {/* Online Indicator Icon */}
-                    <TbPointFilled
-                        className='absolute w-6 h-6 md:w-10 md:h-10 ml-12 mb-10 md:mb-20 md:ml-24 rounded-full text-green-400 bg-white'/>
-                    {isHovered &&
-                        <CiCamera
-                            className='absolute w-6 h-6 md:w-10 md:h-10 ml-5 mb-2 md:mb-2 md:ml-12 text-white cursor-pointer'/>
-                    }
-                    {/* FullName */}
-                    <h1 className="text-gray-800 dark:text-white lg:text-4xl md:text-3xl sm:text-3xl xs:text-xl font-serif">
-                        {userDetails.firstname}
-                    </h1>
-                </div>
-                <div className='flex flex-row items-center gap-1'>
-                    {!startedEditing ? (
-                        <motion.div
-                            whileHover={{scale: 1.1}}
-                            whileTap={{scale: 0.9}}
-                        >
-                            <MdEditNote onClick={() => setStartedEditing(!startedEditing)}
-                                        className='w-10 h-10 cursor-pointer'/>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            whileHover={{scale: 1.1}}
-                            whileTap={{scale: 0.9}}
-                            className='cursor-pointer'
-                            onClick={() => {
-                                setStartedEditing(false);
-                                updateProfile(userDetails)
-                            }}
-                        >
-                            <FaCheck className='w-8 h-8 cursor-pointer'/>
-                        </motion.div>
-                    )}
-                </div>
             </div>
-            <div
-                className="flex flex-col gap-4 px-2 md:px-10 py-4 md:py-14">
-                {/* <!-- Description --> */}
-                <p className="md:mx-10 w-fit text-gray-700 dark:text-gray-400 text-center text-md">Lorem, ipsum dolor
-                    sit amet
-                    consectetur adipisicing elit. Quisquam debitis labore consectetur voluptatibus mollitia dolorem
-                    veniam omnis ut quibusdam minima sapiente repellendus asperiores explicabo, eligendi odit, dolore
-                    similique fugiat dolor, doloremque eveniet. Odit, consequatur. Ratione voluptate exercitationem hic
-                    eligendi vitae animi nam in, est earum culpa illum aliquam.</p>
 
+            <div className='border-t border-gray-300 py-2'></div>
 
-                {/* <!-- Detail --> */}
-                <div className="w-full my-auto py-6 flex flex-col justify-center gap-2">
-                    <div className="mx-6 w-full flex md:flex-row flex-col gap-2 justify-center">
-                        <div className="w-full">
-                            <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
-                                <div className="flex flex-col pb-3">
-                                    <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Prénom</dt>
-                                    {startedEditing ? (
-                                        <FloatingLabel variant="outlined" type='text' value={userDetails.firstname}
-                                                       label="Prénom"
-                                                       onChange={(e) => setUserDetails(prev => ({
-                                                           ...prev,
-                                                           firstname: e.target.value
-                                                       }))}
-                                        />
-                                    ) : (
-                                        <dd className="text-lg font-semibold">{userDetails.firstname}</dd>
-                                    )}
-                                </div>
-                                <div className="flex flex-col py-3">
-                                    <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Nom</dt>
-                                    {startedEditing ? (
-                                        <FloatingLabel variant="outlined" type='text' value={userDetails.lastname}
-                                                       label="Prénom"
-                                                       onChange={(e) => setUserDetails(prev => ({
-                                                           ...prev,
-                                                           lastname: e.target.value
-                                                       }))}
-                                        />
-                                    ) : (
-                                        <dd className="text-lg font-semibold">{userDetails.lastname}</dd>
-                                    )}
-                                </div>
-                                <div className="flex flex-col py-3">
-                                    <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Compte
-                                        lancé en
-                                    </dt>
-                                    <dd className="text-lg font-semibold">{userDetails.createdDate.substring(0, 10)}</dd>
-                                </div>
-                            </dl>
+            <section className="w-full h-auto">
+                <div className="flex flex-col">
+                    {/* <!-- Profile Image --> */}
+                    <div className="mx-4 md:mx-32 flex flex-row items-center justify-between">
+                        <div className='flex items-center justify-start gap-4 relative'>
+                            {/* Profile Image */}
+                            <input
+                                type="file"
+                                id="fileInput"
+                                accept="image/*"
+                                className='hidden'
+                                onChange={changeProfileImage}
+                            />
+                            <label htmlFor="fileInput">
+                                <img
+                                    src={uploadedImage === null ? (`${appUrl}/images/${userDetails.profileImage}`) : (uploadedImage)}
+                                    onMouseEnter={() => setIsHovered(true)}
+                                    onMouseLeave={() => setIsHovered(false)}
+                                    alt="Votre profile"
+                                    className="w-16 h-16 md:w-32 md:h-32 cursor-pointer rounded-full transition duration-300 hover:opacity-80 hover:scale-110 object-cover" />
+                            </label>
+                            {/* Online Indicator Icon */}
+                            <TbPointFilled
+                                className='absolute w-6 h-6 md:w-10 md:h-10 ml-12 mb-10 md:mb-20 md:ml-24 rounded-full text-green-400 bg-white' />
+                            {isHovered &&
+                                <CiCamera
+                                    className='absolute w-6 h-6 md:w-10 md:h-10 ml-5 mb-2 md:mb-2 md:ml-12 text-white cursor-pointer' />
+                            }
+                            {/* FullName */}
+                            <h1 className="text-gray-800 dark:text-white lg:text-4xl md:text-3xl sm:text-3xl xs:text-xl font-serif">
+                                {userDetails.firstname}
+                            </h1>
                         </div>
-                        <div className="w-full">
-                            <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
-
-                                <div className="flex flex-col pt-3">
-                                    <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">numéro
-                                        de téléphone
-                                    </dt>
-                                    {startedEditing ? (
-                                        <FloatingLabel variant="outlined" type='text' value={userDetails.phone}
-                                                       label="Prénom"
-                                                       onChange={(e) => setUserDetails(prev => ({
-                                                           ...prev,
-                                                           phone: e.target.value
-                                                       }))}
-                                        />
-                                    ) : (
-                                        <dd className="text-lg font-semibold">+212 {userDetails.phone}</dd>
-                                    )}
-                                </div>
-                                <div className="flex flex-col pt-3">
-                                    <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Email</dt>
-                                    <dd className="text-lg font-semibold pb-3">{userDetails.email}</dd>
-                                </div>
-
-                                <div className="flex flex-col pt-3">
-                                    <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Status
-                                        actuel
-                                    </dt>
-                                    <dd className={`text-lg font-semibold ${userDetails.accountNonLocked === true ? "text-green-500" : "text-red-500"} `}>En
-                                        ligne
-                                        | {userDetails.accountNonLocked === true ? "Compte Activé" : "Compte Désactivé"}</dd>
-                                </div>
-                            </dl>
+                        <div className='flex flex-row items-center gap-1'>
+                            {!startedEditing ? (
+                                <motion.div
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                >
+                                    <MdEditNote onClick={() => setStartedEditing(!startedEditing)}
+                                        className='w-10 h-10 cursor-pointer' />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.9 }}
+                                    className='cursor-pointer'
+                                    onClick={() => {
+                                        setStartedEditing(false);
+                                        updateProfile(userDetails)
+                                    }}
+                                >
+                                    <FaCheck className='w-8 h-8 cursor-pointer' />
+                                </motion.div>
+                            )}
                         </div>
                     </div>
-                </div>
+                    <div
+                        className="flex flex-col gap-4 px-2 md:px-10 py-4 md:py-14">
+                        {/* <!-- Description --> */}
+                        <p className="md:mx-10 w-fit text-gray-700 dark:text-gray-400 text-center text-md">Lorem, ipsum dolor
+                            sit amet
+                            consectetur adipisicing elit. Quisquam debitis labore consectetur voluptatibus mollitia dolorem
+                            veniam omnis ut quibusdam minima sapiente repellendus asperiores explicabo, eligendi odit, dolore
+                            similique fugiat dolor, doloremque eveniet. Odit, consequatur. Ratione voluptate exercitationem hic
+                            eligendi vitae animi nam in, est earum culpa illum aliquam.</p>
 
-            </div>
-        </div>
-    </section>
-{
-    mainUserRole === "Sysadmin" ? (
-        isMenuOpen && <SysMainPage onClose={() => setIsMenuOpen(false)}/>
-    ) : (
-        isMenuOpen && <ClientMainPage onClose={() => setIsMenuOpen(false)}/>
+
+                        {/* <!-- Detail --> */}
+                        <div className="w-full my-auto py-6 flex flex-col justify-center gap-2">
+                            <div className="mx-6 w-full flex md:flex-row flex-col gap-2 justify-center">
+                                <div className="w-full">
+                                    <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+                                        <div className="flex flex-col pb-3">
+                                            <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Prénom</dt>
+                                            {startedEditing ? (
+                                                <FloatingLabel variant="outlined" type='text' value={userDetails.firstname}
+                                                    label="Prénom"
+                                                    onChange={(e) => setUserDetails(prev => ({
+                                                        ...prev,
+                                                        firstname: e.target.value
+                                                    }))}
+                                                />
+                                            ) : (
+                                                <dd className="text-lg font-semibold">{userDetails.firstname}</dd>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col py-3">
+                                            <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Nom</dt>
+                                            {startedEditing ? (
+                                                <FloatingLabel variant="outlined" type='text' value={userDetails.lastname}
+                                                    label="Prénom"
+                                                    onChange={(e) => setUserDetails(prev => ({
+                                                        ...prev,
+                                                        lastname: e.target.value
+                                                    }))}
+                                                />
+                                            ) : (
+                                                <dd className="text-lg font-semibold">{userDetails.lastname}</dd>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col py-3">
+                                            <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Compte
+                                                lancé en
+                                            </dt>
+                                            <dd className="text-lg font-semibold">{userDetails.createdDate.substring(0, 10)}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                                <div className="w-full">
+                                    <dl className="text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700">
+
+                                        <div className="flex flex-col pt-3">
+                                            <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">numéro
+                                                de téléphone
+                                            </dt>
+                                            {startedEditing ? (
+                                                <FloatingLabel variant="outlined" type='text' value={userDetails.phone}
+                                                    label="Prénom"
+                                                    onChange={(e) => setUserDetails(prev => ({
+                                                        ...prev,
+                                                        phone: e.target.value
+                                                    }))}
+                                                />
+                                            ) : (
+                                                <dd className="text-lg font-semibold">+212 {userDetails.phone}</dd>
+                                            )}
+                                        </div>
+                                        <div className="flex flex-col pt-3">
+                                            <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Email</dt>
+                                            <dd className="text-lg font-semibold pb-3">{userDetails.email}</dd>
+                                        </div>
+
+                                        <div className="flex flex-col pt-3">
+                                            <dt className="mb-1 text-gray-500 md:text-lg font-p_bold dark:text-gray-400">Status
+                                                actuel
+                                            </dt>
+                                            <dd className={`text-lg font-semibold ${userDetails.accountNonLocked === true ? "text-green-500" : "text-red-500"} `}>En
+                                                ligne
+                                                | {userDetails.accountNonLocked === true ? "Compte Activé" : "Compte Désactivé"}</dd>
+                                        </div>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+            {
+                mainUserRole === "Sysadmin" ? (
+                    isMenuOpen && <SysMainPage onClose={() => setIsMenuOpen(false)} />
+                ) : (
+                    isMenuOpen && <ClientMainPage onClose={() => setIsMenuOpen(false)} />
+                )
+            }
+        </>
     )
-}
-</>
-)
 }

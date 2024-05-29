@@ -24,5 +24,15 @@ export default {
   },
   plugins: [
     flowbite.plugin(),
+    function ({ addUtilities }) {
+      addUtilities({
+        '.custom-scrollbar': {
+          'scrollbar-width': 'none', /* For Firefox */
+          '&::-webkit-scrollbar': {
+            display: 'none' /* For Chrome, Safari, and Opera */
+          }
+        }
+      })
+    }
   ],
 };
