@@ -12,12 +12,9 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from 'jwt-decode';
 import { appUrl } from '../../Url.jsx';
 import { isTokenExpired, isTokenInCookies, countNotifications, changePassword, extractMainRole } from '../CommonApiCalls';
-import profile from '../../assets/consultant.jpg';
 import ClientMainPage from './ClientMainPage';
-import { DiagnosisModal } from './consultant_pages/DiagnosisModal';
 
 export default function ClientDashboard() {
-
 
     const navigate = useNavigate();
 

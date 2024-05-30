@@ -403,7 +403,7 @@ export default function ClientMainPage({ onClose }) {
               <SidebarItems>
                 <SidebarItemGroup>
 
-                  <Sidebar.Item className='cursor-pointer' href='#' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
+                  <Sidebar.Item className='cursor-pointer' href='/ActionsPlans' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
                     Plan D'actions
                   </Sidebar.Item>
 

@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import Contact from "./Contact";
 import { useNavigate } from "react-router-dom";
 import { appUrl } from "../Url.jsx";
-import {isTokenExpired, isTokenInCookies} from "../users_pages/CommonApiCalls.jsx";
+import { isTokenExpired, isTokenInCookies } from "../users_pages/CommonApiCalls.jsx";
 
 export default function SignIn({ onClose }) {
 
@@ -80,6 +80,10 @@ export default function SignIn({ onClose }) {
                         } else {
                             if (data.user.roles.some(role => role.name === "Consultant")) {
                                 localStorage.setItem('organismImage', data.user.organismeDeCertification.imagePath);
+                            } else {
+                                localStorage.setItem('EntrepriseId', data.user.entreprise.id);
+                                localStorage.setItem('EntrepriseName', data.user.entreprise.raisonSocial);
+                                localStorage.setItem('EntrepriseImage', data.user.entreprise.imagePath);
                             }
                             navigate("/ClientDashboard", { state: { shouldChangePassword } });
                         }
@@ -117,15 +121,15 @@ export default function SignIn({ onClose }) {
                 <Modal.Header />
                 <Modal.Body>
                     {organismImage &&
-                    <div className='flex items-center justify-center mb-4 relative'>
-                        {/* Profile Image */}
-                        <label>
-                            <img
-                                src={(`${appUrl}/images/organism/${organismImage}`)}
-                                alt="Image de l'organisation"
-                                className="w-16 h-16 md:w-20 md:h-20 cursor-pointer rounded-full object-cover" />
-                        </label>
-                    </div>}
+                        <div className='flex items-center justify-center mb-4 relative'>
+                            {/* Profile Image */}
+                            <label>
+                                <img
+                                    src={(`${appUrl}/images/organism/${organismImage}`)}
+                                    alt="Image de l'organisation"
+                                    className="w-16 h-16 md:w-20 md:h-20 cursor-pointer rounded-full object-cover" />
+                            </label>
+                        </div>}
 
                     <div className="space-y-6">
                         <h3 className="text-xl font-medium text-gray-900 dark:text-white">S'authentifier</h3>
