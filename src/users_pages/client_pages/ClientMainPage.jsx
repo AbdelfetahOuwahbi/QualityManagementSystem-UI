@@ -263,8 +263,8 @@ export default function ClientMainPage({ onClose }) {
                   <IoIosArrowDown className='w-6 h-6 text-sky-500' />
                 )}
               </div>
-              <Sidebar aria-label="Sidebar with multi-level dropdown example">
-                <Sidebar.Items>
+              <Sidebar  aria-label="Sidebar with multi-level dropdown example">
+                <Sidebar.Items >
                   <Sidebar.ItemGroup>
 
                     {isUpperMenuOpen &&
@@ -274,7 +274,7 @@ export default function ClientMainPage({ onClose }) {
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
                           transition={{ duration: 0.5, ease: 'easeOut' }}
-                          className='flex flex-col gap-2'>
+                          className='flex flex-col gap-2 '>
                           <Sidebar.Item onClick={() => {
                           }} href="/ClientDashboard" icon={() => <HiChartPie className='text-sky-500 w-6 h-6' />}>
                             Dashboard

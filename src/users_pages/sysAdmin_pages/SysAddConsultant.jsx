@@ -122,6 +122,8 @@ export default function SysAddConsultant({ consultantDtls, onClose }) {
                             errorMessages.forEach(message => {
                                 toast.error(message.trim());
                             });
+                        }else if(data.errorCode === "Frame_already_exists"){
+                            toast.error(data.message);
                         }
                         else {
                             toast.error('Une erreur s\'est produite lors du creation de ce consultant.');

@@ -247,7 +247,6 @@ export default function Profile() {
                     method: 'POST',
                     body: formDataToo
                 });
-                const data = await response.text();
                 if (response.ok) {
                     // the reader that will be filled with the image's buffer (data)
                     const reader1 = new FileReader();
