@@ -613,33 +613,43 @@ export default function SysAllConsultants() {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 50 }}
                         transition={{ duration: 0.5 }}
-                        className="fixed bottom-0 right-0 p-4 m-4 bg-white border border-gray-300 shadow-lg rounded flex items-center"
+                        className="fixed bottom-0 right-0 p-4 m-4 border border-gray-300 shadow-lg rounded flex items-center"
                     >
+                        <motion.div
+                            initial={{ backgroundPosition: "0% 50%" }}
+                            animate={{ backgroundPosition: "100% 50%" }}
+                            transition={{ duration: 2, ease: "easeInOut" }}
+                            className="absolute inset-0 bg-sky-400 rounded"
+                            style={{ zIndex: -1 }}
+                        />
                         <input
                             type="text"
                             readOnly
                             value={temporaryPassword}
-                            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none bg-gray-300"
+                            className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none bg-white"
                         />
                         <button
-                            className="ml-2"
+                            className="ml-2 flex flex-col items-center"
                             onClick={() => {
                                 navigator.clipboard.writeText(temporaryPassword);
-                                toast.success("Mot de passe copié dans le presse-papiers !")
+                                toast.success("Mot de passe copié dans le presse-papiers !");
                                 setShowTemporaryPassword(false);
                                 setTemporaryPassword("");
                             }}
                         >
                             <motion.div
+                                transition={{ type: "spring", stiffness: 300 }}
                                 whileHover={{ scale: 1.2, rotate: 10 }}
                                 whileTap={{ scale: 0.8, rotate: -10 }}
-                                transition={{ type: "spring", stiffness: 300 }}
+                                className="flex flex-col  items-center text-white hover:text-gray-100 cursor-pointer"
                             >
-                                <FaClipboard className="w-5 h-5 text-gray-700 hover:text-gray-900" />
+                                <FaClipboard className="w-5 h-5 " />
+                                <span className="text-xs font-bold mt-1 ">Copier</span>
                             </motion.div>
                         </button>
                     </motion.div>
                 )}
+
 
             </div>
             {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
