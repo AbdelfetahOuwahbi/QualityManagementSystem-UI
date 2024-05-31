@@ -203,7 +203,11 @@ export default function Profile() {
             try {
                 const response = await fetch(`http://localhost:8080/api/v1/public/upload/${userID}`, {
                     method: 'POST',
-                    body: formData
+                    headers: {
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    },
+                    body: formData,
+
                 });
                 if (response.ok) {
                     // the reader that will be filled with the image's buffer (data)
@@ -245,6 +249,9 @@ export default function Profile() {
             try {
                 const response = await fetch(`http://localhost:8080/api/v1/public/upload/organismEntreprise/${userID}?organismeId=${userDetails.organism}`, {
                     method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${Cookies.get("JWT")}`,
+                    },
                     body: formDataToo
                 });
                 if (response.ok) {
@@ -254,7 +261,7 @@ export default function Profile() {
                         setUploadedOrganismEntreprisedImage(reader1.result); // Set profileImg to the data URL of the uploaded image
                     };
                     reader1.readAsDataURL(event.target.files[0]);
-                    toast.success("Votre photoa été changée avec succés ..");
+                    toast.success("Votre photo été changée avec succés ..");
                     console.log('Image uploaded successfully');
                 } else {
                     const data = await response.json();
