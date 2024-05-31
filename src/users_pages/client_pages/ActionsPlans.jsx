@@ -20,12 +20,7 @@ export default function ActionsPlans() {
     const [isActionDetailShowen, setIsActionDetailShowen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [actions, setActions] = useState([]);
-    const [dataToNextComponent, setDataToNextComponent] = useState(
-        {
-            actionId: '',
-            agentId: '',
-        }
-    )
+    const [dataToNextComponent, setDataToNextComponent] = useState({});
 
     useEffect(() => {
         if (actions.length > 0) {
@@ -165,10 +160,7 @@ export default function ActionsPlans() {
                                     <td className="px-6 py-4">
                                         <CgDetailsMore onClick={() => {
                                             setIsActionDetailShowen(!isActionDetailShowen);
-                                            setDataToNextComponent({
-                                                actionId: action.id,
-                                                agentId: action.chosenAgent.id,
-                                            });
+                                            setDataToNextComponent(action);
                                         }}
                                             className='w-7 h-7 text-sky-500 cursor-pointer' />
                                     </td>
