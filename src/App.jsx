@@ -18,6 +18,8 @@ import ClientNotifications from './users_pages/client_pages/ClientNotifications'
 import AllEntreprises from './users_pages/client_pages/consultant_pages/AllEntreprises';
 import AllUsers from './users_pages/client_pages/consultant_pages/AllUsers.jsx';
 import AllDiagnosises from './users_pages/client_pages/consultant_pages/AllDiagnosises';
+import ActionsPlans from './users_pages/client_pages/ActionsPlans.jsx';
+import ActionPlanDetails from './users_pages/client_pages/ActionPlanDetails.jsx';
 
 export default function App() {
   return (
@@ -37,6 +39,8 @@ export default function App() {
         {/* Clients Routes */}
         <Route path="/ClientDashboard" element={<ClientDashboard />} />
         <Route path="/ClientNotifications" element={<ClientNotifications />} />
+        <Route path="/ActionsPlans" element={<ActionsPlans />} />
+        <Route path="/ActionPlanDetails" element={<ActionPlanDetails />} />
         {/* Consultants Routes */}
         <Route path="/AllEntreprises" element={<AllEntreprises />} />
         <Route path="/AllUsers" element={<AllUsers />} />

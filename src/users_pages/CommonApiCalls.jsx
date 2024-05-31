@@ -48,7 +48,7 @@ export function extractMainRole() {
 }
 
 // Function that checks whether the user has a specific permission
-export function doesHeHaveAccess(permission) { 
+export function doesHeHaveAccess(permission) {
 
     const userRolesEncoded = Cookies.get("userRoles");
 
@@ -127,6 +127,12 @@ export async function lockOrUnlockUser(userId) {
 export function handleLogout() {
     Cookies.remove("JWT");
     Cookies.remove("userRoles");
+    const mainRole = extractMainRole();
+    if (mainRole !== "Consultant" && mainRole !== "Sysadmin") {
+        localStorage.removeItem("EntrepriseId");
+        localStorage.removeItem("EntrepriseName");
+        localStorage.removeItem("EntrepriseImage");
+    }
     window.location.href = "/";
 }
 
