@@ -263,7 +263,7 @@ export default function ClientMainPage({ onClose }) {
                   <IoIosArrowDown className='w-6 h-6 text-sky-500' />
                 )}
               </div>
-              <Sidebar  aria-label="Sidebar with multi-level dropdown example">
+              <Sidebar aria-label="Sidebar with multi-level dropdown example">
                 <Sidebar.Items >
                   <Sidebar.ItemGroup>
 
@@ -382,7 +382,7 @@ export default function ClientMainPage({ onClose }) {
                               exit={{ opacity: 0, height: 0 }}
                               transition={{ duration: 0.5, ease: 'easeOut' }}
                             >
-                              <Sidebar.Item className='cursor-pointer' href='#' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
+                              <Sidebar.Item className='cursor-pointer' href='/ActionsPlans' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
                                 Plan D'actions
                               </Sidebar.Item>
                             </motion.div>

@@ -14,7 +14,7 @@ export default function ActionsPlans() {
     const mainUserRole = extractMainRole();
     const userID = jwtDecode(Cookies.get("JWT")).id;
 
-    console.log(mainUserRole, " ", userID);
+    console.log(localStorage);
 
     const [isClientMenuOpen, setIsClientMenuOpen] = useState(false);
     const [isActionDetailShowen, setIsActionDetailShowen] = useState(false);
@@ -40,7 +40,7 @@ export default function ActionsPlans() {
             window.location.href = "/"
         } else {
             try {
-                const response = await fetch(`${appUrl}/diagnoses/details/actions/by-entreprise/${JSON.parse(localStorage.getItem("EntrepriseId"))}`, {
+                const response = await fetch(`${appUrl}/diagnoses/details/actions/by-entreprise/${mainUserRole === "Consultant" ? JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).id : JSON.parse(localStorage.getItem("EntrepriseId"))}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -83,13 +83,22 @@ export default function ActionsPlans() {
             <div className="flex p-4 w-full justify-between">
                 {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsClientMenuOpen(!isClientMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
-                {mainUserRole !== "Consultant" &&
-                    <div className='flex items-center gap-2'>
-                        <img src={`${appUrl}/images/organism/${localStorage.getItem("EntrepriseImage")}`}
-                            className='w-8 h-8 rounded-full object-cover'
-                            alt={localStorage.getItem("EntrepriseName")} />
-                        <h1 className='font-p_medium text-sky-600'>{localStorage.getItem("EntrepriseName")}</h1>
-                    </div>
+                {mainUserRole !== "Consultant" ?
+                    (
+                        <div className='flex items-center gap-2'>
+                            <img src={`${appUrl}/images/organism/${localStorage.getItem("EntrepriseImage")}`}
+                                className='w-8 h-8 rounded-full object-cover'
+                                alt={localStorage.getItem("EntrepriseName")} />
+                            <h1 className='font-p_medium text-sky-600'>{localStorage.getItem("EntrepriseName")}</h1>
+                        </div>
+                    ) : (
+                        <div className='flex items-center gap-2'>
+                            <img src={`${JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).image}`}
+                                className='w-8 h-8 rounded-full object-cover'
+                                alt={JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).name} />
+                            <h1 className='font-p_medium text-sky-600'>{JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).name}</h1>
+                        </div>
+                    )
                 }
             </div>
 
