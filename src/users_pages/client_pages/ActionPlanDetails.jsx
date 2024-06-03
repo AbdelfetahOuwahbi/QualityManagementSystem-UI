@@ -188,28 +188,45 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
       }
     }
   }
-  //Function that downloads all Detail associated Files
+  // Function that downloads all Detail associated Files
   async function downloadAllDetailFiles(detailId) {
     if (!isTokenInCookies()) {
-      window.location.href = "/"
+      window.location.href = "/";
     } else if (isTokenExpired()) {
       Cookies.remove("JWT");
-      window.location.href = "/"
+      window.location.href = "/";
     } else {
       try {
         const response = await fetch(`${appUrl}/attach/downloadAll/${detailId}`, {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${Cookies.get("JWT")}`
+            'Authorization': `Bearer ${Cookies.get("JWT")}`,
           },
         });
-        const data = await response.json();
-        console.log(data);
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const contentDisposition = response.headers.get('Content-Disposition');
+          const fileName = contentDisposition
+            ? contentDisposition.split('filename=')[1].replace(/"/g, '')
+            : 'download.zip';
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        } else {
+          console.error('Failed to download files', response.statusText);
+        }
       } catch (error) {
         console.log("error while downloading the files --> ", error);
       }
     }
   }
+
 
   //Function that adds a file to the detail
   async function addFile() {
