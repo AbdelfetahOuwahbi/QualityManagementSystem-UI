@@ -127,7 +127,7 @@ export default function SysMainPage({ onClose }) {
                 <Sidebar.Collapse icon={() => <FaUsersLine className='text-sky-500 w-6 h-6' />} label="Consultants SMQ">
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/SysAllConsultants">Liste des Consultants SMQ
+                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/SysAllConsultants">Consultants SMQ
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
@@ -135,11 +135,11 @@ export default function SysMainPage({ onClose }) {
                 <Sidebar.Collapse icon={() => <GoOrganization className='text-sky-500 w-6 h-6' />} label="Organisations">
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/SysAllOrganismes">Liste des Org de Certification
+                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/SysAllOrganismes">Org de Certification
                   </Sidebar.Item>
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/SysAllEntreprises">Liste des Entreprises Clientes
+                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/SysAllEntreprises">Entreprises Clientes
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
