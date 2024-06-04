@@ -186,7 +186,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
         if (response.ok) {
           console.log("Action Detail updated Successfully ..");
           toast.success("Vous avez modifier le detail avec succés ..")
-          // window.location.reload();
+          window.location.reload();
         } else {
           console.log(data.message);
           toast.error(`n'a pas passer, la modification a échouée a cause de ${data.message}!!`)
