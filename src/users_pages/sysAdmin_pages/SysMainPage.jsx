@@ -111,28 +111,28 @@ export default function SysMainPage({ onClose }) {
               <Sidebar.ItemGroup>
 
                 <Sidebar.Item onClick={() => {
-                }} href="/SysDashboard" icon={HiChartPie}>
+                }} href="/SysDashboard" icon={() => <HiChartPie className='text-sky-500 w-6 h-6' />}>
                   Dashboard
                 </Sidebar.Item>
 
                 <Sidebar.Item onClick={() => {
-                }} href="/SysNotifications" icon={IoMdNotificationsOutline} label={notifsNumber}>
+                }} href="/SysNotifications" icon={() => <IoMdNotificationsOutline className='text-sky-500 w-6 h-6' />} label={notifsNumber}>
                   Boite
                 </Sidebar.Item>
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiSettings} href="/SysAllNorms">Normes
+                  }} icon={() => <CiSettings className='text-sky-500 w-6 h-6' />} href="/SysAllNorms">Normes
                   </Sidebar.Item>
 
-                <Sidebar.Collapse icon={FaUsersLine} label="Consultants SMQ">
+                <Sidebar.Collapse icon={() => <FaUsersLine className='text-sky-500 w-6 h-6' />} label="Consultants SMQ">
 
                   <Sidebar.Item onClick={() => {
-                  }} icon={CiBoxList} href="/SysAllConsultants">Liste des Consultants SMQ
+                  }} icon={() => <CiBoxList className='text-sky-500 w-6 h-6' />} href="/SysAllConsultants">Liste des Consultants SMQ
                   </Sidebar.Item>
 
                 </Sidebar.Collapse>
 
-                <Sidebar.Collapse icon={GoOrganization} label="Organisations">
+                <Sidebar.Collapse icon={() => <GoOrganization className='text-sky-500 w-6 h-6' />} label="Organisations">
 
                   <Sidebar.Item onClick={() => {
                   }} icon={CiBoxList} href="/SysAllOrganismes">Liste des Org de Certification
@@ -144,7 +144,7 @@ export default function SysMainPage({ onClose }) {
 
                 </Sidebar.Collapse>
 
-                <Sidebar.Item className='cursor-pointer' onClick={() => handleLogout()} icon={FaSignOutAlt}>
+                <Sidebar.Item className='cursor-pointer' onClick={() => handleLogout()} icon={() => <FaSignOutAlt className='text-sky-500 w-6 h-6' />}>
                   Déconnexion
                 </Sidebar.Item>
 
