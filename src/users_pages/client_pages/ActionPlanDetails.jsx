@@ -49,6 +49,8 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
     }
   );
 
+  const [messageToSend, setMessageToSend] = useState("");
+
   //File selected by the user on update
   const [selectedFile, setSelectedFile] = useState(null);
   //Files to be selected by the user on Save
@@ -138,6 +140,9 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
         },
       });
       if (response.ok) {
+        if (newStatus === "pending") {
+          sendNotifToAgent(messageToSend);
+        }
         console.log("Action Detail Updated Successfully ..");
         toast.success("Vous avez Validé le detail avec succés ..")
         window.location.reload();
@@ -299,6 +304,34 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
     }
   }
 
+  //Function to send notification to the agent
+  async function sendNotifToAgent(message) {
+    if (!isTokenInCookies()) {
+      window.location.href = "/"
+    } else if (isTokenExpired()) {
+      Cookies.remove("JWT");
+      window.location.href = "/"
+    } else {
+      try {
+        const response = await fetch(`${appUrl}/notification/send`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${Cookies.get("JWT")}`
+          },
+          body: JSON.stringify({
+            'senderId': userID,
+            'receiverId': actionProperties.chosenAgent.id,
+            'message': `Probleme de diagnostic : ${message}`,
+          })
+        });
+        console.log(await response.json());
+      } catch (error) {
+        console.log("error sending notif to agent --> ", error);
+      }
+    }
+  }
+
   //The confirmation to the Operation to be executed
   const Confirmcontent = (
     <div className="w-full md:w-96 text-sm text-gray-500 dark:text-gray-400">
@@ -311,6 +344,24 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
           detailsProperties.status === "pending" ? saveActionDetails() :
             detailsProperties.status === "validatedForResponsable" ? saveActionDetails() :
               updateActionDetailsState("validated")
+        }} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
+          Confirmer
+        </button>
+      </div>
+    </div>
+  );
+
+  //The Message to Send
+  const MessageContent = (
+    <div className="w-full md:w-96 text-sm text-gray-500 dark:text-gray-400">
+      <div className="border-b border-gray-200 bg-gray-100 px-3 py-2 dark:border-gray-600 dark:bg-gray-700">
+        <h3 className="font-p_semi_bold text-gray-900 dark:text-white">Motif</h3>
+      </div>
+      <div className='flex flex-row md:flex-col gap-2 p-4'>
+        <label for="motif" class="block text-sm font-medium text-gray-700">Entrer votre motif:</label>
+        <textarea type="text" id="motif" name="motif" value={messageToSend} onChange={(e) => setMessageToSend(e.target.value)} placeholder="Entrer votre motif ..." class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" />
+        <button onClick={() => {
+          updateActionDetailsState("pending");
         }} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
           Confirmer
         </button>
@@ -676,18 +727,15 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
 
             {/* Right Part */}
             <div className='flex flex-row md:flex-col gap-1 md:gap-4 w-full md:w-1/2'>
-              {mainUserRole === "Responsable" || mainUserRole === "Pilot" ? (
-                (actionProperties?.actionDetails?.length > 0 ? (
-                  (actionProperties?.actionDetails[0]?.status !== "pending" && actionProperties?.actionDetails[0]?.status !== "validated" ? (
-                    <h1 className='font-p_medium md:text-xl text-white'>Marquer le status de ce Detail :</h1>
-                  ) : (
-                    null
-                  ))
-                ) : actionProperties?.actionDetails?.length === 0 && userID === actionProperties.chosenAgent.id && (
+
+              {actionProperties?.actionDetails?.length > 0 ? (
+                (actionProperties.actionDetails[0]?.status === "pending" && mainUserRole === "Pilot" ? (
+                  <h1 className='font-p_medium md:text-xl text-white'>Marquer le status de ce Detail :</h1>
+                ) : actionProperties.actionDetails[0]?.status === "realized" && mainUserRole === "Responsable" && (
                   <h1 className='font-p_medium md:text-xl text-white'>Marquer le status de ce Detail :</h1>
                 ))
-              ) : (
-                null
+              ) : actionProperties?.actionDetails?.length === 0 && userID === actionProperties.chosenAgent.id && (
+                <h1 className='font-p_medium md:text-xl text-white'>Marquer le status de ce Detail :</h1>
               )}
 
               {mainUserRole === "Pilot" && (
@@ -706,7 +754,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
               {actionProperties?.actionDetails?.length > 0 &&
                 mainUserRole !== "Consultant" &&
                 userID === actionProperties.chosenAgent.id &&
-                actionProperties.actionDetails[0]?.status !== "validated" && (
+                actionProperties.actionDetails[0]?.status === "pending" && (
                   isModifying ? (
                     <>
                       <button
@@ -762,9 +810,11 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
                             Valider
                           </button>
                         </Popover>
-                        <button onClick={() => { updateActionDetailsState("pending") }} className="bg-green-500 font-p_medium text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
-                          Marquer comme en cours de réalisation
-                        </button>
+                        <Popover content={MessageContent} placement="top">
+                          <button className="bg-green-500 font-p_medium text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
+                            Marquer comme en cours de réalisation
+                          </button>
+                        </Popover>
                       </>
                     ))
                   ) : userID === actionProperties.chosenAgent.id && (

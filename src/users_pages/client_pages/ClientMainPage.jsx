@@ -403,6 +403,11 @@ export default function ClientMainPage({ onClose }) {
               <SidebarItems>
                 <SidebarItemGroup>
 
+                  <Sidebar.Item className={`${notifsNumber > 0 && "animate-pulse"}`} onClick={() => {
+                  }} href="/ClientNotifications" icon={() => <IoMdNotificationsOutline className='text-sky-500 w-6 h-6' />} label={notifsNumber}>
+                    Boite
+                  </Sidebar.Item>
+
                   <Sidebar.Item className='cursor-pointer' href='/ActionsPlans' icon={() => <SiGithubactions className='w-6 h-6 text-sky-500' />}>
                     Plan D'actions
                   </Sidebar.Item>

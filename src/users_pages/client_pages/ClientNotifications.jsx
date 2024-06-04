@@ -19,8 +19,6 @@ export default function ClientNotifications() {
 
   //Loading Variables For Better UX
   const [isLoading, setIsLoading] = useState(false);
-  //To show the notification details under the notif card
-  const [notifDetailsShowen, setNotifDetailsShowen] = useState([]);
 
   //Notification Properties
   const [notifId, setNotifId] = useState([]);
@@ -47,7 +45,7 @@ export default function ClientNotifications() {
           await new Promise(resolve => setTimeout(resolve, 1000));
           try {
             const data = await getAllNotifications(userID, Cookies.get("JWT"));
-            console.log("data-->", data.length);
+            console.log("data -->", data);
             if (data.length > 0) {
               let newNotifs = 0;
               for (let i = 0; i < data.length; i++) {
@@ -56,7 +54,7 @@ export default function ClientNotifications() {
                 }
               }
               setIsLoading(false);
-              console.log(newNotifs);
+              console.log("new notifs --> ", newNotifs);
               if (newNotifs > 0) {
                 toast('De nouvelles notifications sont disponibles pour vous ..', {
                   icon: '🔔',
@@ -71,7 +69,6 @@ export default function ClientNotifications() {
                 setNotifMessage(prevState => [...prevState, data[i].message]);
                 setNotifDate(prevState => [...prevState, data[i].createdDate]);
                 setIsNotifRead(prevState => [...prevState, data[i].read]);
-                setNotifDetailsShowen(prevState => [...prevState, false]);
               }
             } else {
               setIsLoading(false);
@@ -93,6 +90,10 @@ export default function ClientNotifications() {
       }
     }
   }, [])
+
+  useEffect(() => {
+    console.log("message is --> ", notifMessage);
+  },[notifMessage])
 
   return (
     <>
@@ -138,36 +139,10 @@ export default function ClientNotifications() {
                 }} className={`w-full mt-8 h-auto px-6 md:px-16 ${!isNotifRead[index] ? "bg-sky-400 hover:bg-sky-200" : "bg-sky-100"} cursor-pointer flex flex-col border-grey shadow-2xl md:rounded-lg`}>
                   <h2 className="p-2 font-p_medium">Message :</h2>
                   <p className='font-p_light py-2'>{notifMessage[index]}</p>
-                  <div className='py-2 flex justify-between'>
-                    <h5 className='font-p_black text-gray-800'>date : {notifDate[index]}</h5>
-                    {
-                      notifDetailsShowen[index] ? (
-                        <IoIosArrowUp className="w-8 h-8" />
-                      ) : (
-                        <IoIosArrowDown className="w-8 h-8" />
-                      )
-                    }
+                  <div className='py-2 flex justify-end'>
+                    <h5 className='font-p_black text-gray-800'>date : {notifDate[index].replace("T", ' a ')}</h5>
                   </div>
                 </div>
-                {/* Notif Details To be showen by clicking on the Notifications itself */}
-                <AnimatePresence mode="wait">
-                  {notifDetailsShowen[index] && (
-                    <>
-                      <div className='border-t border-black w-1/2'></div>
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, height: 0, overflow: "hidden" }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
-                        className="w-full h-auto flex flex-col py-4 md:rounded-b-lg bg-white shadow-2xl"
-                      >
-                        <h1 className='text-2xl font-p_medium py-5 pl-8'>Details : </h1>
-
-                      </motion.div>
-                    </>
-                  )}
-                </AnimatePresence>
               </>
             ))}
           </div>
