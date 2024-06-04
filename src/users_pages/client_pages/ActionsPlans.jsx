@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react'
-import { Spinner } from 'flowbite-react';
-import { FaBars } from 'react-icons/fa6';
-import { CgDetailsMore } from "react-icons/cg";
+import React, {useEffect, useState} from 'react'
+import {Spinner} from 'flowbite-react';
+import {FaBars} from 'react-icons/fa6';
+import {CgDetailsMore} from "react-icons/cg";
 import Cookies from 'js-cookie';
-import toast, { Toaster } from 'react-hot-toast';
-import { extractMainRole, isTokenExpired, isTokenInCookies } from '../CommonApiCalls';
-import { appUrl } from '../../Url';
+import toast, {Toaster} from 'react-hot-toast';
+import {extractMainRole, isTokenExpired, isTokenInCookies} from '../CommonApiCalls';
+import {appUrl} from '../../Url';
 import ActionPlanDetails from './ActionPlanDetails';
 import ClientMainPage from './ClientMainPage';
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
+
 export default function ActionsPlans() {
 
     const mainUserRole = extractMainRole();
@@ -76,26 +77,28 @@ export default function ActionsPlans() {
             }
         }
     }
+
     return (
         <>
-            <Toaster position="top-center" reverseOrder={false} />
+            <Toaster position="top-center" reverseOrder={false}/>
 
             <div className="flex p-4 w-full justify-between">
                 {/* Bars Icon That toogles the visibility of the menu */}
-                <FaBars onClick={() => setIsClientMenuOpen(!isClientMenuOpen)} className='w-6 h-6 cursor-pointer text-neutral-600' />
+                <FaBars onClick={() => setIsClientMenuOpen(!isClientMenuOpen)}
+                        className='w-6 h-6 cursor-pointer text-neutral-600'/>
                 {mainUserRole !== "Consultant" ?
                     (
                         <div className='flex items-center gap-2'>
                             <img src={`${appUrl}/images/organism/${localStorage.getItem("EntrepriseImage")}`}
-                                className='w-8 h-8 rounded-full object-cover'
-                                alt={localStorage.getItem("EntrepriseName")} />
+                                 className='w-8 h-8 rounded-full object-cover'
+                                 alt={localStorage.getItem("EntrepriseName")}/>
                             <h1 className='font-p_medium text-sky-600'>{localStorage.getItem("EntrepriseName")}</h1>
                         </div>
                     ) : (
                         <div className='flex items-center gap-2'>
                             <img src={`${JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).image}`}
-                                className='w-8 h-8 rounded-full object-cover'
-                                alt={JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).name} />
+                                 className='w-8 h-8 rounded-full object-cover'
+                                 alt={JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).name}/>
                             <h1 className='font-p_medium text-sky-600'>{JSON.parse(localStorage.getItem("chosenEntrepriseDetails")).name}</h1>
                         </div>
                     )
@@ -108,7 +111,7 @@ export default function ActionsPlans() {
                     <h1 className='text-4xl font-p_bold'>Plan D'actions</h1>
                     {/* Activity Indicator Goes here */}
                     {isLoading &&
-                        <Spinner className="w-8 h-8 ml-12" aria-label="Default status example" />
+                        <Spinner className="w-8 h-8 ml-12" aria-label="Default status example"/>
                     }
                 </div>
                 <div className='border-t border-gray-300 w-96'></div>
@@ -121,67 +124,99 @@ export default function ActionsPlans() {
                     className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
                 >
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                        <tr>
-                            <th scope="col" className="px-6 py-3">
-                                Action
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Date de création
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                DeadLine
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Origine
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Responsable
-                            </th>
-                            <th scope="col" className="px-6 py-3">
-                                Details
-                            </th>
-                        </tr>
+                    <tr>
+                        <th scope="col" className="px-6 py-3">
+                            Action
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Date de création
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            DeadLine
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Origine
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Responsable
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Statut
+                        </th>
+                        <th scope="col" className="px-6 py-3">
+                            Details
+                        </th>
+                    </tr>
                     </thead>
                     <tbody>
-                        {actions?.map((action, index) => (
-                            (mainUserRole === "Consultant" || mainUserRole === "Responsable" || (mainUserRole === "Pilot" && userID === action.chosenAgent.id)) && (
-                                <tr key={index} className='border-b'>
+                    {actions?.map((action, index) => (
+                        (mainUserRole === "Consultant" || mainUserRole === "Responsable" || (mainUserRole === "Pilot" && userID === action.chosenAgent.id)) && (
+                            <tr key={index} className='border-b'>
+                                <td className="px-6 py-4">
+                                    {action.action}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {action.createdDate.replace('T', ' a ')}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {action.deadline.replace('T', ' a ')}
+                                </td>
+                                <td className="px-6 py-4">
+                                    {action.origin}
+                                </td>
+                                <td className="px-6 py-4">
+                                    <div className='flex items-center gap-4'>
+                                        <img src={`${appUrl}/images/${action.chosenAgent.imagePath}`}
+                                             className='w-8 h-8 rounded-full object-cover'
+                                             alt={action.chosenAgent.firstname}/>
+                                        {action.chosenAgent.firstname}
+                                    </div>
+                                </td>
+                                <td className="px-6 py-4">
                                     <td className="px-6 py-4">
-                                        {action.action}
+                                        {action.actionDetails[0]?.status === "realized" ? (
+                                            <span
+                                                className="inline-block px-3 py-1 text-white text-xs font-medium bg-yellow-500 bg-gradient-to-r from-yellow-400 to-yellow-600 rounded-full">
+                                              Réalisé
+                                            </span>
+                                        ) : action.actionDetails[0]?.status === "validated" ? (
+                                            <span
+                                                className="inline-block px-3 py-1 text-white text-xs font-medium bg-green-500 bg-gradient-to-r from-green-400 to-green-600 rounded-full">
+                                              Validé
+                                            </span>
+                                        ) : action.actionDetails[0]?.status === "pending" ? (
+                                            <span
+                                                className="inline-block px-3 py-1 text-white text-xs font-medium bg-orange-500 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full">
+                                              En attente
+                                            </span>
+                                        ) : (
+                                            <span
+                                                className="inline-block px-3 py-1 text-white text-xs font-medium bg-red-500 bg-gradient-to-r from-red-400 to-red-600 rounded-full">
+                                              Non commencé
+                                            </span>
+                                        )}
                                     </td>
-                                    <td className="px-6 py-4">
-                                        {action.createdDate.replace('T', ' a ')}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {action.deadline.replace('T', ' a ')}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {action.origin}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <div className='flex items-center gap-4'>
-                                            <img src={`${appUrl}/images/${action.chosenAgent.imagePath}`}
-                                                className='w-8 h-8 rounded-full object-cover'
-                                                alt={action.chosenAgent.firstname} />
-                                            {action.chosenAgent.firstname}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <CgDetailsMore onClick={() => {
-                                            setIsActionDetailShowen(!isActionDetailShowen);
-                                            setDataToNextComponent(action);
-                                        }}
-                                            className='w-7 h-7 text-sky-500 cursor-pointer' />
-                                    </td>
-                                </tr>
-                            )
-                        ))}
+
+                                </td>
+
+
+                                <td className="px-6 py-4">
+                                    <CgDetailsMore onClick={() => {
+                                        setIsActionDetailShowen(!isActionDetailShowen);
+                                        setDataToNextComponent(action);
+                                    }}
+                                                   className='w-7 h-7 text-sky-500 cursor-pointer'/>
+                                </td>
+                            </tr>
+                        )
+                    ))}
 
                     </tbody>
                 </table>
             </div>
-            {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)} />}
-            {isActionDetailShowen && <ActionPlanDetails actionProperties={dataToNextComponent} onClose={() => setIsActionDetailShowen(false)} />}
+            {isClientMenuOpen && <ClientMainPage onClose={() => setIsClientMenuOpen(false)}/>}
+            {isActionDetailShowen && <ActionPlanDetails actionProperties={dataToNextComponent}
+                                                        onClose={() => setIsActionDetailShowen(false)}/>}
         </>
     )
 }

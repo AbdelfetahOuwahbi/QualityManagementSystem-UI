@@ -7,6 +7,7 @@ import { IoIosArrowForward } from "react-icons/io";
 import { FaArrowsDownToPeople } from "react-icons/fa6";
 import { appUrl } from "../../../Url.jsx";
 import CreateActionsPlan from "./CreateActionsPlan";
+import ActionPlanDetailsModal from "./ActionPlanDetailsModal";
 
 export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise, chosenEntrepriseId, chosenNormeId, onClose }) {
 
@@ -37,6 +38,13 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
   const [alreadyStartedDiagnosis, setAlreadyStartedDiagnosis] = useState(false);
   const [terminationOpen, setTerminationOpen] = useState(false);
 
+  //for the  modal that will appear when the termination button is clicked
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedCriteriaId, setSelectedCriteriaId] = useState(null);
+
+  const [detailsWithActionPlans, setDetailsWithActionPlans] = useState([]);
+
+
   //Checking wether the diagnosis has started or not to controll the availability of Termination Button
   useEffect(() => {
     const diagnosis = statusRelatedCheckbox?.some(d => d.compliant || d.nonCompliant || d.NA);
@@ -61,6 +69,25 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
     });
     setStatusRelatedCheckbox(initialCheckboxState);
   }, [criteriasForSelectedChapter, diagnosisDetails]);
+
+  useEffect(() => {
+    const fetchDetailsWithActionPlans = async () => {
+      try {
+        const response = await fetch(`${appUrl}/details/getDetailsIdsFromDiagnosis/${diagnosisId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${Cookies.get("JWT")}`,
+          }
+        });
+        const data = await response.json();
+        setDetailsWithActionPlans(data);
+      } catch (error) {
+        console.error("Error fetching details with action plans", error);
+      }
+    };
+
+    fetchDetailsWithActionPlans();
+  }, [diagnosisId]);
 
 
   //Function that updates the values of a specific checkbox once a new or an already checked checkbox gets checked
@@ -308,8 +335,8 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
                           {statusRelatedCheckbox[Criteriaindex]?.nonCompliant &&
                             <div className='flex items-center ml-4 mt-7 flex-row gap-2'>
                               <IoIosArrowForward className='text-sky-500 h-6 w-6' />
-                              <button 
-                              onClick={() => {
+                              <button
+                                onClick={() => {
                                 setActionPlanVisible(true);
                                 setCriteriaId(criteria.id);
                                 setCriteriaDesc(criteria.description);
@@ -320,6 +347,18 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
                               </button>
                             </div>
                           }
+                          {console.log("detailsWithActionPlans", detailsWithActionPlans)}
+                          { console.log("criteria.id", criteria.id)}
+                          {detailsWithActionPlans.includes(criteria.id) && (
+                              <Button outline gradientDuoTone="greenToBlue"
+                                  onClick={() => {
+                                    setIsModalOpen(true);
+                                    setSelectedCriteriaId(criteria.id);
+                                  }}
+                                  className='mt-5 ml-5'>
+                                Action
+                              </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -371,6 +410,13 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
         </Modal.Footer>
       </Modal>
       {actionsPlanVisible && <CreateActionsPlan diagnosisId={diagnosisId} actionOrigin="Diagnostic" criteriaDesc={criteriaDesc} entrepriseId={chosenEntrepriseId} entreprise={chosenEntreprise} criteriaId={criteriaId} onClose={() => setActionPlanVisible(false)}/>}
+      <ActionPlanDetailsModal
+          isOpen={isModalOpen}
+          criteriaId={selectedCriteriaId}
+          diagnosisId={diagnosisId}
+          onClose={() => setIsModalOpen(false)}
+      />
+
     </>
   );
 }
