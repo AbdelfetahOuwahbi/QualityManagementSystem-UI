@@ -256,7 +256,7 @@ export default function ClientMainPage({ onClose }) {
               <div
                 onClick={() => setIsUpperMenuOpen(!isUpperMenuOpen)}
                 className='flex w-full bg-white mt-4 h-10 items-center px-1 md:px-4 justify-between gap-4  border-t-[1px] border-b-[1px] border-sky-400 rounded-lg cursor-pointer'>
-                <h2 className='font-p_regular'> Entitées Administratives </h2>
+                <h2 className='font-p_regular'> Mes Services </h2>
                 {isUpperMenuOpen ? (
                   <IoIosArrowUp className='w-6 h-6 text-sky-500' />
                 ) : (
@@ -343,7 +343,7 @@ export default function ClientMainPage({ onClose }) {
           {/* Entreprise SideBar Items */}
           {mainUserRole === "Consultant" &&
             <>
-              <Popover content={content} placement="bottom">
+              <Popover trigger="hover" content={content} placement="bottom">
                 <div className='flex animate-pulse items-center justify-center gap-4 w-full h-10 shadow-lg bg-sky-400 rounded-lg mb-6 cursor-pointer'>
                   {chosenEntrepriseDetails.id === '' ? (
                     <>
@@ -364,7 +364,7 @@ export default function ClientMainPage({ onClose }) {
                   <div
                     onClick={() => setIsEntrepriseMenuOpen(!isEntrepriseMenuOpen)}
                     className='flex w-full bg-white h-10 items-center px-1 md:px-4 justify-between gap-4  border-t-[1px] border-b-[1px] border-sky-400 rounded-lg cursor-pointer'>
-                    <h2 className='font-p_regular'> Entitées d'entreprise </h2>
+                    <h2 className='font-p_regular'> Menu </h2>
                     {isEntrepriseMenuOpen ? (
                       <IoIosArrowUp className='w-6 h-6 text-sky-500' />
                     ) : (
