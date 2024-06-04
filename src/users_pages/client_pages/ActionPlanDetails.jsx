@@ -15,7 +15,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
 
   const mainUserRole = extractMainRole();
   const userID = jwtDecode(Cookies.get("JWT")).id;
-  console.log("is it the agent --> ", userID === actionProperties.chosenAgent.id);
+  // console.log("is it the agent --> ", userID === actionProperties.chosenAgent.id);
 
   const [isOpen, setIsOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
@@ -153,7 +153,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
   }
 
   //Function that updates a detail's infos (Textual infos only)
-  async function updateActionDetails() {
+  async function updateActionDetails(status) {
     if (!isTokenInCookies()) {
       window.location.href = "/"
     } else if (isTokenExpired()) {
@@ -161,6 +161,14 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
       window.location.href = "/"
     } else {
       try {
+        let finalStatus = "";
+        if (status) {
+          finalStatus = status;
+        } else {
+          finalStatus = modifiedDetailsProperties.status;
+        }
+
+        console.log("the final status --> ", finalStatus);
         const response = await fetch(`${appUrl}/actions/details/${actionProperties.actionDetails[0].id}`, {
           method: 'PUT',
           headers: {
@@ -171,14 +179,14 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
             "date": modifiedDetailsProperties.date,
             "activity": modifiedDetailsProperties.activity,
             "duration": modifiedDetailsProperties.duration.number + " " + modifiedDetailsProperties.duration.unit,
-            "status": modifiedDetailsProperties.status,
+            "status": finalStatus,
           })
         });
         const data = await response.json();
         if (response.ok) {
           console.log("Action Detail updated Successfully ..");
           toast.success("Vous avez modifier le detail avec succés ..")
-          window.location.reload();
+          // window.location.reload();
         } else {
           console.log(data.message);
           toast.error(`n'a pas passer, la modification a échouée a cause de ${data.message}!!`)
@@ -300,7 +308,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
       <div className="flex px-3 py-2">
         <p>Verifier tous les informations avant de confirmer ..</p>
         <button onClick={() => {
-          detailsProperties.status === "realized" ? saveActionDetails() :
+          detailsProperties.status === "pending" ? saveActionDetails() :
             detailsProperties.status === "validatedForResponsable" ? saveActionDetails() :
               updateActionDetailsState("validated")
         }} className='bg-sky-400 text-white font-p_medium py-2 px-4 transition-all duration-300 rounded hover:bg-neutral-500'>
@@ -337,9 +345,41 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
         {/* Title and Entreprise Element Section */}
         <div className='w-full flex flex-col md:flex-row gap-2 md:items-center justify-start md:justify-between px-2 md:px-14'>
           {userID === actionProperties.chosenAgent.id ? (
-            <h1 className='font-p_extra_bold md:text-xl text-white'>Vous allez entrer l'activitée que vous avez pour réaliser cette action :</h1>
+            <div className='flex items-center gap-2'>
+              <h1 className='font-p_extra_bold md:text-xl text-white'>Vous allez entrer l'activitée que vous avez pour réaliser cette action :</h1>
+              <h1 className={`font-p_extra_bold md:text-xl 
+                  ${actionProperties.actionDetails[0]?.status
+                  ? actionProperties.actionDetails[0].status === "pending"
+                    ? "text-orange-600"
+                    : actionProperties.actionDetails[0].status === "realized"
+                      ? "text-orange-400"
+                      : "text-green-500"
+                  : ""}`
+              }>
+                {actionProperties.actionDetails[0]?.status ? (
+                  actionProperties.actionDetails[0]?.status === "pending" ? "En cours de réalisation" :
+                    actionProperties.actionDetails[0]?.status === "realized" ? "Réalisée" : "Validée"
+                ) : (null)}
+              </h1>
+            </div>
           ) : (
-            <h1 className='font-p_extra_bold md:text-xl text-white'>L'activitée efféctuée pour réaliser cette action :</h1>
+            <div className='flex items-center gap-2'>
+              <h1 className='font-p_extra_bold md:text-xl text-white'>L'activitée efféctuée pour réaliser cette action :</h1>
+              <h1 className={`font-p_extra_bold md:text-xl 
+                ${actionProperties.actionDetails[0]?.status
+                  ? actionProperties.actionDetails[0].status === "pending"
+                    ? "text-orange-600"
+                    : actionProperties.actionDetails[0].status === "realized"
+                      ? "text-orange-300"
+                      : "text-green-500"
+                  : ""}`
+              }>
+                {actionProperties.actionDetails[0]?.status ? (
+                  actionProperties.actionDetails[0]?.status === "pending" ? "En cours de réalisation" :
+                    actionProperties.actionDetails[0]?.status === "realized" ? "Réalisée" : "Validée"
+                ) : (null)}
+              </h1>
+            </div>
           )}
 
           {mainUserRole !== "Consultant" ?
@@ -638,7 +678,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
             <div className='flex flex-row md:flex-col gap-1 md:gap-4 w-full md:w-1/2'>
               {mainUserRole === "Responsable" || mainUserRole === "Pilot" ? (
                 (actionProperties?.actionDetails?.length > 0 ? (
-                  (actionProperties?.actionDetails[0]?.status !== "validated" ? (
+                  (actionProperties?.actionDetails[0]?.status !== "pending" && actionProperties?.actionDetails[0]?.status !== "validated" ? (
                     <h1 className='font-p_medium md:text-xl text-white'>Marquer le status de ce Detail :</h1>
                   ) : (
                     null
@@ -654,10 +694,10 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
                 (actionProperties.actionDetails?.length === 0 && (
                   <Popover content={Confirmcontent} placement="top">
                     <button
-                      onClick={() => setDetailsProperties(prev => ({ ...prev, status: "realized" }))}
+                      onClick={() => setDetailsProperties(prev => ({ ...prev, status: "pending" }))}
                       className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
                     >
-                      Réaliser
+                      Enregistrer
                     </button>
                   </Popover>
                 ))
@@ -673,8 +713,17 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
                         onClick={() => { updateActionDetails() }}
                         className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none"
                       >
-                        Confirmer
+                        Confirmer La modification
                       </button>
+                      {actionProperties.actionDetails[0]?.status !== "realized" &&
+
+                        <button
+                          onClick={() => { updateActionDetails("realized") }}
+                          className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none"
+                        >
+                          Marque comme réalisée
+                        </button>
+                      }
 
                       <button
                         onClick={() => setIsModifying(false)}
@@ -699,7 +748,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
                 (
                   actionProperties?.actionDetails?.length > 0 ? (
                     (userID === actionProperties.chosenAgent.id ? (
-                      (actionProperties.actionDetails[0]?.status === "realized" && (
+                      (actionProperties.actionDetails[0]?.status === "pending" && (
                         <Popover content={Confirmcontent} placement="top">
                           <button onClick={() => setDetailsProperties(prev => ({ ...prev, status: "validatedForResponsable" }))} className="bg-green-500 font-p_medium text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
                             Valider
@@ -707,11 +756,16 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
                         </Popover>
                       ))
                     ) : actionProperties.actionDetails[0]?.status === "realized" && (
-                      <Popover content={Confirmcontent} placement="top">
-                        <button onClick={() => setDetailsProperties(prev => ({ ...prev, status: "validatedForPilot" }))} className="bg-green-500 font-p_medium text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
-                          Valider
+                      <>
+                        <Popover content={Confirmcontent} placement="top">
+                          <button onClick={() => setDetailsProperties(prev => ({ ...prev, status: "validatedForPilot" }))} className="bg-green-500 font-p_medium text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
+                            Valider
+                          </button>
+                        </Popover>
+                        <button onClick={() => { updateActionDetailsState("pending") }} className="bg-green-500 font-p_medium text-white px-4 py-2 rounded-md hover:bg-green-600 focus:outline-none">
+                          Marquer comme en cours de réalisation
                         </button>
-                      </Popover>
+                      </>
                     ))
                   ) : userID === actionProperties.chosenAgent.id && (
                     <Popover content={Confirmcontent} placement="top">
