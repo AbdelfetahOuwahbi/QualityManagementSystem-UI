@@ -187,7 +187,7 @@ export default function ActionsPlans() {
                                         ) : action.actionDetails[0]?.status === "pending" ? (
                                             <span
                                                 className="inline-block px-3 py-1 text-white text-xs font-medium bg-orange-500 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full">
-                                              En attente
+                                              En cours
                                             </span>
                                         ) : (
                                             <span
