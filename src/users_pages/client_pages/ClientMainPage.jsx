@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { Drawer, Sidebar, Popover, SidebarItemGroup, SidebarItems, SidebarItem } from "flowbite-react";
-import { CiBoxList } from "react-icons/ci";
+import { CiBoxList, CiSettings } from "react-icons/ci";
 import { SiGithubactions } from "react-icons/si";
 import { IoMdNotificationsOutline, IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import { FaSignOutAlt } from "react-icons/fa";
@@ -283,6 +283,11 @@ export default function ClientMainPage({ onClose }) {
                           <Sidebar.Item className={`${notifsNumber > 0 && "animate-pulse"}`} onClick={() => {
                           }} href="/ClientNotifications" icon={() => <IoMdNotificationsOutline className='text-sky-500 w-6 h-6' />} label={notifsNumber}>
                             Boite
+                          </Sidebar.Item>
+
+                          <Sidebar.Item onClick={() => {
+                          }} href="/SysAllNorms" icon={() => <CiSettings className='text-sky-500 w-6 h-6' />}>
+                            Normes Proposées
                           </Sidebar.Item>
 
                           {isResponsible &&

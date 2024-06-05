@@ -247,7 +247,7 @@ export default function CreateActionsPlan({ diagnosisId, actionOrigin, criteriaI
               </div>
 
               <div className='flex flex-col gap-1'>
-                <h1 className='font-p_semi_bold'>
+                <h1 className='font-p_semi_bold text-sky-400 underline'>
                   {actionsDetails[currentActionIndex].chosenAgent ?
                     `L'agent sélectionné est : ${getAgentName(actionsDetails[currentActionIndex].chosenAgent)}`
                     : 'Veuillez sélectionner un agent responsable pour cette action :'}

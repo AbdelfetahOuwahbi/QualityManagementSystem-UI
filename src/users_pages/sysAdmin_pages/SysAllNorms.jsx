@@ -2,13 +2,16 @@ import React, { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
 import { FaBars } from 'react-icons/fa';
 import SysMainPage from './SysMainPage';
-import { isTokenExpired, isTokenInCookies } from "../CommonApiCalls.jsx";
+import { extractMainRole, isTokenExpired, isTokenInCookies } from "../CommonApiCalls.jsx";
 import Cookies from "js-cookie";
 import { appUrl } from "../../Url.jsx";
 import { Button, FloatingLabel, Modal, Label, TextInput, Textarea } from "flowbite-react";
 import SysAddNorm from './SysAddNorm';
+import ClientMainPage from '../client_pages/ClientMainPage.jsx';
 
 export default function SysAllNorms() {
+
+    const mainUserRole = extractMainRole();
     // État pour gérer l'ouverture et la fermeture du menu système
     const [isSysMenuOpen, setIsSysMenuOpen] = useState(false);
 
@@ -126,7 +129,7 @@ export default function SysAllNorms() {
                     setIsNormModalOpen(false);
                     setSelectedNorm(null);
                 }
-            }else if(responseBody && responseBody.errorCode == "Frame_already_exists"){
+            } else if (responseBody && responseBody.errorCode == "Frame_already_exists") {
                 toast.error(responseBody.message);
             } else {
                 toast.error(`Erreur lors de la suppression du ${deleteType}.`);
@@ -271,19 +274,19 @@ export default function SysAllNorms() {
                 }),
             });
             const responseBody = await response.json();
-            console.log("responseBody ->>",responseBody)
+            console.log("responseBody ->>", responseBody)
             if (response.status === 200 || response.status === 201) {
                 toast.success("Chapitre mis à jour avec succès.");
                 fetchAllNorms();
                 handleCloseModal();
-            }else if (responseBody.errorCode === "VALIDATION_ERROR"){
+            } else if (responseBody.errorCode === "VALIDATION_ERROR") {
                 const errorMessages = responseBody.message.split(',');
                 errorMessages.forEach(message => {
                     toast.error(message.trim());
                 });
-            }else if(responseBody.errorCode === "Frame_already_exists") {
+            } else if (responseBody.errorCode === "Frame_already_exists") {
                 toast.error(responseBody.message);
-            }else {
+            } else {
                 toast.error("Erreur lors de la mise à jour du chapitre.");
             }
         } catch (error) {
@@ -380,14 +383,14 @@ export default function SysAllNorms() {
                 toast.success("Chapitre mis à jour avec succès.");
                 fetchAllNorms();
                 handleCloseNormModal();
-            }else if (responseBody.errorCode === "VALIDATION_ERROR"){
+            } else if (responseBody.errorCode === "VALIDATION_ERROR") {
                 const errorMessages = responseBody.message.split(',');
                 errorMessages.forEach(message => {
                     toast.error(message.trim());
                 });
-            }else if(responseBody.errorCode === "Frame_already_exists") {
+            } else if (responseBody.errorCode === "Frame_already_exists") {
                 toast.error(responseBody.message);
-            }else {
+            } else {
                 toast.error("Erreur lors de la mise à jour de la norme.");
             }
         } catch (error) {
@@ -414,127 +417,145 @@ export default function SysAllNorms() {
             <div className="flex p-4 w-full justify-between">
                 {/* Bars Icon That toogles the visibility of the menu */}
                 <FaBars onClick={() => setIsSysMenuOpen(!isSysMenuOpen)}
-                        className='w-6 h-6 cursor-pointer text-neutral-600' />
+                    className='w-6 h-6 cursor-pointer text-neutral-600' />
             </div>
             <div className='border-t border-gray-300 py-4'></div>
             <div className="w-full h-10 py-7 px-4 md:px-14 flex items-center">
                 <h1 className='text-4xl font-p_bold'>Referentiels</h1>
             </div>
             <div className='border-t border-gray-300 w-96 mb-10'></div>
-            <div className='w-full h-10 flex items-center px-4 md:px-10'>
-                <button
-                    className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}// Show the SysAddNorm component
-                    onClick={() => setShowAddNorm(true)}>
-                    Ajouter une norme
-                </button>
-            </div>
-
+            {mainUserRole === "Sysadmin" &&
+                <div className='w-full h-10 flex items-center px-4 md:px-10'>
+                    <button
+                        className={`bg-sky-400 text-white py-2 px-4 font-p_medium transition-all duration-300 rounded-lg hover:translate-x-2`}// Show the SysAddNorm component
+                        onClick={() => setShowAddNorm(true)}>
+                        Ajouter une norme
+                    </button>
+                </div>
+            }
             <div className="relative mt-10 overflow-x-auto shadow-md sm:rounded-lg px-4">
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-                    <tr>
-                        <th className="px-6 py-3">N°</th>
-                        <th className="px-6 py-3">Normes Code</th>
-                        <th className="px-6 py-3">Chapitre Code</th>
-                        <th className="px-6 py-3">Critère Description</th>
-                        <th className="px-6 py-3">Critère Commentaire</th>
-                        <th className="px-6 py-3">Action</th>
-                    </tr>
+                        <tr>
+                            <th className="px-6 py-3">N°</th>
+                            <th className="px-6 py-3">Normes Code</th>
+                            <th className="px-6 py-3">Chapitre Code</th>
+                            <th className="px-6 py-3">Critère</th>
+                            <th className="px-6 py-3">Commentaire</th>
+                            {mainUserRole === "Sysadmin" &&
+                                <th className="px-6 py-3">Action</th>
+                            }
+                        </tr>
                     </thead>
                     <tbody>
-                    {norms.map((norm, normIndex) => {
-                        const totalCriteres = norm.chapitres.reduce((acc, chapitre) => acc + chapitre.criteres.length, 0);
-                        return (
-                            <React.Fragment key={norm.id}>
-                                {norm.chapitres.map((chapitre, chapitreIndex) => {
-                                    const totalCriteresChapitre = chapitre.criteres.length;
-                                    return (
-                                        <React.Fragment key={chapitre.id}>
-                                            {chapitre.criteres.map((critere, critereIndex) => (
-                                                <tr key={critere.id} className="border-b">
-                                                    {chapitreIndex === 0 && critereIndex === 0 && (
-                                                        <td className="px-6 py-4" rowSpan={totalCriteres}>
-                                                            {normIndex + 1}
-                                                        </td>
-                                                    )}
-                                                    {chapitreIndex === 0 && critereIndex === 0 && (
-                                                        <td className="px-6 py-4" rowSpan={totalCriteres}>
-                                        <span
-                                            className="cursor-pointer bg-white text-black hover:underline"
-                                            onClick={() => handleNormClick(norm)}>{norm.label}</span>
-                                                        </td>
-                                                    )}
-                                                    {critereIndex === 0 && (
-                                                        <td className="px-6 py-4" rowSpan={totalCriteresChapitre}>
-                                        <span
-                                            className="cursor-pointer bg-white text-black hover:underline"
-                                            onClick={() => handleChapterClick(chapitre, norm.id)}>{chapitre.label}</span>
-                                                        </td>
-                                                    )}
-                                                    <td className="px-6 py-4">
-                                                        {editingIndex === critere.id ? (
-                                                            <FloatingLabel
-                                                                onChange={(e) => setEditedDescription(e.target.value)}
-                                                                variant="outlined" label={critere.description} value={editedDescription} />
-                                                        ) : (
-                                                            critere.description
+                        {norms.map((norm, normIndex) => {
+                            const totalCriteres = norm.chapitres.reduce((acc, chapitre) => acc + chapitre.criteres.length, 0);
+                            return (
+                                <React.Fragment key={norm.id}>
+                                    {norm.chapitres.map((chapitre, chapitreIndex) => {
+                                        const totalCriteresChapitre = chapitre.criteres.length;
+                                        return (
+                                            <React.Fragment key={chapitre.id}>
+                                                {chapitre.criteres.map((critere, critereIndex) => (
+                                                    <tr key={critere.id} className="border-b">
+                                                        {chapitreIndex === 0 && critereIndex === 0 && (
+                                                            <td className="px-6 py-4" rowSpan={totalCriteres}>
+                                                                {normIndex + 1}
+                                                            </td>
                                                         )}
-                                                    </td>
-                                                    <td className="px-6 py-4">
-                                                        {editingIndex === critere.id ? (
-                                                            <FloatingLabel
-                                                                onChange={(e) => setEditedComment(e.target.value)}
-                                                                variant="outlined" label={critere.comment} value={editedComment} />
-                                                        ) : (
-                                                            critere.comment
+                                                        {chapitreIndex === 0 && critereIndex === 0 && (
+                                                            <td className="px-6 py-4" rowSpan={totalCriteres}>
+                                                                <span
+                                                                    className="cursor-pointer bg-white text-black hover:underline"
+                                                                    onClick={() => {
+                                                                        (mainUserRole === "Sysadmin" &&
+                                                                            handleNormClick(norm)
+                                                                        )
+                                                                    }}>{norm.label}</span>
+                                                            </td>
                                                         )}
-                                                    </td>
-                                                    <td className="px-6 py-4 flex flex-col gap-2">
-                                                        {editingIndex === critere.id ? (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => handleUpdate(chapitre.id)}
-                                                                    className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
-                                                                >
-                                                                    Enregistrer
-                                                                </button>
-                                                                <button
-                                                                    onClick={handleCancelClick}
-                                                                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
-                                                                >
-                                                                    Annuler
-                                                                </button>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <button
-                                                                    onClick={() => handleEditClick(critere.id, critere)}
-                                                                    className="font-medium text-blue-600 hover:underline"
-                                                                >
-                                                                    Modifier
-                                                                </button>
-                                                                <button
-                                                                    onClick={() => handleDelete(critere.id)}
-                                                                    className="font-medium text-red-600 hover:underline"
-                                                                >
-                                                                    Supprimer
-                                                                </button>
-                                                            </>
+                                                        {critereIndex === 0 && (
+                                                            <td className="px-6 py-4" rowSpan={totalCriteresChapitre}>
+                                                                <span
+                                                                    className="cursor-pointer bg-white text-black hover:underline"
+                                                                    onClick={() => {
+                                                                        (mainUserRole === "Sysadmin" &&
+                                                                            handleChapterClick(chapitre, norm.id)
+                                                                        )
+                                                                    }
+                                                                    }>{chapitre.label}</span>
+                                                            </td>
                                                         )}
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </React.Fragment>
-                        );
-                    })}
+                                                        <td className="px-6 py-4">
+                                                            {editingIndex === critere.id ? (
+                                                                <FloatingLabel
+                                                                    onChange={(e) => setEditedDescription(e.target.value)}
+                                                                    variant="outlined" label={critere.description} value={editedDescription} />
+                                                            ) : (
+                                                                critere.description
+                                                            )}
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            {editingIndex === critere.id ? (
+                                                                <FloatingLabel
+                                                                    onChange={(e) => setEditedComment(e.target.value)}
+                                                                    variant="outlined" label={critere.comment} value={editedComment} />
+                                                            ) : (
+                                                                critere.comment
+                                                            )}
+                                                        </td>
+                                                        {mainUserRole === "Sysadmin" &&
+                                                            <td className="px-6 py-4 flex flex-col gap-2">
+                                                                {editingIndex === critere.id ? (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={() => handleUpdate(chapitre.id)}
+                                                                            className="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition duration-300"
+                                                                        >
+                                                                            Enregistrer
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={handleCancelClick}
+                                                                            className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-300"
+                                                                        >
+                                                                            Annuler
+                                                                        </button>
+                                                                    </>
+                                                                ) : (
+                                                                    <>
+                                                                        <button
+                                                                            onClick={() => handleEditClick(critere.id, critere)}
+                                                                            className="font-medium text-blue-600 hover:underline"
+                                                                        >
+                                                                            Modifier
+                                                                        </button>
+                                                                        <button
+                                                                            onClick={() => handleDelete(critere.id)}
+                                                                            className="font-medium text-red-600 hover:underline"
+                                                                        >
+                                                                            Supprimer
+                                                                        </button>
+                                                                    </>
+                                                                )}
+                                                            </td>
+                                                        }
+                                                    </tr>
+                                                ))}
+                                            </React.Fragment>
+                                        );
+                                    })}
+                                </React.Fragment>
+                            );
+                        })}
 
                     </tbody>
                 </table>
             </div>
-            {isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />}
+            {mainUserRole === "Sysadmin" ? (
+                isSysMenuOpen && <SysMainPage onClose={() => setIsSysMenuOpen(false)} />
+            ) : (
+                isSysMenuOpen && <ClientMainPage onClose={() => setIsSysMenuOpen(false)} />
+            )}
             {isNormModalOpen && (
                 <Modal show={isNormModalOpen} size="md" onClose={handleCloseNormModal}>
                     <Modal.Header>
