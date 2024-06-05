@@ -82,7 +82,7 @@ export default function AddEntreprise({ onClose }) {
                 <Modal.Header />
                 <Modal.Body>
                     <div className="space-y-6">
-                        <h3 className="text-xl font-medium text-gray-900 dark:text-white"> Entrer les détails de cet organisme </h3>
+                        <h3 className="text-xl font-medium text-gray-900 dark:text-white"> Entrer les détails de cet entreprise </h3>
                         {/* Organism Details Section Starts */}
                         <div>
                             <div className="mb-2 block">
