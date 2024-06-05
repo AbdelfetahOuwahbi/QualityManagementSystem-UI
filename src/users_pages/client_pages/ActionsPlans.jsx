@@ -172,7 +172,6 @@ export default function ActionsPlans() {
                                         {action.chosenAgent.firstname}
                                     </div>
                                 </td>
-                                <td className="px-6 py-4">
                                     <td className="px-6 py-4">
                                         {action.actionDetails[0]?.status === "realized" ? (
                                             <span
@@ -187,7 +186,7 @@ export default function ActionsPlans() {
                                         ) : action.actionDetails[0]?.status === "pending" ? (
                                             <span
                                                 className="inline-block px-3 py-1 text-white text-xs font-medium bg-orange-500 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full">
-                                              En cours
+                                              En cours de réalisation
                                             </span>
                                         ) : (
                                             <span
@@ -196,9 +195,6 @@ export default function ActionsPlans() {
                                             </span>
                                         )}
                                     </td>
-
-                                </td>
-
 
                                 <td className="px-6 py-4">
                                     <CgDetailsMore onClick={() => {
