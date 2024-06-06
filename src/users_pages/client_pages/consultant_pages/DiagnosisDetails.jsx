@@ -202,6 +202,7 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
           "isDone": Diagstate,
         })
       });
+      const data = await response.json();
       if (response.ok) {
         console.log("Data is saved, you cannot delete the diagnosis anymore ..");
         toast.success("les informations de ce diagnostic sont souvergarder, vous pouvez a tout moment detruire le diagnostic prochainement ..", {
@@ -210,6 +211,8 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
         setTimeout(() => {
           window.location.reload();
         }, 2000)
+      }else if(data.errorCode === "Err"){
+        toast.error(data.message);
       } else {
         console.log("response was not ok in updating the diagnosis state ..");
         toast.error("les informations de ce diagnostic ne sont pas enregistrer, ressayer plus tard ..", {
