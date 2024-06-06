@@ -34,7 +34,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
   );
 
   const [number, unit] = actionProperties.actionDetails.length > 0 && actionProperties.actionDetails[0]?.duration
-    ? actionProperties.actionDetails[0].duration.split(" ")
+    ? actionProperties.actionDetails[0]?.duration.split(" ")
     : ["", ""];
 
   const [modifiedDetailsProperties, setModifiedDetailsProperties] = useState(
@@ -173,7 +173,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
           finalStatus = modifiedDetailsProperties.status;
         }
 
-        console.log("the final status --> ", finalStatus);
+        console.log("details --> ", modifiedDetailsProperties);
         const response = await fetch(`${appUrl}/actions/details/${actionProperties.actionDetails[0].id}`, {
           method: 'PUT',
           headers: {
