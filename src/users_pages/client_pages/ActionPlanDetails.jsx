@@ -143,7 +143,7 @@ export default function ActionPlanDetails({ actionProperties, onClose }) {
         if (newStatus === "pending") {
           sendNotifToAgent(messageToSend);
         }
-        console.log("Action Detail Updated Successfully ..");
+        console.log("Action Detail Updated Successfully ..", await response.json());
         toast.success("Vous avez Validé le detail avec succés ..")
         window.location.reload();
       } else {

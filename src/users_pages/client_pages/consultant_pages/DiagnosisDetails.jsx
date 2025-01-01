@@ -344,8 +344,8 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
                                 setCriteriaId(criteria.id);
                                 setCriteriaDesc(criteria.description);
                               }}
-                              className='flex items-center justify-between px-4 py-2 rounded-full bg-sky-500 text-white hover:bg-sky-400'>
-                                Creér le plan d'actions
+                              className='flex items-center gap-2 justify-between px-4 py-2 rounded-full bg-sky-500 text-white hover:bg-sky-400'>
+                                actions
                                 <FaArrowsDownToPeople className="w-7 h-7" />
                               </button>
                             </div>
@@ -358,8 +358,8 @@ export function DiagnosisDetails({ diagnosisId, DiagnosisCode, chosenEntreprise,
                                     setIsModalOpen(true);
                                     setSelectedCriteriaId(criteria.id);
                                   }}
-                                  className='mt-5 ml-5'>
-                                Action
+                                  className='mt-7'>
+                                Historique
                               </Button>
                           )}
                         </div>
